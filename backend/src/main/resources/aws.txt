@@ -1,0 +1,201 @@
+Manual deployment of Docker Image (API) to AWS Elastic Beanstalk
+
+AWS Region
+
+    - Pick the region closet to your current location
+
+AWS Elastic Beanstalk Setup
+
+    Create a EC2 Key Pairs
+
+        - Name -> any name
+        - Key pair type -> RSA
+        - Private key file format -> .pem (for use with OpenSSH)
+        - Once generated, the .pem should be automatically downloaded
+
+    Elastic Beanstalk
+
+        Create application
+
+            Application Information
+
+                - Specify application name
+
+            Application Tags
+
+                - Specify up to 50 tags -> A tag is a key-value pair
+
+            Platform
+
+                - Platform -> Docker
+
+                - Platform Branch
+
+                    -> Docker running on 64bit Amazon Linux 2 (good for testing your applications)
+                    -> ECS running on 64bit Amazon Linux 2 (best practice for deploying your applications using ECS)
+
+                - Platform Version -> Choose default recommended
+
+            Application code
+
+                - Upload your code -> Select this option
+
+            Source code origin
+
+                - Source code origin
+
+                    -> Create Dockerrun.aws.json (located in root directory)
+                    -> Select Local File option and upload the above file
+
+            Application code tags
+
+              - Specify up to 50 tags -> A tag is a key-value pair
+
+            Click on the Configure more options button next to the Create application button
+
+                Presets
+
+                    Configuration Presets
+
+                        - Single Instance (Free tier eligible)
+
+                Platform
+
+                    - ECS running on 64bit Amazon Linux 2/3.2.2
+
+                Software (leave the recommended defaults)
+
+                    S3 log storage
+                    Instance log streaming to CloudWatch Logs
+                    Environment properties
+
+                Instances (leave the recommended defaults for first two sections)
+
+                    Root volume (boot device)
+                    Instance metadata service (MDS)
+
+                    EC2 security groups
+
+                        - Select the default option
+
+                Capacity
+
+                    Auto scaling group  (leave the recommended defaults expect for Processor section)
+
+                        Processor
+
+                            - Select arm64
+
+                Load balancer (leave the recommended defaults)
+
+                Ruling updates and deployments (leave the recommended defaults)
+
+                Security
+
+                    Service role (leave the recommended defaults)
+
+                    Virtual machine permissions
+
+                        - EC2 key pair -> select the EC2 key pair created earlier
+
+                Monitoring (leave the recommended defaults)
+
+                Managed Updates (leave the recommended defaults)
+
+                Notifications (leave the recommended defaults)
+
+                Network
+
+                    Virtual private cloud (VPC) (leave the recommended defaults)
+
+                    Instance settings
+
+                        - Select the Public IP address option
+
+                        - Select the first two Instance subnets (DB must be located in at least two subnets)
+
+                    Database settings
+
+                        - Select the first two Database subnets (DB must be located in at least two subnets)
+
+                Database
+
+                    Restore a snapshot - optional (leave the recommended defaults)
+
+                    Database settings
+
+                        Engine
+
+                            - postgres
+
+                        Engine version
+
+                            - latest version (14.5)
+
+                        Instance class
+
+                            - db.t3.small
+
+                        Storage
+
+                            - 20 GB
+
+                        Username
+
+                            - Should match the username from spring.datasource.username
+
+                        Password
+
+                            - Should match the username from spring.datasource.password
+
+                        Availability
+
+                            - Low (one AZ)
+
+                        Database deletion policy
+
+                            - Select Delete option
+
+                Tags
+
+                    Modify tags -> Apply up to 50 tags to the resources in your environment in addition to the default tags
+
+    Create App
+
+        Click on this button once the above steps are completed
+
+    Updated the Dockerrun.aws.json file
+
+        Change the environment object for SPRING_DATASOURCE_URL to the RDS-Databases-endpoint in order
+        for our Docker Image (web application) to connect to the postgres DB within AWS RDS
+
+    SSH into EC2 instance associated with ECS & EBS
+
+        Head to EC2 instance and copy the Public IPv4 address
+
+        Change to the directory containing the .pem associated with the EC2 instance
+
+            chmod 600 [].pem -> Makes the key pair read-writable only for you
+
+        Run the following command to SSH into EC2 instance
+
+            -> ssh -i [name-of-pem-file].pem [Public IPv4 address]
+            -> ssh -i app.pem ec2-user@79.125.54.80
+
+        Once inside the EC2 instance
+
+            - Use the sudo -i command to execute commands from root
+
+            - Use docker run --rm -it postgres:alpine bash to install postgres to this instance and
+                execute commands within this postgres instance
+
+            - psql -U [username from RDS postgres db] -d postgres -h [RDS-Databases-endpoint]
+                and afterwards enter password [password from RDS postgres db]
+
+            - Once connected to the postgres db from RDS, created the DB for the Docker Image (web application)
+
+    Test your API (Web app)
+
+        - Copy the URL associated with the EBS for your API
+
+        - Use any HTTP Client to test the API

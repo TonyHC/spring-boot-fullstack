@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  postgres-customer:
+    container_name: postgres-customer
+    image: postgres:14.5
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: customer
+      PGDATA: /data/postgres
+    volumes:
+      - postgres-customer:/data/postgres
+    ports:
+      - "5433:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:6.15
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - postgres
+    depends_on:
+      - postgres-customer
+    restart: unless-stopped
+  demo:
+    container_name: demo
+    image: tchao98/spring-boot-demo
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-customer:5432/customer"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-customer
+    networks:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  postgres-customer:
+  pgadmin:
