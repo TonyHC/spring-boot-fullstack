@@ -15,7 +15,7 @@
       "environment": [
         {
           "name": "SPRING_DATASOURCE_URL",
-          "value": "jdbc:postgresql://[RDS-Databases-endpoint]:5432/customer"
+          "value": "jdbc:postgresql://[RDS-Database-endpoint]:5432/customer"
         }
       ]
     }
