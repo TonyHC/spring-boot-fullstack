@@ -241,4 +241,4 @@ Automatic deployment of Docker Image (API) to AWS Elastic Beanstalk
 
     GitHub Actions Secrets
 
-        Save the Access key ID and Secret access key of above created User as secrets
+        Save the Access key ID and Secret access key of above created User as secrets in GitHub repo

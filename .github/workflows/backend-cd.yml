@@ -29,14 +29,14 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-      - name: Send Slack Message
-        run: >
-          curl -X POST -H 'Content-type: application/json' 
-          --data '{"text":"Deployment started :progress_bar:"}' 
-          ${{ secrets.SLACK_WEBHOOK_URL }}
-
       - name: Checkout the code
         uses: actions/checkout@v3
+
+      - name: Send Slack Message
+        run: >
+          curl -X POST -H 'Content-type: application/json'
+          --data '{"text":"Deployment started :progress_bar:"}' 
+          ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Setup Java & Maven
         uses: actions/setup-java@v3
