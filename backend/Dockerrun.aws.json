@@ -3,7 +3,7 @@
   "containerDefinitions": [
     {
       "name": "spring-boot-demo",
-      "image": "tchao98/spring-boot-demo:03.07.2023.01.02.23",
+      "image": "tchao98/spring-boot-demo:08.07.2023.23.43.43",
       "essential": true,
       "memory": 512,
       "portMappings": [
