@@ -32,6 +32,12 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
+      - name: Send Slack Github Commit Message and SHA
+        run: >
+          curl -X POST -H 'Content-type: application/json'
+          --data '{"text":":githubloading: ${{ github.server_url }}/${{ github.repository }}/${{ github.sha }} - ${{ github.event.head_commit.message }}"}' 
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+
       - name: Send Slack Message
         run: >
           curl -X POST -H 'Content-type: application/json'
@@ -110,11 +116,11 @@ jobs:
           git commit -m "Update Dockerrun.aws.json docker image with new tag ${{ steps.build-number.outputs.BUILD_NUMBER }}"
           git push
 
-      - name: Send Slack Message
-        run: >
-          curl -X POST -H 'Content-type: application/json' 
-          --data '{"text":"Deployment and commit completed :checked: ${{ secrets.EB_ENVIRONMENT_URL }}"}' 
-          ${{ secrets.SLACK_WEBHOOK_URL }}
+      # - name: Send Slack Message
+      #   run: >
+      #     curl -X POST -H 'Content-type: application/json' 
+      #     --data '{"text":"Deployment and commit completed :checked: ${{ secrets.EB_URL }}"}' 
+      #     ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Send Slack Message
         run: >

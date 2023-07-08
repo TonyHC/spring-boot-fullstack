@@ -31,7 +31,7 @@ public class SpringBootDemoApplication {
             );
 
             // TODO: #208 onwards note take the process of deploying Docker Image to AWS Elastic Beanstalk and other AWS services
-            // customerRepository.save(customer);
+            customerRepository.save(customer);
         };
     }
 }
