@@ -35,7 +35,7 @@ jobs:
       - name: Send Slack Github Commit Message and SHA
         run: >
           curl -X POST -H 'Content-type: application/json'
-          --data '{"text":":githubloading: ${{ github.server_url }}/${{ github.repository }}/${{ github.sha }} - ${{ github.event.head_commit.message }}"}' 
+          --data '{"text":":githubloading: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} - ${{ github.event.head_commit.message }}"}' 
           ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Send Slack Message
