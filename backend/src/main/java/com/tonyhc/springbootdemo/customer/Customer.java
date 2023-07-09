@@ -1,5 +1,6 @@
 package com.tonyhc.springbootdemo.customer;
 
+import com.tonyhc.springbootdemo.validator.GenderIdentitySubset;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
@@ -74,10 +75,19 @@ public class Customer {
 
     private Integer age;
 
-    public Customer(String name, String email, Integer age) {
+    @Column(
+            name = "gender",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
+    @GenderIdentitySubset(anyOf = {Gender.MALE, Gender.FEMALE})
+    private Gender gender;
+
+    public Customer(String name, String email, Integer age, Gender gender) {
         this.name = name;
         this.email = email;
         this.age = age;
+        this.gender = gender;
     }
 
     @Override
@@ -85,12 +95,12 @@ public class Customer {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Customer customer = (Customer) o;
-        return Objects.equals(id, customer.id) && Objects.equals(name, customer.name) && Objects.equals(email, customer.email) && Objects.equals(age, customer.age);
+        return Objects.equals(id, customer.id) && Objects.equals(name, customer.name) && Objects.equals(email, customer.email) && Objects.equals(age, customer.age) && gender == customer.gender;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, email, age);
+        return Objects.hash(id, name, email, age, gender);
     }
 
     @Override
@@ -100,6 +110,7 @@ public class Customer {
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", age=" + age +
+                ", gender=" + gender +
                 '}';
     }
 }

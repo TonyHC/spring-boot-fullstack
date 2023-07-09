@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS customer (
   name TEXT NOT NULL,
   email TEXT NOT NULL,
   age INT NOT NULL,
+  gender TEXT NOT NULL,
   CONSTRAINT customer_email_unique UNIQUE (email)
 );

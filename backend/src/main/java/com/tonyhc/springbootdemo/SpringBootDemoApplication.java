@@ -3,6 +3,7 @@ package com.tonyhc.springbootdemo;
 import com.tonyhc.springbootdemo.customer.Customer;
 import com.tonyhc.springbootdemo.customer.CustomerRepository;
 import com.github.javafaker.Faker;
+import com.tonyhc.springbootdemo.customer.Gender;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,14 +24,15 @@ public class SpringBootDemoApplication {
             String lastName = faker.name().lastName();
             String fullName = firstName + " " + lastName;
             String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
+            Gender gender = Math.round(Math.random()) == 0 ? Gender.MALE : Gender.FEMALE;
 
             Customer customer = new Customer(
                     fullName,
                     email,
-                    faker.number().numberBetween(18, 80)
+                    faker.number().numberBetween(18, 80),
+                    gender
             );
 
-            // TODO: #208 onwards note take the process of deploying Docker Image to AWS Elastic Beanstalk and other AWS services
             customerRepository.save(customer);
         };
     }

@@ -1,5 +1,6 @@
 package com.tonyhc.springbootdemo.customer;
 
+import com.tonyhc.springbootdemo.validator.GenderIdentitySubset;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -18,6 +19,9 @@ public record CustomerRegistrationRequest(
                 value = 18,
                 message = "Minimum age must be 18"
         )
-        Integer age
+        Integer age,
+
+        @GenderIdentitySubset(anyOf = {Gender.MALE, Gender.FEMALE})
+        Gender gender
 ) {
 }

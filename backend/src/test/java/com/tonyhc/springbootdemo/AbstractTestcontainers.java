@@ -15,8 +15,18 @@ import javax.sql.DataSource;
 
 @Testcontainers
 public abstract class AbstractTestcontainers {
+    protected static final PostgreSQLContainer<?> postgreSQLContainer =
+            new PostgreSQLContainer<>("postgres:14.5")
+                    .withDatabaseName("dao-unit-test")
+                    .withUsername("admin")
+                    .withPassword("password")
+                    .withReuse(true);
+
     @BeforeAll
     static void beforeAll() {
+        postgreSQLContainer.setCommand("postgres", "-c", "max_connections=150");
+        postgreSQLContainer.start();
+
         Flyway flyway = Flyway.configure().dataSource(
                 postgreSQLContainer.getJdbcUrl(),
                 postgreSQLContainer.getUsername(),
@@ -24,13 +34,6 @@ public abstract class AbstractTestcontainers {
         ).load();
         flyway.migrate();
     }
-
-    @Container
-    protected static final PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:14.5")
-                    .withDatabaseName("dao-unit-test")
-                    .withUsername("admin")
-                    .withPassword("password");
 
     @DynamicPropertySource
     private static void registerDataSourceProperties(DynamicPropertyRegistry registry) {

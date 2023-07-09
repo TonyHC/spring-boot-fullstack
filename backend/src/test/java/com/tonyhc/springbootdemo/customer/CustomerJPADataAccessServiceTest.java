@@ -79,7 +79,7 @@ class CustomerJPADataAccessServiceTest {
     void itShouldRegisterCustomer() {
         // Given
         Customer customer = new Customer(
-          "Test Users", "testusers@mail.com", 41
+          "Test Users", "testusers@mail.com", 41, Gender.MALE
         );
 
         // When
@@ -93,7 +93,7 @@ class CustomerJPADataAccessServiceTest {
     void itShouldUpdateCustomerById() {
         // Given
         Customer customer = new Customer(
-                "Test Users", "testusers@mail.com", 41
+                "Test Users", "testusers@mail.com", 41, Gender.MALE
         );
 
         // When
