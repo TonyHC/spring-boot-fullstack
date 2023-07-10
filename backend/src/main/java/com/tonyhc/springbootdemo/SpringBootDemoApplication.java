@@ -22,12 +22,12 @@ public class SpringBootDemoApplication {
 
             String firstName = faker.name().firstName();
             String lastName = faker.name().lastName();
-            String fullName = firstName + " " + lastName;
             String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
             Gender gender = Math.round(Math.random()) == 0 ? Gender.MALE : Gender.FEMALE;
 
             Customer customer = new Customer(
-                    fullName,
+                    firstName,
+                    lastName,
                     email,
                     faker.number().numberBetween(18, 80),
                     gender

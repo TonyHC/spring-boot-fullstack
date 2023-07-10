@@ -6,8 +6,11 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
 public record CustomerRegistrationRequest(
-        @NotBlank(message = "Name cannot be blank")
-        String name,
+        @NotBlank(message = "First name cannot be blank")
+        String firstName,
+
+        @NotBlank(message = "Last name cannot be blank")
+        String lastName,
 
         @Email(
                 regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$",

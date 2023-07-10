@@ -32,7 +32,8 @@ public class CustomerService {
         validateCustomerEmail(email);
 
         Customer customer = new Customer(
-                customerRegistrationRequest.name(),
+                customerRegistrationRequest.firstName(),
+                customerRegistrationRequest.lastName(),
                 email,
                 customerRegistrationRequest.age(),
                 customerRegistrationRequest.gender()
@@ -45,8 +46,13 @@ public class CustomerService {
         Customer existingCustomer = findCustomerById(id);
         boolean changes = false;
 
-        if (customerUpdateRequest.name() != null && !existingCustomer.getName().equals(customerUpdateRequest.name())) {
-            existingCustomer.setName(customerUpdateRequest.name());
+        if (customerUpdateRequest.firstName() != null && !existingCustomer.getFirstName().equals(customerUpdateRequest.firstName())) {
+            existingCustomer.setFirstName(customerUpdateRequest.firstName());
+            changes = true;
+        }
+
+        if (customerUpdateRequest.lastName() != null && !existingCustomer.getLastName().equals(customerUpdateRequest.lastName())) {
+            existingCustomer.setLastName(customerUpdateRequest.lastName());
             changes = true;
         }
 

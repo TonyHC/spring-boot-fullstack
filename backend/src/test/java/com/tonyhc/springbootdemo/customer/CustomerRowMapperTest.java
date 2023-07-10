@@ -18,7 +18,8 @@ class CustomerRowMapperTest {
         ResultSet mockResultSet = mock(ResultSet.class);
 
         when(mockResultSet.getLong("customer_id")).thenReturn(1L);
-        when(mockResultSet.getString("name")).thenReturn("Test Users");
+        when(mockResultSet.getString("first_name")).thenReturn("Test");
+        when(mockResultSet.getString("last_name")).thenReturn("Users");
         when(mockResultSet.getString("email")).thenReturn("testusers@mail.com");
         when(mockResultSet.getInt("age")).thenReturn(31);
         when(mockResultSet.getString("gender")).thenReturn("MALE");
@@ -28,7 +29,7 @@ class CustomerRowMapperTest {
 
         // Then
         Customer expected = new Customer(
-            1L, "Test Users", "testusers@mail.com", 31, Gender.valueOf("MALE")
+            1L,"Test", "Users", "testusers@mail.com", 31, Gender.valueOf("MALE")
         );
 
         assertThat(actual).usingRecursiveComparison()

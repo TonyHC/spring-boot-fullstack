@@ -29,7 +29,8 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
         String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
 
         Customer customer = new Customer(
-                FAKER.name().fullName(),
+                FAKER.name().firstName(),
+                FAKER.name().lastName(),
                 email,
                 FAKER.number().numberBetween(18, 80),
                 Gender.MALE
@@ -43,7 +44,8 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
         // Then
         assertThat(actual).isPresent()
                 .hasValueSatisfying(c -> {
-                    assertThat(c.getName()).isEqualTo(customer.getName());
+                    assertThat(c.getFirstName()).isEqualTo(customer.getFirstName());
+                    assertThat(c.getLastName()).isEqualTo(customer.getLastName());
                     assertThat(c.getEmail()).isEqualTo(customer.getEmail());
                     assertThat(c.getAge()).isEqualTo(customer.getAge());
                 });
@@ -67,7 +69,8 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
         String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
 
         Customer customer = new Customer(
-                FAKER.name().fullName(),
+                FAKER.name().firstName(),
+                FAKER.name().lastName(),
                 email,
                 FAKER.number().numberBetween(18, 80),
                 Gender.MALE
@@ -104,7 +107,8 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
         String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
 
         Customer customer = new Customer(
-                FAKER.name().fullName(),
+                FAKER.name().firstName(),
+                FAKER.name().lastName(),
                 email,
                 FAKER.number().numberBetween(18, 80),
                 Gender.MALE

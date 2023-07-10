@@ -32,13 +32,12 @@ class CustomerIT {
 
         String firstName = faker.name().firstName();
         String lastName = faker.name().lastName();
-        String fullName = firstName + " " + lastName;
         String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
         int age = faker.number().numberBetween(18, 80);
         Gender gender = Gender.MALE;
 
         CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                fullName, email, age, gender
+                firstName, lastName, email, age, gender
         );
 
         // Send a POST request to register customer
@@ -63,7 +62,7 @@ class CustomerIT {
 
         // Assert Customer was inserted into DB
         Customer expectedCustomer = new Customer(
-                fullName, email, age, gender
+                firstName, lastName, email, age, gender
         );
 
         assertThat(responseBody)
@@ -97,13 +96,12 @@ class CustomerIT {
 
         String firstName = faker.name().firstName();
         String lastName = faker.name().lastName();
-        String fullName = firstName + " " + lastName;
         String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@_gmail.com";
         int age = faker.number().numberBetween(18, 80);
         Gender gender = Gender.MALE;
 
         CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                fullName, email, age, gender
+                firstName, lastName, email, age, gender
         );
 
         // Send a POST request to register customer
@@ -124,13 +122,12 @@ class CustomerIT {
 
         String firstName = faker.name().firstName();
         String lastName = faker.name().lastName();
-        String fullName = firstName + " " + lastName;
         String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
         int age = faker.number().numberBetween(18, 80);
         Gender gender = Gender.MALE;
 
         CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                fullName, email, age, gender
+                firstName, lastName, email, age, gender
         );
 
         // Send a POST request to register customer
@@ -155,7 +152,7 @@ class CustomerIT {
 
         // Assert Customer was inserted into DB
         Customer expectedCustomer = new Customer(
-                fullName, email, age, gender
+                firstName, lastName, email, age, gender
         );
 
         assertThat(responseBody)
@@ -174,7 +171,7 @@ class CustomerIT {
         int updatedAge = faker.number().numberBetween(18, 80);
 
         CustomerUpdateRequest customerUpdateRequest = new CustomerUpdateRequest(
-                null, null, updatedAge, null
+                null, null, null, updatedAge, null
         );
 
         // Send PUT request to update existing customer
@@ -188,7 +185,7 @@ class CustomerIT {
 
         // Send GET request to verify customer was updated
         Customer expectedUpdatedCustomer = new Customer(
-                customerId, fullName, email, updatedAge, gender
+                customerId, firstName, lastName, email, updatedAge, gender
         );
 
         Customer actual = webTestClient.get()
@@ -213,13 +210,12 @@ class CustomerIT {
 
         String firstName = faker.name().firstName();
         String lastName = faker.name().lastName();
-        String fullName = firstName + " " + lastName;
         String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
         int age = faker.number().numberBetween(18, 80);
         Gender gender = Gender.MALE;
 
         CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                fullName, email, age, gender
+                firstName, lastName, email, age, gender
         );
 
         // Send a POST request to register customer

@@ -19,7 +19,7 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
     @Override
     public List<Customer> findAllCustomers() {
         String sql = """
-                SELECT customer_id, name, email, age, gender
+                SELECT customer_id, first_name, last_name, email, age, gender
                 FROM customer;
                 """;
 
@@ -29,7 +29,7 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
     @Override
     public Optional<Customer> findCustomerById(Long id) {
         String sql = """
-                SELECT customer_id, name, email, age, gender
+                SELECT customer_id, first_name, last_name, email, age, gender
                 FROM customer
                 WHERE customer_id = ?;
                 """;
@@ -65,13 +65,14 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
     @Override
     public void registerCustomer(Customer customer) {
         String sql = """
-                INSERT INTO customer (name, email, age, gender)
-                VALUES (?, ?, ?, ?);
+                INSERT INTO customer (first_name, last_name, email, age, gender)
+                VALUES (?, ?, ?, ?, ?);
                 """;
 
         int result = jdbcTemplate.update(
                 sql,
-                customer.getName(),
+                customer.getFirstName(),
+                customer.getLastName(),
                 customer.getEmail(),
                 customer.getAge(),
                 customer.getGender().getIdentity()
@@ -82,16 +83,32 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
 
     @Override
     public void updateCustomer(Customer customer) {
-        if (customer.getName() != null) {
+        if (customer.getFirstName() != null) {
             String sql = """
                 UPDATE customer
-                SET name = ?
+                SET first_name = ?
                 WHERE customer_id = ?
                 """;
 
             int result = jdbcTemplate.update(
                     sql,
-                    customer.getName(),
+                    customer.getFirstName(),
+                    customer.getId()
+            );
+
+            System.out.println("jdbcTemplate.update = " + result);
+        }
+
+        if (customer.getLastName() != null) {
+            String sql = """
+                UPDATE customer
+                SET last_name = ?
+                WHERE customer_id = ?
+                """;
+
+            int result = jdbcTemplate.update(
+                    sql,
+                    customer.getLastName(),
                     customer.getId()
             );
 

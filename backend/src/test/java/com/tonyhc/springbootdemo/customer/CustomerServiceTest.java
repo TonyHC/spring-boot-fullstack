@@ -54,7 +54,7 @@ class CustomerServiceTest {
         Long customerId = 1L;
 
         Customer customer = new Customer(
-                customerId, "Test Users", "testusers@mail.com", 41, Gender.MALE
+                customerId, "Test", "Users", "testusers@mail.com", 41, Gender.MALE
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
@@ -84,13 +84,14 @@ class CustomerServiceTest {
     @Test
     void itShouldRegisterCustomer() {
         // Given
-        String name = "Test Users";
+        String firstName = "Test";
+        String lastName = "Users";
         String email = "testusers@mail.com";
         int age = 41;
         Gender gender = Gender.MALE;
 
         CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                name, email, age, gender
+                firstName, lastName, email, age, gender
         );
 
         when(customerDao.existsCustomerWithEmail(email)).thenReturn(false);
@@ -106,7 +107,8 @@ class CustomerServiceTest {
         SoftAssertions softAssertions = new SoftAssertions();
 
         softAssertions.assertThat(customerArgumentCaptorValue.getId()).isNull();
-        softAssertions.assertThat(customerArgumentCaptorValue.getName()).isEqualTo(name);
+        softAssertions.assertThat(customerArgumentCaptorValue.getFirstName()).isEqualTo(firstName);
+        softAssertions.assertThat(customerArgumentCaptorValue.getLastName()).isEqualTo(lastName);
         softAssertions.assertThat(customerArgumentCaptorValue.getEmail()).isEqualTo(email);
         softAssertions.assertThat(customerArgumentCaptorValue.getAge()).isEqualTo(age);
         softAssertions.assertThat(customerArgumentCaptorValue.getGender()).isEqualTo(gender);
@@ -117,17 +119,18 @@ class CustomerServiceTest {
     @Test
     void itShouldThrowWhenEmailAlreadyTakenWhileRegisteringCustomer() {
         // Given
-        String name = "Test Users";
+        String firstName = "Test";
+        String lastName = "Users";
         String email = "testusers@mail.com";
         int age = 41;
         Gender gender = Gender.MALE;
 
         CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                name, email, age, gender
+                firstName, lastName, email, age, gender
         );
 
         Customer customer = new Customer(
-                name, email, age, gender
+                firstName, lastName, email, age, gender
         );
 
         when(customerDao.existsCustomerWithEmail(email)).thenReturn(true);
@@ -145,17 +148,18 @@ class CustomerServiceTest {
     void itShouldUpdateAllCustomerPropertiesWhenIdExists() {
         // Given
         Long customerId = 1L;
-        String newName = "Test Users";
+        String newFirstName = "Test";
+        String newLastName = "Tester";
         String newEmail = "testusers@mail.com";
         int newAge = 41;
         Gender newGender = Gender.FEMALE;
 
-         CustomerUpdateRequest customerUpdateRequest = new CustomerUpdateRequest(
-                newName, newEmail, newAge, newGender
+        CustomerUpdateRequest customerUpdateRequest = new CustomerUpdateRequest(
+                newFirstName, newLastName, newEmail, newAge, newGender
         );
 
         Customer customer = new Customer(
-                customerId, "Dummy Users", "dummyusers@mail.com", 40, Gender.MALE
+                customerId, "Dummy", "Users", "dummyusers@mail.com", 40, Gender.MALE
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
@@ -172,7 +176,8 @@ class CustomerServiceTest {
         SoftAssertions softAssertions = new SoftAssertions();
 
         softAssertions.assertThat(customerArgumentCaptorValue.getId()).isEqualTo(customerId);
-        softAssertions.assertThat(customerArgumentCaptorValue.getName()).isEqualTo(newName);
+        softAssertions.assertThat(customerArgumentCaptorValue.getFirstName()).isEqualTo(newFirstName);
+        softAssertions.assertThat(customerArgumentCaptorValue.getLastName()).isEqualTo(newLastName);
         softAssertions.assertThat(customerArgumentCaptorValue.getEmail()).isEqualTo(newEmail);
         softAssertions.assertThat(customerArgumentCaptorValue.getAge()).isEqualTo(newAge);
         softAssertions.assertThat(customerArgumentCaptorValue.getGender()).isEqualTo(newGender);
@@ -181,17 +186,18 @@ class CustomerServiceTest {
     }
 
     @Test
-    void itShouldUpdateCustomerNamePropertyWhenIdExists() {
+    void itShouldUpdateCustomerFirstAndLastNamePropertiesWhenIdExists() {
         // Given
         Long customerId = 1L;
-        String newName = "Test Users";
+        String newFirstName = "Test";
+        String newLastName = "Tester";
 
         CustomerUpdateRequest customerUpdateRequest = new CustomerUpdateRequest(
-                newName, null, null, null
+                newFirstName, newLastName, null, null, null
         );
 
         Customer customer = new Customer(
-                customerId, "Dummy Users", "dummyusers@mail.com", 40, Gender.MALE
+                customerId, "Dummy", "Users", "dummyusers@mail.com", 40, Gender.MALE
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
@@ -207,7 +213,8 @@ class CustomerServiceTest {
         SoftAssertions softAssertions = new SoftAssertions();
 
         softAssertions.assertThat(customerArgumentCaptorValue.getId()).isEqualTo(customerId);
-        softAssertions.assertThat(customerArgumentCaptorValue.getName()).isEqualTo(newName);
+        softAssertions.assertThat(customerArgumentCaptorValue.getFirstName()).isEqualTo(newFirstName);
+        softAssertions.assertThat(customerArgumentCaptorValue.getLastName()).isEqualTo(newLastName);
         softAssertions.assertThat(customerArgumentCaptorValue.getEmail()).isEqualTo(customer.getEmail());
         softAssertions.assertThat(customerArgumentCaptorValue.getAge()).isEqualTo(customer.getAge());
         softAssertions.assertThat(customerArgumentCaptorValue.getGender()).isEqualTo(customer.getGender());
@@ -222,11 +229,11 @@ class CustomerServiceTest {
         String newEmail = "testusers@mail.com";
 
         CustomerUpdateRequest customerUpdateRequest = new CustomerUpdateRequest(
-                null, newEmail, null, null
+                null, null, newEmail, null, null
         );
 
         Customer customer = new Customer(
-                customerId, "Dummy Users", "dummyusers@mail.com", 40, Gender.MALE
+                customerId, "Dummy", "Users", "dummyusers@mail.com", 40, Gender.MALE
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
@@ -243,7 +250,8 @@ class CustomerServiceTest {
         SoftAssertions softAssertions = new SoftAssertions();
 
         softAssertions.assertThat(customerArgumentCaptorValue.getId()).isEqualTo(customerId);
-        softAssertions.assertThat(customerArgumentCaptorValue.getName()).isEqualTo(customer.getName());
+        softAssertions.assertThat(customerArgumentCaptorValue.getFirstName()).isEqualTo(customer.getFirstName());
+        softAssertions.assertThat(customerArgumentCaptorValue.getLastName()).isEqualTo(customer.getLastName());
         softAssertions.assertThat(customerArgumentCaptorValue.getEmail()).isEqualTo(newEmail);
         softAssertions.assertThat(customerArgumentCaptorValue.getAge()).isEqualTo(customer.getAge());
         softAssertions.assertThat(customerArgumentCaptorValue.getGender()).isEqualTo(customer.getGender());
@@ -258,11 +266,11 @@ class CustomerServiceTest {
         int newAge = 41;
 
         CustomerUpdateRequest customerUpdateRequest = new CustomerUpdateRequest(
-                null, null, newAge, null
+                null, null, null, newAge, null
         );
 
         Customer customer = new Customer(
-                customerId, "Dummy Users", "dummyusers@mail.com", 40, null
+                customerId, "Dummy", "Users", "dummyusers@mail.com", 40, Gender.MALE
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
@@ -278,7 +286,8 @@ class CustomerServiceTest {
         SoftAssertions softAssertions = new SoftAssertions();
 
         softAssertions.assertThat(customerArgumentCaptorValue.getId()).isEqualTo(customerId);
-        softAssertions.assertThat(customerArgumentCaptorValue.getName()).isEqualTo(customer.getName());
+        softAssertions.assertThat(customerArgumentCaptorValue.getFirstName()).isEqualTo(customer.getFirstName());
+        softAssertions.assertThat(customerArgumentCaptorValue.getLastName()).isEqualTo(customer.getLastName());
         softAssertions.assertThat(customerArgumentCaptorValue.getEmail()).isEqualTo(customer.getEmail());
         softAssertions.assertThat(customerArgumentCaptorValue.getAge()).isEqualTo(newAge);
         softAssertions.assertThat(customerArgumentCaptorValue.getGender()).isEqualTo(customer.getGender());
@@ -293,11 +302,11 @@ class CustomerServiceTest {
         Gender newGender = Gender.MALE;
 
         CustomerUpdateRequest customerUpdateRequest = new CustomerUpdateRequest(
-                null, null, null, newGender
+                null, null, null, null, newGender
         );
 
         Customer customer = new Customer(
-                customerId, "Dummy Users", "dummyusers@mail.com", 40, Gender.FEMALE
+                customerId, "Dummy", "Users", "dummyusers@mail.com", 40, Gender.FEMALE
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
@@ -313,7 +322,8 @@ class CustomerServiceTest {
         SoftAssertions softAssertions = new SoftAssertions();
 
         softAssertions.assertThat(customerArgumentCaptorValue.getId()).isEqualTo(customerId);
-        softAssertions.assertThat(customerArgumentCaptorValue.getName()).isEqualTo(customer.getName());
+        softAssertions.assertThat(customerArgumentCaptorValue.getFirstName()).isEqualTo(customer.getFirstName());
+        softAssertions.assertThat(customerArgumentCaptorValue.getLastName()).isEqualTo(customer.getLastName());
         softAssertions.assertThat(customerArgumentCaptorValue.getEmail()).isEqualTo(customer.getEmail());
         softAssertions.assertThat(customerArgumentCaptorValue.getAge()).isEqualTo(customer.getAge());
         softAssertions.assertThat(customerArgumentCaptorValue.getGender()).isEqualTo(newGender);
@@ -325,17 +335,18 @@ class CustomerServiceTest {
     void itShouldThrowWhenEmailAlreadyTakenWhileUpdatingCustomer() {
         // Given
         Long customerId = 1L;
-        String newName = "Test Users";
+        String newFirstName = "Test";
+        String newLastName = "Tester";
         String newEmail = "testusers@mail.com";
         int newAge = 41;
         Gender newGender = Gender.FEMALE;
 
         CustomerUpdateRequest customerUpdateRequest = new CustomerUpdateRequest(
-                newName, newEmail, newAge, newGender
+                newFirstName, newLastName, newEmail, newAge, newGender
         );
 
         Customer customer = new Customer(
-                customerId, "Dummy Users", "dummyusers@mail.com", 40, Gender.MALE
+                customerId, "Dummy", "Users", "dummyusers@mail.com", 40, Gender.MALE
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
@@ -354,17 +365,18 @@ class CustomerServiceTest {
     void itShouldThrowWhenNoChangesWereMadeWhileUpdatingCustomer() {
         // Given
         Long customerId = 1L;
-        String existingName = "Test Users";
+        String existingFirstName = "Test";
+        String existingLastName = "Tester";
         String existingEmail = "testusers@mail.com";
         int existingAge = 41;
         Gender existingGender = Gender.FEMALE;
 
         CustomerUpdateRequest customerUpdateRequest = new CustomerUpdateRequest(
-                existingName, existingEmail, existingAge, existingGender
+                existingFirstName, existingLastName, existingEmail, existingAge, existingGender
         );
 
         Customer customer = new Customer(
-                customerId, existingName, existingEmail, existingAge, existingGender
+                customerId, existingFirstName, existingLastName, existingEmail, existingAge, existingGender
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
