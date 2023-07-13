@@ -1,16 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
-import { persistStore } from "redux-persist";
-import { StyledEngineProvider } from "@mui/material/styles";
+import {BrowserRouter} from "react-router-dom";
+import {Provider} from "react-redux";
+import {PersistGate} from "redux-persist/integration/react";
+import {StyledEngineProvider} from "@mui/material/styles";
 import "./index.css";
 import App from "./App";
-import store from "./store";
+import store, {persistor} from "./store/Store.tsx";
 
-// TODO -> #342
-const persistor = persistStore(store);
 const root = ReactDOM.createRoot(
     document.getElementById("root") as HTMLElement
 );
@@ -20,7 +17,7 @@ root.render(
             <React.StrictMode>
                 <BrowserRouter>
                     <StyledEngineProvider injectFirst>
-                        <App />
+                        <App/>
                     </StyledEngineProvider>
                 </BrowserRouter>
             </React.StrictMode>

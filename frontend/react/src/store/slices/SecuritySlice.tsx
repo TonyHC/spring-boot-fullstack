@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-import { register } from "../actions/security-actions";
+import { register } from "../actions/SecurityActions.tsx";
 
 const initialState = {
   user: {},

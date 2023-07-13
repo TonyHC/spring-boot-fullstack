@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, {useState} from "react";
 
 import {
     Box,
@@ -15,9 +15,10 @@ import {
     Paper,
     Toolbar,
     Tooltip,
+    Typography
 } from "@mui/material";
 
-import {createTheme, styled, ThemeProvider} from "@mui/material/styles";
+import {styled, ThemeProvider} from "@mui/material/styles";
 
 import {
     ArrowRight,
@@ -25,6 +26,7 @@ import {
     Drafts as DraftsIcon,
     ExpandLess,
     ExpandMore,
+    GitHub,
     Home,
     KeyboardArrowDown,
     MoveToInbox as InboxIcon,
@@ -33,39 +35,55 @@ import {
     Public,
     Send as SendIcon,
     Settings,
-    StarBorder,
+    StarBorder
 } from "@mui/icons-material/";
+import {sideMenuTheme} from "../../themes/CustomThemes.tsx";
+import {useNavigate} from "react-router-dom";
 
 const drawerWidth = 256;
 
-const data = [
+const buildListData = [
     {icon: <People/>, label: "Authentication"},
     {icon: <Dns/>, label: "Database"},
     {icon: <PermMedia/>, label: "Storage"},
-    {icon: <Public/>, label: "Hosting"},
+    {icon: <Public/>, label: "Hosting"}
 ];
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
     "& .MuiListItemButton-root": {
         paddingLeft: 24,
-        paddingRight: 24,
+        paddingRight: 24
     },
     "& .MuiListItemIcon-root": {
         minWidth: 0,
-        marginRight: 16,
+        marginRight: 16
     },
     "& .MuiSvgIcon-root": {
-        fontSize: 20,
+        fontSize: 20
     },
 });
 
+/*
+    TODO -> Update the list items of the SideMenu component by either adding links to another component or
+    removing unnecessary items
+*/
+
 const SideMenu = () => {
-    const [open, setOpen] = React.useState(false);
-    const [openTwo, setOpenTwo] = React.useState(false);
+    const [openBuildList, setOpenBuildList] = useState(false);
+    const [openInboxList, setOpenInboxList] = useState(false);
+    const navigate = useNavigate();
 
     const handleClick = () => {
-        setOpenTwo(!openTwo);
+        setOpenInboxList(!openInboxList);
     };
+
+    const dashboardClickHandler = () => {
+        navigate("/customer-dashboard");
+    };
+
+    const githubClickHandler = () => {
+        window.location.assign("https://github.com/TonyHC/spring-boot-fullstack");
+    }
 
     return (
         <Drawer
@@ -73,54 +91,29 @@ const SideMenu = () => {
             sx={{
                 width: drawerWidth,
                 flexShrink: 0,
-                [`& .MuiDrawer-paper`]: {
+                ["& .MuiDrawer-paper"]: {
                     width: drawerWidth,
                     boxSizing: "border-box",
-                    backgroundColor: "#000000",
-                },
-            }}
-        >
-            <ThemeProvider
-                theme={createTheme({
-                    components: {
-                        MuiListItemButton: {
-                            defaultProps: {
-                                disableTouchRipple: false,
-                            },
-                        },
-                    },
-                    palette: {
-                        mode: "dark",
-                        primary: {main: "rgb(102, 157, 246)"},
-                        background: {paper: "rgb(5, 30, 52)"},
-                    },
-                })}
-            >
+                    backgroundColor: "#000000"
+                }
+            }}>
+            <ThemeProvider theme={sideMenuTheme}>
                 <Toolbar/>
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexGrow: 1,
-                    }}
-                >
-                    <Paper
-                        elevation={0}
-                        sx={{maxWidth: 255, overflow: "hidden"}}
-                        square
-                    >
+                <Box sx={{display: "flex", flexGrow: 1}}>
+                    <Paper square elevation={0} sx={{maxWidth: 255, overflow: "hidden"}}>
                         <FireNav component="nav" disablePadding>
                             <Divider/>
                             <ListItem component="div" disablePadding>
-                                <ListItemButton sx={{height: 64}}>
+                                <ListItemButton sx={{height: 64}} onClick={dashboardClickHandler}>
                                     <ListItemIcon>
                                         <Home color="primary"/>
                                     </ListItemIcon>
                                     <ListItemText
-                                        primary="Project Overview"
+                                        primary="Dashboard"
                                         primaryTypographyProps={{
                                             color: "primary",
                                             fontWeight: "medium",
-                                            variant: "body2",
+                                            variant: "body2"
                                         }}
                                     />
                                 </ListItemButton>
@@ -131,17 +124,17 @@ const SideMenu = () => {
                                             "& svg": {
                                                 color: "rgba(255,255,255,0.8)",
                                                 transition: "0.2s",
-                                                transform: "translateX(0) rotate(0)",
+                                                transform: "translateX(0) rotate(0)"
                                             },
                                             "&:hover, &:focus": {
                                                 bgcolor: "unset",
                                                 "& svg:first-of-type": {
-                                                    transform: "translateX(-4px) rotate(-20deg)",
+                                                    transform: "translateX(-4px) rotate(-20deg)"
                                                 },
                                                 "& svg:last-of-type": {
                                                     right: 0,
-                                                    opacity: 1,
-                                                },
+                                                    opacity: 1
+                                                }
                                             },
                                             "&:after": {
                                                 content: '""',
@@ -150,33 +143,27 @@ const SideMenu = () => {
                                                 display: "block",
                                                 left: 0,
                                                 width: "1px",
-                                                bgcolor: "divider",
-                                            },
+                                                bgcolor: "divider"
+                                            }
                                         }}
                                     >
                                         <Settings/>
-                                        <ArrowRight
-                                            sx={{position: "absolute", right: 4, opacity: 0}}
-                                        />
+                                        <ArrowRight sx={{position: "absolute", right: 4, opacity: 0}}/>
                                     </IconButton>
                                 </Tooltip>
                             </ListItem>
                             <Divider/>
-                            <Box
-                                sx={{
-                                    bgcolor: open ? "rgba(71, 98, 130, 0.2)" : null,
-                                }}
-                            >
+                            <Box sx={{bgcolor: openBuildList ? "rgba(71, 98, 130, 0.2)" : null}}>
                                 <ListItemButton
                                     alignItems="flex-start"
-                                    onClick={() => setOpen(!open)}
+                                    onClick={() => setOpenBuildList(!openBuildList)}
                                     sx={{
                                         px: 3,
                                         pt: 2.5,
-                                        pb: open ? 0 : 2.5,
+                                        pb: openBuildList ? 0 : 2.5,
                                         "&:hover, &:focus": {
-                                            "& svg": {opacity: open ? 1 : 0},
-                                        },
+                                            "& svg": {opacity: openBuildList ? 1 : 0}
+                                        }
                                     }}
                                 >
                                     <ListItemText
@@ -185,14 +172,15 @@ const SideMenu = () => {
                                             fontSize: 15,
                                             fontWeight: "medium",
                                             lineHeight: "20px",
-                                            mb: "2px",
+                                            mb: "2px"
                                         }}
-                                        secondary="Authentication, Firestore Database, Realtime Database, Storage, Hosting, Functions, and Machine Learning"
+                                        secondary="Authentication, Firestore Database, Realtime Database, Storage, H
+                                        osting, Functions, and Machine Learning"
                                         secondaryTypographyProps={{
                                             noWrap: true,
                                             fontSize: 12,
                                             lineHeight: "16px",
-                                            color: open ? "rgba(0,0,0,0)" : "rgba(255,255,255,0.5)",
+                                            color: openBuildList ? "rgba(0,0,0,0)" : "rgba(255,255,255,0.5)"
                                         }}
                                         sx={{my: 0}}
                                     />
@@ -200,19 +188,19 @@ const SideMenu = () => {
                                         sx={{
                                             mr: -1,
                                             opacity: 0,
-                                            transform: open ? "rotate(-180deg)" : "rotate(0)",
-                                            transition: "0.2s",
+                                            transform: openBuildList ? "rotate(-180deg)" : "rotate(0)",
+                                            transition: "0.2s"
                                         }}
                                     />
                                 </ListItemButton>
-                                {open &&
-                                    data.map((item) => (
+                                {openBuildList &&
+                                    buildListData.map((item) => (
                                         <ListItemButton
                                             key={item.label}
                                             sx={{
                                                 py: 0,
                                                 minHeight: 45,
-                                                color: "rgba(255,255,255,.8)",
+                                                color: "rgba(255,255,255,.8)"
                                             }}
                                         >
                                             <ListItemIcon sx={{color: "inherit"}}>
@@ -222,7 +210,7 @@ const SideMenu = () => {
                                                 primary={item.label}
                                                 primaryTypographyProps={{
                                                     fontSize: 14,
-                                                    fontWeight: "medium",
+                                                    fontWeight: "medium"
                                                 }}
                                             />
                                         </ListItemButton>
@@ -230,25 +218,25 @@ const SideMenu = () => {
                             </Box>
                         </FireNav>
                         <List
+                            disablePadding
+                            component="nav"
+                            aria-labelledby="nested-list-subheader"
                             sx={{
                                 width: "100%",
                                 maxWidth: 360,
                                 bgcolor: "background.paper",
                                 "& .MuiListItemButton-root": {
-                                    paddingLeft: 3,
+                                    paddingLeft: 3
                                 },
                                 "& .MuiListItemIcon-root": {
                                     minWidth: '40px'
                                 }
                             }}
-                            component="nav"
-                            aria-labelledby="nested-list-subheader"
                             subheader={
                                 <ListSubheader component="div" id="nested-list-subheader">
                                     Nested List Items
                                 </ListSubheader>
                             }
-                            disablePadding
                         >
                             <ListItemButton>
                                 <ListItemIcon>
@@ -267,17 +255,11 @@ const SideMenu = () => {
                                     <InboxIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Inbox"/>
-                                {openTwo ? <ExpandLess/> : <ExpandMore/>}
+                                {openInboxList ? <ExpandLess/> : <ExpandMore/>}
                             </ListItemButton>
-                            <Collapse in={openTwo} timeout="auto" unmountOnExit>
-                                <List
-                                    component="div"
-                                    sx={{
-                                        paddingLeft: 2
-                                    }}
-                                    disablePadding
-                                >
-                                    <ListItemButton>
+                            <Collapse in={openInboxList} timeout="auto" unmountOnExit>
+                                <List component="div" disablePadding>
+                                    <ListItemButton sx={{paddingLeft: 2}}>
                                         <ListItemIcon>
                                             <StarBorder/>
                                         </ListItemIcon>
@@ -290,43 +272,30 @@ const SideMenu = () => {
                         <ListItemText
                             sx={{
                                 my: 0,
-                                padding: 3,
+                                padding: 3
                             }}
-                            primary="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec semper maximus leo, quis iaculis dui vestibulum non. Proin turpis elit, blandit nec nulla sed, posuere ultricies ipsum. Nunc cursus facilisis mi nec sodales."
+                            primary="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec semper maximus leo,
+                            quis iaculis dui vestibulum non. Proin turpis elit, blandit nec nulla sed, posuere ultricies
+                            ipsum. Nunc cursus facilisis mi nec sodales."
                             primaryTypographyProps={{
                                 fontSize: 12,
                                 fontWeight: "medium",
-                                letterSpacing: 0,
+                                letterSpacing: 0
                             }}
                         />
                         <Divider/>
-                        <ListItemButton component="a" href="#customized-list">
-                            <ListItemIcon sx={{fontSize: 20}}>🔥</ListItemIcon>
-                            <ListItemText
-                                sx={{my: 0}}
-                                primary="Firebash"
-                                primaryTypographyProps={{
-                                    fontSize: 20,
-                                    fontWeight: "medium",
-                                    letterSpacing: 0,
-                                }}
-                            />
-                        </ListItemButton>
                     </Paper>
                 </Box>
                 <Box display="flex" sx={{bgcolor: "background.paper"}}>
-                    <ListItemButton sx={{height: 40}}>
+                    <ListItemButton sx={{height: 50, pl: 3}} onClick={githubClickHandler}>
                         <ListItemIcon>
-                            <Home color="primary"/>
+                            <GitHub color="primary"/>
                         </ListItemIcon>
-                        <ListItemText
-                            primary="Footer"
-                            primaryTypographyProps={{
-                                color: "primary",
-                                fontWeight: "medium",
-                                variant: "body2",
-                            }}
-                        />
+                        <ListItemText sx={{ml: -2}}>
+                            <Typography variant="body2">
+                                GitHub
+                            </Typography>
+                        </ListItemText>
                     </ListItemButton>
                 </Box>
             </ThemeProvider>

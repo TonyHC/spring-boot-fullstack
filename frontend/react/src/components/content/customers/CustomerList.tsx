@@ -1,23 +1,24 @@
 import CustomerItem from "./CustomerItem..tsx";
-import {Customer} from "../../../store/slices/customer-slice.tsx";
+import {Customer} from "../../../store/slices/CustomerSlice.tsx";
 import {Stack} from "@mui/material";
 
 interface CustomerListProps {
     customers: Customer[];
+    onDeleteCustomer: (customerId: string | undefined) => void;
 }
 
-const CustomerList = ({customers}: CustomerListProps) => {
+const CustomerList = ({customers, onDeleteCustomer}: CustomerListProps) => {
     return (
         <>
             <Stack
                 direction="row"
                 useFlexGap flexWrap="wrap"
                 alignItems="center"
-                justifyContent="space-between"
+                justifyContent="space-around"
             >
                 {
                     customers.map(customer => (
-                        <CustomerItem key={customer.id} customer={customer}/>
+                        <CustomerItem key={customer.id} customer={customer} onDeleteCustomer={onDeleteCustomer}/>
                     ))
                 }
             </Stack>

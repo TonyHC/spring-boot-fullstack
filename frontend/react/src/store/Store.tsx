@@ -1,9 +1,9 @@
 import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import storage from "redux-persist/lib/storage";
-import {persistReducer} from "redux-persist";
+import {persistReducer, persistStore} from "redux-persist";
 
-import securityReducer from "./slices/security-slice";
-import customerReducer from "./slices/customer-slice.tsx";
+import securityReducer from "./slices/SecuritySlice.tsx";
+import customerReducer from "./slices/CustomerSlice.tsx";
 
 const reducers = combineReducers({
     security: securityReducer,
@@ -26,6 +26,8 @@ const store = configureStore({
             }
         })
 });
+
+export const persistor = persistStore(store);
 
 export default store;
 

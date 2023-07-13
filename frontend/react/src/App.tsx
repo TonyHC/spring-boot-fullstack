@@ -1,15 +1,12 @@
-import {
-    CssBaseline,
-} from "@mui/material";
-
-import ReactRouterRoutes from "./routes";
+import {CssBaseline} from "@mui/material";
+import RouterRoutes from "./routes/Routes.tsx";
 import Layout from "./components/content/Layout";
 
 const App = () => {
     return (
         <Layout>
-            <CssBaseline />
-            <ReactRouterRoutes />
+            <CssBaseline/>
+            <RouterRoutes/>
         </Layout>
     );
 };
