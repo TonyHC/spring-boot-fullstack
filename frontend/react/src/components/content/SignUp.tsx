@@ -12,8 +12,6 @@ const initialInputState = {
     age: ""
 };
 
-// TODO -> May delete this component and also page if no longer required
-
 const SignUp = () => {
     const [inputState, setInputState] = useState(initialInputState);
 
