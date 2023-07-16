@@ -20,7 +20,7 @@ import {customerItemTheme} from "../../../themes/CustomThemes.tsx";
 interface CustomerItemInterface {
     key: React.Key;
     customer: Customer;
-    onDeleteCustomer: (customerId: string | undefined) => void;
+    onDeleteCustomer: (customerId: string) => Promise<void>;
 }
 
 const CustomerItem = ({customer, onDeleteCustomer}: CustomerItemInterface) => {
@@ -37,8 +37,7 @@ const CustomerItem = ({customer, onDeleteCustomer}: CustomerItemInterface) => {
 
     const deleteCustomerHandler = () => {
         setOpenDialog(false);
-        console.log("Deleting...");
-        onDeleteCustomer(customer.id.toString());
+        void onDeleteCustomer(customer.id.toString());
     }
 
     const updateCustomerClickHandler = () => {

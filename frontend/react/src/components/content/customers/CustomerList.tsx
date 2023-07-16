@@ -4,7 +4,7 @@ import {Stack} from "@mui/material";
 
 interface CustomerListProps {
     customers: Customer[];
-    onDeleteCustomer: (customerId: string | undefined) => void;
+    onDeleteCustomer: (customerId: string) => Promise<void>;
 }
 
 const CustomerList = ({customers, onDeleteCustomer}: CustomerListProps) => {

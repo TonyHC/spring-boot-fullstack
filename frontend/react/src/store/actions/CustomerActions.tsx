@@ -1,6 +1,7 @@
-import axios from "axios";
+import axios, {AxiosError} from "axios";
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {NavigateFunction} from "react-router-dom";
+import {Customer} from "../slices/CustomerSlice.tsx";
 
 export type createCustomer = {
     firstName: string,
@@ -18,12 +19,14 @@ interface createCustomerData {
 interface updateCustomerData {
     navigate: NavigateFunction;
     customer: createCustomer,
-    customerId: string | undefined
+    customerId: string
 }
 
-interface deleteCustomerData {
-    navigate: NavigateFunction;
-    customerId: string | undefined
+interface ServerError {
+    timestamp: string,
+    statusCode: number
+    message: string,
+    path: string
 }
 
 export const createCustomer = createAsyncThunk(
@@ -43,7 +46,7 @@ export const getAllCustomers = createAsyncThunk(
     "customer/getAllCustomers",
     async (_, {rejectWithValue}) => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers`);
+            const res = await axios.get<Customer[]>(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers`);
             return res.data;
         } catch (error: unknown) {
             return rejectWithValue(handleErrorResponse(error));
@@ -53,9 +56,9 @@ export const getAllCustomers = createAsyncThunk(
 
 export const getCustomerById = createAsyncThunk(
     "customer/getCustomerById",
-    async (customerId: string | undefined, {rejectWithValue}) => {
+    async (customerId: string, {rejectWithValue}) => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${customerId}`);
+            const res = await axios.get<Customer>(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${customerId}`);
             return res.data;
         } catch (error: unknown) {
             return rejectWithValue(handleErrorResponse(error));
@@ -78,11 +81,10 @@ export const updateCustomerById = createAsyncThunk(
 
 export const deleteCustomerById = createAsyncThunk(
     "customer/deleteCustomerById",
-    async (data: deleteCustomerData, {rejectWithValue}) => {
+    async (customerId: string, {rejectWithValue}) => {
         try {
-            const { navigate, customerId } = data;
             await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${customerId}`);
-            navigate(0);
+            // navigate(0);
         } catch (error: unknown) {
             return rejectWithValue(handleErrorResponse(error));
         }
@@ -90,14 +92,6 @@ export const deleteCustomerById = createAsyncThunk(
 )
 
 const handleErrorResponse = (error: unknown) => {
-    let errorResponse;
-
-    if (axios.isAxiosError(error)) {
-        console.log(error.response?.data);
-        console.log(error.response?.data?.message);
-
-        errorResponse = error.response?.data;
-    }
-
-    return errorResponse;
+    const err = error as AxiosError<ServerError>;
+    return err.response?.data;
 }

@@ -5,6 +5,7 @@ import {
     Alert,
     Box,
     Button,
+    CircularProgress,
     FormControl,
     InputLabel,
     MenuItem,
@@ -62,8 +63,12 @@ const CustomSelect = ({label, ...props}: BaseSelectProps) => {
                     id={props.id}
                     labelId={props.labelId}
                     label={label}
+                    defaultValue=""
                     {...field}
                 >
+                    <MenuItem value="">
+                        <em>Select gender</em>
+                    </MenuItem>
                     <MenuItem value="MALE">Male</MenuItem>
                     <MenuItem value="FEMALE">Female</MenuItem>
                 </Select>
@@ -79,141 +84,147 @@ const CustomSelect = ({label, ...props}: BaseSelectProps) => {
 };
 
 interface UserHomeProps {
-    editMode?: boolean,
-    onCreateCustomer?: (customer: createCustomer) => void,
-    onUpdateCustomer?: (customer: createCustomer, customerId: string | undefined) => void,
-    existingCustomer?: Customer
+    editMode?: boolean;
+    status?: string;
+    actionType?: string;
+    onCreateCustomer?: (customer: createCustomer) => Promise<void>;
+    onUpdateCustomer?: (customer: createCustomer, customerId: string) => Promise<void>;
+    existingCustomer?: Customer;
 }
 
-const CustomerForm = ({editMode, onCreateCustomer, onUpdateCustomer, existingCustomer}: UserHomeProps) => {
+const CustomerForm = ({status, editMode, actionType, onCreateCustomer, onUpdateCustomer, existingCustomer}: UserHomeProps) => {
     return (
         <>
             <NavBar/>
-            <Box
-                sx={{
-                    width: "auto",
-                    height: "auto",
-                    mt: 12,
-                    mb: 5,
-                    mx: "auto",
-                    outline: "1px solid #E0E3E7",
-                    boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;",
-                    p: 5
-                }}
-            >
-                <Typography
-                    variant="h4"
-                    component="h4"
-                    textAlign="center"
-                    fontFamily="monospace"
-                >
-                    {onCreateCustomer ? "Create customer" : onUpdateCustomer ? "Update customer" : "Create account"}
-                </Typography>
-                <Formik
-                    enableReinitialize={true}
-                    initialValues={{
-                        firstName: existingCustomer ? existingCustomer.firstName : "",
-                        lastName: existingCustomer ? existingCustomer.lastName : "",
-                        email: existingCustomer ? existingCustomer.email : "",
-                        age: existingCustomer ? existingCustomer.age : 0,
-                        gender: existingCustomer ? existingCustomer.gender : ""
-                    }}
-                    validationSchema={Yup.object({
-                        firstName: Yup.string()
-                            .max(30, 'Must be 30 characters or less')
-                            .required('Required'),
-                        lastName: Yup.string()
-                            .max(30, 'Must be 30 characters or less')
-                            .required('Required'),
-                        email: Yup.string()
-                            .email('Must be a valid email')
-                            .required('Required'),
-                        age: Yup.number()
-                            .min(16, 'Must be at least 16 years old')
-                            .max(100, 'Must be less than 100 years old')
-                            .required(),
-                        gender: Yup.string()
-                            .oneOf(
-                                ['MALE', 'FEMALE'],
-                                'Invalid gender'
-                            )
-                            .required('Required')
-                    })}
-                    onSubmit={(customer, {setSubmitting}) => {
-                        if (editMode && onUpdateCustomer && existingCustomer) {
-                            onUpdateCustomer(customer, existingCustomer.id.toString());
-                        }
-
-                        if (!editMode && onCreateCustomer) {
-                            onCreateCustomer(customer);
-                        }
-
-                        setSubmitting(true);
-                    }}
-                >
-                    {({isValid, dirty, isSubmitting}) => (
-                        <Form>
-                            <Stack
-                                direction="column"
-                                justifyContent="center"
-                                alignItems="center"
-                                mt={3}
-                                flexGrow={1}
+            {
+                (status === "loading" && actionType === "customer/getCustomerById") ? <CircularProgress sx={{m: "auto"}}/> :
+                    <>
+                        <Box
+                            sx={{
+                                width: "auto",
+                                height: "auto",
+                                mt: 12,
+                                mb: 5,
+                                mx: "auto",
+                                outline: "1px solid #E0E3E7",
+                                boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;",
+                                p: 5
+                            }}
+                        >
+                            <Typography
+                                variant="h4"
+                                component="h4"
+                                textAlign="center"
+                                fontFamily="monospace"
                             >
-                                <ThemeProvider theme={customerFormTheme}>
-                                    <CustomTextInput
-                                        id="firstName"
-                                        label="First Name"
-                                        name="firstName"
-                                        type="text"
-                                        placeholder="Jane"
-                                    />
-                                    <CustomTextInput
-                                        id="lastName"
-                                        label="Last Name"
-                                        name="lastName"
-                                        type="text"
-                                        placeholder="Formik"
-                                    />
-                                    <CustomTextInput
-                                        id="email"
-                                        label="Email"
-                                        name="email"
-                                        type="text"
-                                        placeholder="jane@formik.com"
-                                    />
-                                    <CustomTextInput
-                                        id="age"
-                                        label="Age"
-                                        name="age"
-                                        type="number"
-                                        placeholder="Enter your age"
-                                    />
-                                    <CustomSelect
-                                        id="gender-select"
-                                        labelId="gender-select-label"
-                                        label="Gender"
-                                        name="gender"
-                                    >
-                                    </CustomSelect>
-                                    <Button
-                                        disabled={!(isValid && dirty) || isSubmitting}
-                                        color="inherit"
-                                        variant="outlined"
-                                        type="submit"
-                                        fullWidth
-                                        sx={{
-                                            fontFamily: "monospace",
-                                            fontWeight: 700,
-                                        }}>
-                                        Submit
-                                    </Button>
-                                </ThemeProvider>
-                            </Stack>
-                        </Form>
-                    )}
-                </Formik>
-            </Box>
+                                {onCreateCustomer ? "Create customer" : onUpdateCustomer ? "Update customer" : "Create account"}
+                            </Typography>
+                            <Formik
+                                enableReinitialize={true}
+                                initialValues={{
+                                    firstName: existingCustomer ? existingCustomer.firstName : "",
+                                    lastName: existingCustomer? existingCustomer.lastName : "",
+                                    email: existingCustomer ? existingCustomer.email : "",
+                                    age: existingCustomer ? existingCustomer.age : 0,
+                                    gender: existingCustomer ? existingCustomer.gender : ""
+                                }}
+                                validationSchema={Yup.object({
+                                    firstName: Yup.string()
+                                        .max(30, 'Must be 30 characters or less')
+                                        .required('Required'),
+                                    lastName: Yup.string()
+                                        .max(30, 'Must be 30 characters or less')
+                                        .required('Required'),
+                                    email: Yup.string()
+                                        .email('Must be a valid email')
+                                        .required('Required'),
+                                    age: Yup.number()
+                                        .min(16, 'Must be at least 16 years old')
+                                        .max(100, 'Must be less than 100 years old')
+                                        .required(),
+                                    gender: Yup.string()
+                                        .oneOf(
+                                            ['MALE', 'FEMALE'],
+                                            'Invalid gender'
+                                        )
+                                        .required('Required')
+                                })}
+                                onSubmit={(customer, {setSubmitting}) => {
+                                    if (editMode && onUpdateCustomer && existingCustomer) {
+                                        void onUpdateCustomer(customer, existingCustomer.id.toString());
+                                    }
+
+                                    if (!editMode && onCreateCustomer) {
+                                        void onCreateCustomer(customer);
+                                    }
+
+                                    setSubmitting(true);
+                                }}
+                            >
+                                {({isValid, dirty, isSubmitting}) => (
+                                    <Form>
+                                        <Stack
+                                            direction="column"
+                                            justifyContent="center"
+                                            alignItems="center"
+                                            mt={3}
+                                            flexGrow={1}
+                                        >
+                                            <ThemeProvider theme={customerFormTheme}>
+                                                <CustomTextInput
+                                                    id="firstName"
+                                                    label="First Name"
+                                                    name="firstName"
+                                                    type="text"
+                                                    placeholder="Jane"
+                                                />
+                                                <CustomTextInput
+                                                    id="lastName"
+                                                    label="Last Name"
+                                                    name="lastName"
+                                                    type="text"
+                                                    placeholder="Formik"
+                                                />
+                                                <CustomTextInput
+                                                    id="email"
+                                                    label="Email"
+                                                    name="email"
+                                                    type="text"
+                                                    placeholder="jane@formik.com"
+                                                />
+                                                <CustomTextInput
+                                                    id="age"
+                                                    label="Age"
+                                                    name="age"
+                                                    type="number"
+                                                    placeholder="Enter your age"
+                                                />
+                                                <CustomSelect
+                                                    id="gender-select"
+                                                    labelId="gender-select-label"
+                                                    label="Gender"
+                                                    name="gender"
+                                                />
+                                                <Button
+                                                    disabled={!(isValid && dirty) || isSubmitting}
+                                                    color="inherit"
+                                                    variant="outlined"
+                                                    type="submit"
+                                                    fullWidth
+                                                    sx={{
+                                                        fontFamily: "monospace",
+                                                        fontWeight: 700
+                                                    }}>
+                                                    Submit
+                                                </Button>
+                                            </ThemeProvider>
+                                        </Stack>
+                                    </Form>
+                                )}
+                            </Formik>
+                        </Box>
+                    </>
+            }
         </>
     );
 };

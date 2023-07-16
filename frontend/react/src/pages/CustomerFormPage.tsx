@@ -13,32 +13,33 @@ const CustomerFormPage = () => {
     const navigate = useNavigate();
     const params = useParams();
     const {customerId} = params;
-    const {customer} = useSelector((state: RootState) => state.customer);
+    const {customer, status, actionType} = useSelector((state: RootState) => state.customer);
 
     useEffect(() => {
         if (customerId) {
-            dispatch(getCustomerById(customerId));
+            void dispatch(getCustomerById(customerId));
             setEditMode(true);
         }
-    }, []);
+    }, [dispatch, customerId]);
 
-    const createCustomerHandler = (customer: createCustomer) => {
-        dispatch(createCustomer({navigate, customer}));
+    const createCustomerHandler = async (customer: createCustomer) => {
+        await dispatch(createCustomer({navigate, customer}));
     }
 
-    const updateCustomerHandler = (customer: createCustomer, customerId: string | undefined) => {
-        dispatch(updateCustomerById({navigate, customer, customerId}));
+    const updateCustomerHandler = async (customer: createCustomer, customerId: string) => {
+        await dispatch(updateCustomerById({navigate, customer, customerId}));
     }
 
     const currentPath = useCurrentPage();
 
     const renderPage = () => {
         if (currentPath === routes[0].path) {
-            return <CustomerForm editMode={editMode}/>
+            return <CustomerForm status={status} editMode={editMode}/>
         } else if (currentPath === routes[1].path) {
-            return <CustomerForm editMode={editMode} onCreateCustomer={createCustomerHandler}/>
+            return <CustomerForm status={status} editMode={editMode} onCreateCustomer={createCustomerHandler}/>
         } else if (currentPath === routes[2].path) {
-            return <CustomerForm editMode={editMode} onUpdateCustomer={updateCustomerHandler}
+            return <CustomerForm status={status} actionType={actionType} editMode={editMode}
+                                 onUpdateCustomer={updateCustomerHandler}
                                  existingCustomer={customer}/>
         } else {
             return <NotFoundPage/>
