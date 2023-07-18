@@ -1,11 +1,13 @@
 package com.tonyhc.springbootdemo.customer;
 
 import com.tonyhc.springbootdemo.AbstractTestcontainers;
+import com.tonyhc.springbootdemo.TestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -14,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(TestConfig.class)
 class CustomerRepositoryTest extends AbstractTestcontainers {
     @Autowired
     private CustomerRepository underTest;
@@ -32,6 +35,7 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
                 FAKER.name().firstName(),
                 FAKER.name().lastName(),
                 email,
+                "password",
                 FAKER.number().numberBetween(18, 80),
                 Gender.MALE
         );
@@ -47,7 +51,9 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
                     assertThat(c.getFirstName()).isEqualTo(customer.getFirstName());
                     assertThat(c.getLastName()).isEqualTo(customer.getLastName());
                     assertThat(c.getEmail()).isEqualTo(customer.getEmail());
+                    assertThat(c.getPassword()).isEqualTo(customer.getPassword());
                     assertThat(c.getAge()).isEqualTo(customer.getAge());
+                    assertThat(c.getGender()).isEqualTo(customer.getGender());
                 });
     }
 
@@ -72,6 +78,7 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
                 FAKER.name().firstName(),
                 FAKER.name().lastName(),
                 email,
+                "password",
                 FAKER.number().numberBetween(18, 80),
                 Gender.MALE
         );
@@ -110,6 +117,7 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
                 FAKER.name().firstName(),
                 FAKER.name().lastName(),
                 email,
+                "password",
                 FAKER.number().numberBetween(18, 80),
                 Gender.MALE
         );

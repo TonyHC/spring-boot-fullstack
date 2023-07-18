@@ -18,6 +18,9 @@ public record CustomerRegistrationRequest(
         )
         String email,
 
+        @NotBlank(message = "Password cannot be blank")
+        String password,
+
         @Min(
                 value = 18,
                 message = "Minimum age must be 18"

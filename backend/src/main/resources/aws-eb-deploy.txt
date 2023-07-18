@@ -1,4 +1,4 @@
-Manual deployment of Docker Image (API) to AWS Elastic Beanstalk
+Steps to deploy Docker Images to AWS Elastic Beanstalk (recommended for deploying the backend)
 
 AWS Region
 
@@ -243,8 +243,68 @@ Automatic deployment of Docker Image (API) to AWS Elastic Beanstalk
 
         Save the Access key ID and Secret access key of above created User as secrets in GitHub repo
 
-
     Restart Postgres DB
 
         DELETE FROM customer;
         ALTER SEQUENCE customer_id_sequence RESTART WITH 1;
+
+Update Dockerrun.aws.json file
+
+    Add the container definition for the frontend client
+
+Update Security Group to allow the backend API to fetch data from Amazon RDS
+
+    View EC2 Security Group used by EBS instance
+
+        Head to EC2 Dashboard
+
+        Under the Resources Section, click on Instances (running) button
+
+        In the Instances table, click on the instance used by EBS from the Instance ID column
+
+        From the Instance summary for x section, click on the Security tab
+
+    View RDS Security Group
+
+        Head to Amazon RDS Dashboard
+
+        Under the Resources Section, click on DB Instances (x/40) link
+
+        From the Databases table, click on the instance of RDS used by EBS under the DB identifier column
+
+        You should be then taken to the RDS used by EBS summary page
+
+            Click on the Connectivity & security tab to see info about RDS Security
+
+        Under the Connectivity & security section, there should be a Security group rules section
+
+            There should be two Security groups
+
+                1. EC2 Security Group - Inbound (from EBS)
+
+                2. CIDR/IP - Outbound (from RDS)
+
+        Note: The Inbound rules used by the Amazon RDS Security Group is inherited from the Inbound rules from the
+        EBS Security Group
+
+    Update AWS EBS Security Group
+
+        Follow the steps for the View EC2 Security Group used by EBS instance subsection
+
+        From the Security tab, expand the Security details section
+
+        Under the Security groups subsection, click on the Security group used by EBS (security group name contains AWSEBSecurityGroup)
+
+        From the AWS EBS Security Group page, click on Inbound rules tab and then click the Edit Inbound rules button
+
+            Add Inbound rule for the backend API by clicking on the Add rule button:
+
+                Type: Custom TCP
+                Protocol: TCP
+                Port range: 8080
+                Source: Anywhere -> 0.0.0.0/0 (Internet)
+                Description - optional: backend api
+
+            Once completed, click on the Save rules button. Now there should be 3 Inbound rules. The two default Inbound rules
+            were added when we created the EBS instance and the last Inbound rule was created to allow backend API
+            to fetch data from Amazon RDS connected to the EBS instance

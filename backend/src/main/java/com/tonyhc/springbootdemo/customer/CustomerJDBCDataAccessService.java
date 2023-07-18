@@ -19,7 +19,7 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
     @Override
     public List<Customer> findAllCustomers() {
         String sql = """
-                SELECT customer_id, first_name, last_name, email, age, gender
+                SELECT customer_id, first_name, last_name, email, password, age, gender
                 FROM customer;
                 """;
 
@@ -29,12 +29,24 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
     @Override
     public Optional<Customer> findCustomerById(Long id) {
         String sql = """
-                SELECT customer_id, first_name, last_name, email, age, gender
+                SELECT customer_id, first_name, last_name, email, password, age, gender
                 FROM customer
                 WHERE customer_id = ?;
                 """;
 
         return jdbcTemplate.query(sql, customerRowMapper, id)
+                .stream().findFirst();
+    }
+
+    @Override
+    public Optional<Customer> findCustomerByEmail(String email) {
+        String sql = """
+                SELECT customer_id, first_name, last_name, email, password, age, gender
+                FROM customer
+                WHERE email = ?;
+                """;
+
+        return jdbcTemplate.query(sql, customerRowMapper, email)
                 .stream().findFirst();
     }
 
@@ -65,8 +77,8 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
     @Override
     public void registerCustomer(Customer customer) {
         String sql = """
-                INSERT INTO customer (first_name, last_name, email, age, gender)
-                VALUES (?, ?, ?, ?, ?);
+                INSERT INTO customer (first_name, last_name, email, password, age, gender)
+                VALUES (?, ?, ?, ?, ?, ?);
                 """;
 
         int result = jdbcTemplate.update(
@@ -74,6 +86,7 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
                 customer.getFirstName(),
                 customer.getLastName(),
                 customer.getEmail(),
+                customer.getPassword(),
                 customer.getAge(),
                 customer.getGender().getIdentity()
         );

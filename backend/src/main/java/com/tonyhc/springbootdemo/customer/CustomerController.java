@@ -1,6 +1,8 @@
 package com.tonyhc.springbootdemo.customer;
 
+import com.tonyhc.springbootdemo.jwt.JWTUtil;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,24 +13,35 @@ import java.util.List;
 @RequestMapping("/api/v1/customers")
 public class CustomerController {
     private final CustomerService customerService;
+    private final JWTUtil jwtUtil;
 
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CustomerService customerService, JWTUtil jwtUtil) {
         this.customerService = customerService;
+        this.jwtUtil = jwtUtil;
     }
 
     @GetMapping
-    public List<Customer> findAllCustomers() {
+    public List<CustomerDTO> findAllCustomers() {
         return customerService.findAllCustomers();
     }
 
     @GetMapping("{customerId}")
-    public Customer findCustomerById(@PathVariable(value = "customerId") Long customerId) {
+    public CustomerDTO findCustomerById(@PathVariable(value = "customerId") Long customerId) {
         return customerService.findCustomerById(customerId);
     }
 
+    @GetMapping("/email/{customerEmail}")
+    public CustomerDTO findCustomerByEmail(@PathVariable(value = "customerEmail") String customerEmail) {
+        return customerService.findCustomerByEmail(customerEmail);
+    }
+
     @PostMapping
-    public void registerCustomer(@Valid @RequestBody CustomerRegistrationRequest customerRegistrationRequest) {
+    public ResponseEntity<?> registerCustomer(@Valid @RequestBody CustomerRegistrationRequest customerRegistrationRequest) {
         customerService.registerCustomer(customerRegistrationRequest);
+        String jwtToken = jwtUtil.issueToken(customerRegistrationRequest.email(), "ROLE_USER");
+        return ResponseEntity.ok()
+                .header(HttpHeaders.AUTHORIZATION, jwtToken)
+                .build();
     }
 
     @PatchMapping("{customerId}")

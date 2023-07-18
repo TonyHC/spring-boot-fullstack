@@ -52,6 +52,18 @@ class CustomerJPADataAccessServiceTest {
     }
 
     @Test
+    void itShouldFindCustomerByEmail() {
+        // Given
+        String email = "testusers@mail.com";
+
+        // When
+        underTest.findCustomerByEmail(email);
+
+        // Then
+        verify(customerRepository).findCustomerByEmail(email);
+    }
+
+    @Test
     void itShouldExistsCustomerWithId() {
         // Given
         Long customerId = 1L;
@@ -79,7 +91,7 @@ class CustomerJPADataAccessServiceTest {
     void itShouldRegisterCustomer() {
         // Given
         Customer customer = new Customer(
-          "Test", "Users", "testusers@mail.com", 41, Gender.MALE
+          "Test", "Users", "testusers@mail.com", "password", 41, Gender.MALE
         );
 
         // When
@@ -93,7 +105,7 @@ class CustomerJPADataAccessServiceTest {
     void itShouldUpdateCustomerById() {
         // Given
         Customer customer = new Customer(
-                "Test", "Users", "testusers@mail.com", 41, Gender.MALE
+                "Test", "Users", "testusers@mail.com", "password", 41, Gender.MALE
         );
 
         // When

@@ -4,6 +4,7 @@ import com.tonyhc.springbootdemo.exception.DuplicateResourceException;
 import com.tonyhc.springbootdemo.exception.RequestValidationException;
 import com.tonyhc.springbootdemo.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,19 +12,36 @@ import java.util.List;
 @Service
 public class CustomerService {
     private final CustomerDao customerDao;
+    private final PasswordEncoder passwordEncoder;
+    private final CustomerDTOMapper customerDTOMapper;
 
-    public CustomerService(@Qualifier("JDBC") CustomerDao customerDao) {
+
+    public CustomerService(@Qualifier("JDBC") CustomerDao customerDao, PasswordEncoder passwordEncoder, CustomerDTOMapper customerDTOMapper) {
         this.customerDao = customerDao;
+        this.passwordEncoder = passwordEncoder;
+        this.customerDTOMapper = customerDTOMapper;
     }
 
-    public List<Customer> findAllCustomers() {
-        return customerDao.findAllCustomers();
+    public List<CustomerDTO> findAllCustomers() {
+        return customerDao.findAllCustomers()
+                .stream()
+                .map(customerDTOMapper)
+                .toList();
     }
 
-    public Customer findCustomerById(Long id) {
+    public CustomerDTO findCustomerById(Long id) {
         return customerDao.findCustomerById(id)
+                .map(customerDTOMapper)
                 .orElseThrow(
                         () -> new ResourceNotFoundException(String.format("Customer with id [%s] was not found", id))
+                );
+    }
+
+    public CustomerDTO findCustomerByEmail(String email) {
+        return customerDao.findCustomerByEmail(email)
+                .map(customerDTOMapper)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException(String.format("Customer with email [%s] was not found", email))
                 );
     }
 
@@ -35,6 +53,7 @@ public class CustomerService {
                 customerRegistrationRequest.firstName(),
                 customerRegistrationRequest.lastName(),
                 email,
+                passwordEncoder.encode(customerRegistrationRequest.password()),
                 customerRegistrationRequest.age(),
                 customerRegistrationRequest.gender()
         );
@@ -43,7 +62,11 @@ public class CustomerService {
     }
 
     public void updateCustomerById(CustomerUpdateRequest customerUpdateRequest, Long id) {
-        Customer existingCustomer = findCustomerById(id);
+        Customer existingCustomer = customerDao.findCustomerById(id)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException(String.format("Customer with id [%s] was not found", id))
+                );
+
         boolean changes = false;
 
         if (customerUpdateRequest.firstName() != null && !existingCustomer.getFirstName().equals(customerUpdateRequest.firstName())) {
@@ -81,7 +104,7 @@ public class CustomerService {
 
     public void deleteCustomerById(Long id) {
         if (!customerDao.existsCustomerWithId(id)) {
-            throw new ResourceNotFoundException(String.format("Customer with id %s was not found", id));
+            throw new ResourceNotFoundException(String.format("Customer with id [%s] was not found", id));
         }
 
         customerDao.deleteCustomerById(id);

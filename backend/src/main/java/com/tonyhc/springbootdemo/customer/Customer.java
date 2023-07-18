@@ -9,7 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Entity(name = "Customer")
@@ -26,7 +31,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Customer {
+public class Customer implements UserDetails {
     @Id
     @SequenceGenerator(
             name = "customer_id_sequence",
@@ -70,6 +75,12 @@ public class Customer {
     )
     private String email;
 
+    @Column(
+            name = "password",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
+    private String password;
 
     @Min(
             value = 18,
@@ -90,10 +101,11 @@ public class Customer {
     @GenderIdentitySubset(anyOf = {Gender.MALE, Gender.FEMALE})
     private Gender gender;
 
-    public Customer(String firstName, String lastName, String email, Integer age, Gender gender) {
+    public Customer(String firstName, String lastName, String email, String password, Integer age, Gender gender) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.password = password;
         this.age = age;
         this.gender = gender;
     }
@@ -103,12 +115,12 @@ public class Customer {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Customer customer = (Customer) o;
-        return Objects.equals(id, customer.id) && Objects.equals(firstName, customer.firstName) && Objects.equals(lastName, customer.lastName) && Objects.equals(email, customer.email) && Objects.equals(age, customer.age) && gender == customer.gender;
+        return Objects.equals(id, customer.id) && Objects.equals(firstName, customer.firstName) && Objects.equals(lastName, customer.lastName) && Objects.equals(email, customer.email) && Objects.equals(age, customer.age) && gender == customer.gender && Objects.equals(password, customer.password);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, email, age, gender);
+        return Objects.hash(id, firstName, lastName, email, age, gender, password);
     }
 
     @Override
@@ -120,6 +132,42 @@ public class Customer {
                 ", email='" + email + '\'' +
                 ", age=" + age +
                 ", gender=" + gender +
+                ", password='" + password + '\'' +
                 '}';
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
