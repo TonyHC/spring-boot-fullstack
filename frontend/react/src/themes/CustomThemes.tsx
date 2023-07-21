@@ -137,14 +137,6 @@ export const landingTheme = createTheme({
     }
 });
 
-export const signUpTheme = createTheme({
-    components: {
-        MuiTextField: {
-            styleOverrides: styleOverridesFormTextField
-        }
-    }
-});
-
 export const navbarTheme = createTheme({
     palette: {
         background: {

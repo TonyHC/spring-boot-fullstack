@@ -1,4 +1,4 @@
-import {Customer} from "../../../store/slices/CustomerSlice.tsx";
+import {Customer} from "../../store/customer/CustomerSlice.tsx";
 import React from "react";
 import {
     Button,
@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import {ThemeProvider} from "@mui/material/styles";
 import {useNavigate} from "react-router-dom";
-import {customerItemTheme} from "../../../themes/CustomThemes.tsx";
+import {customerItemTheme} from "../../themes/CustomThemes.tsx";
 
 interface CustomerItemInterface {
     key: React.Key;

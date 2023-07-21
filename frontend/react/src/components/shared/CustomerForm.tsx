@@ -1,103 +1,96 @@
-import {FieldHookConfig, Form, Formik, useField} from 'formik';
+import {Form, Formik, FormikValues} from 'formik';
 import * as Yup from 'yup';
 
-import {
-    Alert,
-    Box,
-    Button,
-    CircularProgress,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
-    Stack,
-    TextField,
-    Typography
-} from "@mui/material";
+import {Box, Button, CircularProgress, MenuItem, Stack, Typography} from "@mui/material";
 import {ThemeProvider} from "@mui/material/styles";
-import NavBar from "../navigation/Navbar";
-import {createCustomer} from "../../store/actions/CustomerActions.tsx";
-import {Customer} from "../../store/slices/CustomerSlice.tsx";
+import NavBar from "../navigation/Navbar.tsx";
+import {Customer} from "../../store/customer/CustomerSlice.tsx";
 import {customerFormTheme} from "../../themes/CustomThemes.tsx";
-
-type BaseTextFieldProps = FieldHookConfig<string> & {
-    id: string,
-    label: string,
-    type: string,
-    placeholder: string
-};
-
-const CustomTextInput = (props: BaseTextFieldProps) => {
-    const [field, meta] = useField(props);
-
-    return (
-        <>
-            <TextField fullWidth id={props.id} label={props.label} variant="outlined"
-                       type={props.type} className="text-input" placeholder={props.placeholder} {...field}
-            />
-            {meta.touched && meta.error ? (
-                <Alert className="error" variant="outlined" severity="error" color="error"
-                       sx={{width: "100%", mt: -1, mb: 2}}>
-                    {meta.error}
-                </Alert>
-            ) : null}
-        </>
-    );
-};
-
-type BaseSelectProps = FieldHookConfig<string> & {
-    labelId: string,
-    id: string,
-    label: string,
-    name: string
-};
-
-const CustomSelect = ({label, ...props}: BaseSelectProps) => {
-    const [field, meta] = useField(props);
-
-    return (
-        <>
-            <FormControl fullWidth>
-                <InputLabel id={props.labelId}>{label}</InputLabel>
-                <Select
-                    id={props.id}
-                    labelId={props.labelId}
-                    label={label}
-                    defaultValue=""
-                    {...field}
-                >
-                    <MenuItem value="">
-                        <em>Select gender</em>
-                    </MenuItem>
-                    <MenuItem value="MALE">Male</MenuItem>
-                    <MenuItem value="FEMALE">Female</MenuItem>
-                </Select>
-            </FormControl>
-            {meta.touched && meta.error ? (
-                <Alert className="error" variant="outlined" severity="error" color="error"
-                       sx={{width: "100%", mt: -1, mb: 2}}>
-                    {meta.error}
-                </Alert>
-            ) : null}
-        </>
-    );
-};
+import {FireAlert} from "../ui/Alert.tsx";
+import {ServerError} from "../../store/customer/CustomerActions.tsx";
+import {CustomTextInput} from "../ui/TextField.tsx";
+import {CustomSelect} from "../ui/Select.tsx";
 
 interface UserHomeProps {
-    editMode?: boolean;
-    status?: string;
+    editMode: boolean;
+    status: string;
+    error: ServerError | undefined;
     actionType?: string;
-    onCreateCustomer?: (customer: createCustomer) => Promise<void>;
-    onUpdateCustomer?: (customer: createCustomer, customerId: string) => Promise<void>;
+    onCreateCustomer?: (customer: FormikValues) => Promise<void>;
+    onUpdateCustomer?: (customer: FormikValues, customerId: string) => Promise<void>;
     existingCustomer?: Customer;
 }
 
-const CustomerForm = ({status, editMode, actionType, onCreateCustomer, onUpdateCustomer, existingCustomer}: UserHomeProps) => {
+const CustomerForm = (
+    {status, error, editMode, actionType, onCreateCustomer, onUpdateCustomer, existingCustomer}: UserHomeProps
+) => {
+    const initialFormValues = (editMode) ? {
+        firstName: existingCustomer ? existingCustomer.firstName : "",
+        lastName: existingCustomer ? existingCustomer.lastName : "",
+        email: existingCustomer ? existingCustomer.email : "",
+        age: existingCustomer ? existingCustomer.age : 0,
+        gender: existingCustomer ? existingCustomer.gender : ""
+    } : {
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        age: 0,
+        gender: ""
+    };
+
+    const validationSchema = (editMode) ? Yup.object({
+        firstName: Yup.string()
+            .max(30, "Must be 30 characters or less")
+            .required("First name is required"),
+        lastName: Yup.string()
+            .max(30, "Must be 30 characters or less")
+            .required("Last name is required"),
+        email: Yup.string()
+            .email("Must be a valid email")
+            .required("Email is required"),
+        age: Yup.number()
+            .min(16, "Must be at least 16 years old")
+            .max(100, "Must be less than 100 years old")
+            .required("Age is required"),
+        gender: Yup.string()
+            .oneOf(
+                ['MALE', 'FEMALE'],
+                "Select a gender"
+            )
+            .required("Gender is required")
+    }) : Yup.object({
+        firstName: Yup.string()
+            .max(30, "Must be 30 characters or less")
+            .required("First name is required"),
+        lastName: Yup.string()
+            .max(30, "Must be 30 characters or less")
+            .required("Last name is required"),
+        email: Yup.string()
+            .email('Must be a valid email')
+            .required("Email is required"),
+        password: Yup.string()
+            .min(6, "Password cannot be less than 6 characters")
+            .max(30, "Password cannot be more than 30 characters")
+            .required("Password is required"),
+        age: Yup.number()
+            .min(16, 'Must be at least 16 years old')
+            .max(100, 'Must be less than 100 years old')
+            .required("Age is required"),
+        gender: Yup.string()
+            .oneOf(
+                ['MALE', 'FEMALE'],
+                "Select a gender"
+            )
+            .required('Gender is required')
+    });
+
     return (
         <>
             <NavBar/>
             {
-                (status === "loading" && actionType === "customer/getCustomerById") ? <CircularProgress sx={{m: "auto"}}/> :
+                (status === "loading" && actionType === "customer/getCustomerById") ?
+                    <CircularProgress sx={{m: "auto"}}/> :
                     <>
                         <Box
                             sx={{
@@ -119,36 +112,18 @@ const CustomerForm = ({status, editMode, actionType, onCreateCustomer, onUpdateC
                             >
                                 {onCreateCustomer ? "Create customer" : onUpdateCustomer ? "Update customer" : "Create account"}
                             </Typography>
+
+                            {(error && error.message) &&
+                                <FireAlert variant="outlined" severity="error" color="error">
+                                    {error.message}
+                                </FireAlert>
+                            }
+
                             <Formik
                                 enableReinitialize={true}
-                                initialValues={{
-                                    firstName: existingCustomer ? existingCustomer.firstName : "",
-                                    lastName: existingCustomer? existingCustomer.lastName : "",
-                                    email: existingCustomer ? existingCustomer.email : "",
-                                    age: existingCustomer ? existingCustomer.age : 0,
-                                    gender: existingCustomer ? existingCustomer.gender : ""
-                                }}
-                                validationSchema={Yup.object({
-                                    firstName: Yup.string()
-                                        .max(30, 'Must be 30 characters or less')
-                                        .required('Required'),
-                                    lastName: Yup.string()
-                                        .max(30, 'Must be 30 characters or less')
-                                        .required('Required'),
-                                    email: Yup.string()
-                                        .email('Must be a valid email')
-                                        .required('Required'),
-                                    age: Yup.number()
-                                        .min(16, 'Must be at least 16 years old')
-                                        .max(100, 'Must be less than 100 years old')
-                                        .required(),
-                                    gender: Yup.string()
-                                        .oneOf(
-                                            ['MALE', 'FEMALE'],
-                                            'Invalid gender'
-                                        )
-                                        .required('Required')
-                                })}
+                                initialValues={initialFormValues}
+                                validateOnMount={true}
+                                validationSchema={validationSchema}
                                 onSubmit={(customer, {setSubmitting}) => {
                                     if (editMode && onUpdateCustomer && existingCustomer) {
                                         void onUpdateCustomer(customer, existingCustomer.id.toString());
@@ -176,7 +151,7 @@ const CustomerForm = ({status, editMode, actionType, onCreateCustomer, onUpdateC
                                                     label="First Name"
                                                     name="firstName"
                                                     type="text"
-                                                    placeholder="Jane"
+                                                    placeholder="Test"
                                                 />
                                                 <CustomTextInput
                                                     id="lastName"
@@ -190,8 +165,16 @@ const CustomerForm = ({status, editMode, actionType, onCreateCustomer, onUpdateC
                                                     label="Email"
                                                     name="email"
                                                     type="text"
-                                                    placeholder="jane@formik.com"
+                                                    placeholder="test@formik.com"
                                                 />
+                                                {!editMode && (
+                                                    <CustomTextInput
+                                                        id="password"
+                                                        label="Password"
+                                                        name="password"
+                                                        type="password"
+                                                    />
+                                                )}
                                                 <CustomTextInput
                                                     id="age"
                                                     label="Age"
@@ -204,7 +187,13 @@ const CustomerForm = ({status, editMode, actionType, onCreateCustomer, onUpdateC
                                                     labelId="gender-select-label"
                                                     label="Gender"
                                                     name="gender"
-                                                />
+                                                >
+                                                    <MenuItem value="">
+                                                        <em>Select gender</em>
+                                                    </MenuItem>
+                                                    <MenuItem value="MALE">Male</MenuItem>
+                                                    <MenuItem value="FEMALE">Female</MenuItem>
+                                                </CustomSelect>
                                                 <Button
                                                     disabled={!(isValid && dirty) || isSubmitting}
                                                     color="inherit"

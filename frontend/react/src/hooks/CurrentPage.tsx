@@ -4,7 +4,7 @@ export const routes = [{path: "/sign-up"}, {path: "/customer-form"}, {path: "/cu
 
 const useCurrentPage = () => {
     const location = useLocation();
-    const {route: {path}} = matchRoutes(routes, location)?.find(m => m.pathname === location.pathname)!;
+    const {route: {path}} = matchRoutes(routes, location)!.find(m => m.pathname === location.pathname)!;
     return path;
 }
 

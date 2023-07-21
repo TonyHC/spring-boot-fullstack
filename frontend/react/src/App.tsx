@@ -1,6 +1,6 @@
 import {CssBaseline} from "@mui/material";
 import RouterRoutes from "./routes/Routes.tsx";
-import Layout from "./components/content/Layout";
+import Layout from "./components/shared/Layout.tsx";
 
 const App = () => {
     return (

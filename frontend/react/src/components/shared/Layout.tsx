@@ -2,7 +2,7 @@ import {Box, Container} from "@mui/material";
 import React from "react";
 
 interface LayoutProps {
-    children: React.ReactNode
+    children: React.ReactNode;
 }
 
 const Layout = ({children}: LayoutProps) => {

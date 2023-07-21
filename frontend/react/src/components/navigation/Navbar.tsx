@@ -24,6 +24,7 @@ import {styled, ThemeProvider} from "@mui/material/styles";
 import {AccountCircle, Adb as AdbIcon, Logout, PersonAdd, Settings} from "@mui/icons-material/";
 import {RootState} from "../../store/Store.tsx";
 import {navbarTheme} from "../../themes/CustomThemes.tsx";
+import {logout} from "../../utils/AuthUtils.tsx";
 
 const searchResults = [
     {title: "The Shawshank Redemption", year: 1994},
@@ -90,8 +91,8 @@ const StyledAutocomplete = styled(Autocomplete)({
 });
 
 const NavBar = () => {
-    const [searchKeyword, setSearchKeyword] = useState("");
-    const {isAuth} = useSelector((state: RootState) => state.security);
+    const [searchKeyword, setSearchKeyword] = useState<string>("");
+    const {isAuth, user} = useSelector((state: RootState) => state.auth);
     const navigate = useNavigate();
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -138,6 +139,12 @@ const NavBar = () => {
         navigate("/customer-dashboard");
     };
 
+    const handleLogout = () => {
+        setAnchorEl(null);
+        void logout();
+        navigate("/login", {replace: true});
+    }
+
     return (
         <ThemeProvider theme={navbarTheme}>
             <AppBar color="inherit" position="fixed" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
@@ -166,8 +173,7 @@ const NavBar = () => {
                             </Typography>
                         </Button>
                     </Stack>
-                    {!isAuth && (
-                        <Button
+                    {!isAuth ? <Button
                             color="inherit"
                             variant="outlined"
                             sx={{
@@ -182,9 +188,7 @@ const NavBar = () => {
                             onClick={loginClickHandler}
                         >
                             Login
-                        </Button>
-                    )}
-                    {isAuth && (
+                        </Button> :
                         <>
                             <SearchTextField
                                 id="outlined-basic"
@@ -221,7 +225,10 @@ const NavBar = () => {
                                     aria-controls={open ? "account-menu" : undefined}
                                     aria-haspopup="true"
                                     aria-expanded={open ? "true" : undefined}>
-                                    <Avatar sx={{width: 32, height: 32}}>M</Avatar>
+                                    <Avatar sx={{
+                                        width: 32,
+                                        height: 32
+                                    }}>{user.firstName ? user.firstName.substring(0, 1) : "U"}</Avatar>
                                 </IconButton>
                             </Tooltip>
                             <Menu
@@ -280,7 +287,7 @@ const NavBar = () => {
                                     Settings
                                 </MenuItem>
                                 <Divider sx={{borderColor: "#90a4ae"}}/>
-                                <MenuItem onClick={handleClose}>
+                                <MenuItem onClick={handleLogout}>
                                     <ListItemIcon>
                                         <Logout fontSize="small"/>
                                     </ListItemIcon>
@@ -288,7 +295,7 @@ const NavBar = () => {
                                 </MenuItem>
                             </Menu>
                         </>
-                    )}
+                    }
                 </Toolbar>
             </AppBar>
         </ThemeProvider>

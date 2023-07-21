@@ -1,5 +1,5 @@
 import CustomerItem from "./CustomerItem..tsx";
-import {Customer} from "../../../store/slices/CustomerSlice.tsx";
+import {Customer} from "../../store/customer/CustomerSlice.tsx";
 import {Stack} from "@mui/material";
 
 interface CustomerListProps {

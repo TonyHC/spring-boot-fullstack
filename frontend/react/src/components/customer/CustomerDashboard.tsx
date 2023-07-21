@@ -1,14 +1,15 @@
 import {Alert, Box, Button, CircularProgress, Stack, Toolbar, Typography} from "@mui/material";
-import NavBar from "../../navigation/Navbar.tsx";
-import SideMenu from "../../navigation/SideMenu.tsx";
+import NavBar from "../navigation/Navbar.tsx";
+import SideMenu from "../navigation/SideMenu.tsx";
 import CustomerList from "./CustomerList.tsx";
-import {Customer} from "../../../store/slices/CustomerSlice.tsx";
+import {Customer} from "../../store/customer/CustomerSlice.tsx";
 import {useNavigate} from "react-router-dom";
+import {ServerError} from "../../store/customer/CustomerActions.tsx";
 
 interface CustomerDashboardProps {
     customers: Customer[];
     status: string;
-    errors: unknown;
+    error: ServerError | undefined;
     onDeleteCustomer: (customerId: string) => Promise<void>;
 }
 

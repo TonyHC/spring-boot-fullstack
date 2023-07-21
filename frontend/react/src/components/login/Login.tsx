@@ -1,39 +1,22 @@
-import {FieldHookConfig, Form, Formik, useField} from 'formik';
+import {Form, Formik} from 'formik';
 import * as Yup from 'yup';
 import {Link} from "react-router-dom";
 
-import {Alert, Box, Button, Stack, TextField, Typography} from "@mui/material";
+import {Box, Button, Stack, Typography} from "@mui/material";
 import {ThemeProvider} from "@mui/material/styles";
-import NavBar from "../navigation/Navbar";
+import NavBar from "../navigation/Navbar.tsx";
 import {loginTheme} from "../../themes/CustomThemes.tsx";
+import {loginRequest} from "../../store/auth/AuthActions.tsx";
+import {FireAlert} from "../ui/Alert.tsx";
+import {ServerError} from "../../store/customer/CustomerActions.tsx";
+import {CustomTextInput} from "../ui/TextField.tsx";
 
-type BaseTextFieldProps = FieldHookConfig<string> & {
-    id: string,
-    label: string,
-    name: string,
-    type: string,
-    placeholder: string
-};
+interface LoginProps {
+    onLogin: (user: loginRequest) => Promise<void>;
+    error: ServerError | undefined;
+}
 
-const CustomInputText = (props: BaseTextFieldProps) => {
-    const [field, meta] = useField(props);
-
-    return (
-        <>
-            <TextField fullWidth id={props.id} label={props.label} variant="outlined"
-                       type={props.type} className="text-input" {...field}
-            />
-            {meta.touched && meta.error ? (
-                <Alert className="error" variant="outlined" severity="error" color="error"
-                       sx={{width: "100%", mt: -1, mb: 2}}>
-                    {meta.error}
-                </Alert>
-            ) : null}
-        </>
-    );
-};
-
-const Login = () => {
+const Login = ({onLogin, error}: LoginProps) => {
     return (
         <>
             <NavBar/>
@@ -56,24 +39,33 @@ const Login = () => {
                 >
                     Sign in
                 </Typography>
+
+                {(error && error.message) &&
+                    <FireAlert variant="outlined" severity="error" color="error">
+                        {error.message}
+                    </FireAlert>
+                }
+
                 <Formik
                     initialValues={{
                         username: "",
                         password: ""
                     }}
+                    validateOnMount={true}
                     validationSchema={Yup.object({
                         username: Yup.string()
                             .email('Must be a valid email')
-                            .required("Required"),
+                            .required("Email is required"),
                         password: Yup.string()
-                            .max(30, "Must be between 6 and 30 characters long")
-                            .required("Required")
+                            .min(6, "Password cannot be less than 6 characters")
+                            .max(30, "Password cannot be more than 30 characters")
+                            .required("Password is required")
                     })}
                     onSubmit={(user, {setSubmitting}) => {
                         setSubmitting(true);
-                        console.log(user);
+                        void onLogin(user);
                     }}>
-                    {({isValid, isSubmitting}) => (
+                    {({isValid, dirty}) => (
                         <Form>
                             <Stack
                                 direction="column"
@@ -83,22 +75,22 @@ const Login = () => {
                                 flexGrow={1}
                             >
                                 <ThemeProvider theme={loginTheme}>
-                                    <CustomInputText
+                                    <CustomTextInput
                                         id="username"
                                         label="Username"
                                         name="username"
                                         type="text"
                                         placeholder="example@gmail.com"
                                     />
-                                    <CustomInputText
+                                    <CustomTextInput
                                         id="password"
                                         label="Password"
                                         name="password"
-                                        type="text"
+                                        type="password"
                                         placeholder="example"
                                     />
                                     <Button
-                                        disabled={!isValid || isSubmitting}
+                                        disabled={!(isValid && dirty)}
                                         color="inherit"
                                         variant="outlined"
                                         type="submit"
