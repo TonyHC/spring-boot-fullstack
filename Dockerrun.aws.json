@@ -21,7 +21,7 @@
     },
     {
       "name": "spring-boot-demo-react-client",
-      "image": "tchao98/spring-boot-demo-react-client:21.07.2023.00.49.19",
+      "image": "tchao98/spring-boot-demo-react-client:22.07.2023.17.05.13",
       "essential": true,
       "memory": 256,
       "portMappings": [
