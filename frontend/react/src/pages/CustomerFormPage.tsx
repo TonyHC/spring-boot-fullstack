@@ -1,12 +1,13 @@
 import CustomerForm from "../components/shared/CustomerForm.tsx";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.tsx";
-import {useNavigate, useParams} from "react-router-dom";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {createCustomer, getCustomerById, updateCustomerById} from "../store/customer/CustomerActions.tsx";
 import {useEffect, useState} from "react";
 import NotFoundPage from "./NotFoundPage.tsx";
 import useCurrentPage, {routes} from "../hooks/CurrentPage.tsx";
 import {FormikValues} from "formik";
+import {resetErrorState} from "../store/customer/CustomerSlice.tsx";
 
 const CustomerFormPage = () => {
     const [editMode, setEditMode] = useState(false);
@@ -14,6 +15,7 @@ const CustomerFormPage = () => {
     const dispatch = useDispatch<AppDispatch>();
 
     const params = useParams();
+    const location = useLocation();
     const navigate = useNavigate();
     const {customerId} = params;
 
@@ -23,6 +25,11 @@ const CustomerFormPage = () => {
             setEditMode(true);
         }
     }, [dispatch, customerId]);
+
+    useEffect(() => {
+        // Reset the Customer Slice state error field when leaving this page
+        dispatch(resetErrorState());
+    }, [dispatch, location.pathname]);
 
     const createCustomerHandler = async (customer: FormikValues) => {
         await dispatch(createCustomer({navigate, customer}));

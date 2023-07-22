@@ -37,7 +37,11 @@ const initialState: CustomerSlice = {
 const customerSlice = createSlice(({
     name: "customer",
     initialState,
-    reducers: {},
+    reducers: {
+        resetErrorState: (state) => {
+            state.error = {} as ServerError;
+        }
+    },
     extraReducers: (builder) => {
         builder.addCase(getAllCustomers.pending, (state) => {
             state.status = "loading";
@@ -119,4 +123,5 @@ const customerSlice = createSlice(({
     }
 }))
 
+export const {resetErrorState} = customerSlice.actions;
 export default customerSlice.reducer;
