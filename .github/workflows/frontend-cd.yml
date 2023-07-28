@@ -47,7 +47,7 @@ jobs:
           REPO=spring-boot-demo-react-client \
           TAG=${{ steps.build-number.outputs.BUILD_NUMBER }} \
           ../../.ci/build-publish.sh . \
-          --build-arg api_base_url=http://localhost:8080
+          --build-arg api_base_url=${{ secrets.EB_ENVIRONMENT_URL }}      
 
       - name: Send Slack Message
         run: >

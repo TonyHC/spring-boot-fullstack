@@ -8,26 +8,14 @@
       "memory": 512,
       "portMappings": [
         {
-          "hostPort": 8080,
+          "hostPort": 80,
           "containerPort": 8080
         }
       ],
       "environment": [
         {
-          "name": "SPRING_DATASOURCE_URL",
-          "value": "jdbc:postgresql://[RDS-Database-endpoint]:5432/customer"
-        }
-      ]
-    },
-    {
-      "name": "spring-boot-demo-react-client",
-      "image": "tchao98/spring-boot-demo-react-client:22.07.2023.17.05.13",
-      "essential": true,
-      "memory": 256,
-      "portMappings": [
-        {
-          "hostPort": 80,
-          "containerPort": 5173
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "dev"
         }
       ]
     }
