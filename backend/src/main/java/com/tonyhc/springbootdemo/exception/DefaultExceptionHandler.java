@@ -45,7 +45,7 @@ public class DefaultExceptionHandler {
         ApiError apiError = new ApiError(
                 request.getRequestURI(),
                 exception.getMessage(),
-                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.CONFLICT.value(),
                 LocalDateTime.now()
         );
 

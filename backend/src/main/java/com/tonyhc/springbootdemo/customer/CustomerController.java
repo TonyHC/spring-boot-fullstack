@@ -51,8 +51,7 @@ public class CustomerController {
     }
 
     @DeleteMapping("{customerId}")
-    public ResponseEntity<String> deleteCustomerById(@PathVariable(value = "customerId") Long customerId) {
+    public void deleteCustomerById(@PathVariable(value = "customerId") Long customerId) {
         customerService.deleteCustomerById(customerId);
-        return new ResponseEntity<>("Customer was deleted", HttpStatus.OK);
     }
 }

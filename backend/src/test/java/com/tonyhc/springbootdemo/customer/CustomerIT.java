@@ -337,10 +337,7 @@ class CustomerIT {
                 .accept(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<String>() {
-                })
-                .isEqualTo("Customer was deleted");
+                .expectStatus().isOk();
 
         // Send GET request to verify customer registered does not exist
         webTestClient.get()

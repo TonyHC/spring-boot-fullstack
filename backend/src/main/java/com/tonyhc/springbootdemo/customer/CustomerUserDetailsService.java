@@ -14,7 +14,6 @@ public class CustomerUserDetailsService implements UserDetailsService {
         this.customerDao = customerDao;
     }
 
-    // TODO -> Add Unit test for both cases
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return customerDao.findCustomerByEmail(username).orElseThrow(
