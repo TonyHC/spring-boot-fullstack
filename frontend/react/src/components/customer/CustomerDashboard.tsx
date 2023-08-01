@@ -1,10 +1,20 @@
-import {Alert, Box, Button, CircularProgress, Stack, Toolbar, Typography} from "@mui/material";
+import {Alert, Box, Breadcrumbs, Button, Skeleton, Stack, Toolbar, Typography} from "@mui/material";
 import NavBar from "../navigation/Navbar.tsx";
 import SideMenu from "../navigation/SideMenu.tsx";
 import CustomerList from "./CustomerList.tsx";
 import {Customer} from "../../store/customer/CustomerSlice.tsx";
-import {useNavigate} from "react-router-dom";
+import {Link, NavigateFunction, useNavigate} from "react-router-dom";
 import {ServerError} from "../../store/customer/CustomerActions.tsx";
+import Footer from "../shared/Footer.tsx";
+import {JSX} from "react";
+import {NavigateNext as NavigateNextIcon} from "@mui/icons-material";
+
+const breadcrumbs: JSX.Element[] = [
+    <Link to="/dashboard" key="1">Dashboard</Link>,
+    <Typography key="2">
+        Customers
+    </Typography>
+];
 
 interface CustomerDashboardProps {
     customers: Customer[];
@@ -14,9 +24,9 @@ interface CustomerDashboardProps {
 }
 
 const CustomerDashboard = ({customers, status, onDeleteCustomer}: CustomerDashboardProps) => {
-    const navigate = useNavigate();
+    const navigate: NavigateFunction = useNavigate();
 
-    const createClickHandler = () => {
+    const createClickHandler = (): void => {
         navigate("/customer-form");
     };
 
@@ -24,19 +34,25 @@ const CustomerDashboard = ({customers, status, onDeleteCustomer}: CustomerDashbo
         <>
             <NavBar/>
             <SideMenu/>
-            {
-                status == "loading" ? <CircularProgress sx={{m: "auto"}}/> :
+            <Stack direction="column" flexGrow={1}>
+                {
                     <Box component="main" sx={{flexGrow: 1, p: 3}}>
                         <Toolbar/>
                         {
                             customers.length >= 1 ?
                                 <>
+                                    <Breadcrumbs
+                                        separator={<NavigateNextIcon fontSize="small"/>}
+                                        aria-label="breadcrumb"
+                                    >
+                                        {status === "loading" ? <Skeleton width={150}/> : breadcrumbs}
+                                    </Breadcrumbs>
                                     <Toolbar
                                         disableGutters
                                         sx={{
                                             border: "1px solid white",
                                             backgroundColor: "inherit",
-                                            mb: 2,
+                                            my: 2,
                                             "@media (min-width: 600px)": {
                                                 minHeight: "auto"
                                             }
@@ -53,7 +69,9 @@ const CustomerDashboard = ({customers, status, onDeleteCustomer}: CustomerDashbo
                                                     ml: 3
                                                 }}
                                             >
-                                                Result: {customers.length} customers were found
+                                                {status === "loading" ?
+                                                    <Skeleton
+                                                        width={275}/> : `Result: ${customers.length} customers were found`}
                                             </Typography>
                                         </Stack>
                                         <Button
@@ -66,10 +84,11 @@ const CustomerDashboard = ({customers, status, onDeleteCustomer}: CustomerDashbo
                                             }}
                                             onClick={createClickHandler}
                                         >
-                                            Create
+                                            {status === "loading" ? <Skeleton width={50}/> : 'Create'}
                                         </Button>
                                     </Toolbar>
-                                    <CustomerList customers={customers} onDeleteCustomer={onDeleteCustomer}/>
+                                    <CustomerList customers={customers} status={status}
+                                                  onDeleteCustomer={onDeleteCustomer}/>
                                 </> :
                                 <Alert variant="outlined" severity="error" color="error"
                                        sx={{width: "100%", mt: -1, mb: 2}}>
@@ -77,7 +96,9 @@ const CustomerDashboard = ({customers, status, onDeleteCustomer}: CustomerDashbo
                                 </Alert>
                         }
                     </Box>
-            }
+                }
+                <Footer/>
+            </Stack>
         </>
     );
 };

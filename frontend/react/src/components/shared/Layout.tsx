@@ -1,4 +1,4 @@
-import {Box, Container} from "@mui/material";
+import {Container} from "@mui/material";
 import React from "react";
 
 interface LayoutProps {
@@ -7,10 +7,8 @@ interface LayoutProps {
 
 const Layout = ({children}: LayoutProps) => {
     return (
-        <Container maxWidth="xl">
-            <Box sx={{display: "flex", minHeight: "100vh"}}>
-                {children}
-            </Box>
+        <Container maxWidth="xl" sx={{display: "flex", minHeight: "100vh"}}>
+            {children}
         </Container>
     );
 };

@@ -1,4 +1,4 @@
-import {createTheme} from "@mui/material/styles";
+import {createTheme, Theme} from "@mui/material/styles";
 
 const styleOverridesFormButton = {
     root: {
@@ -45,7 +45,7 @@ const styleOverridesFormTextField = {
     }
 };
 
-export const loginTheme = createTheme({
+export const loginTheme: Theme = createTheme({
     components: {
         MuiTextField: {
             styleOverrides: styleOverridesFormTextField
@@ -56,7 +56,7 @@ export const loginTheme = createTheme({
     }
 });
 
-export const customerItemTheme = createTheme({
+export const customerItemTheme: Theme = createTheme({
     components: {
         MuiDialog: {
             styleOverrides: {
@@ -76,7 +76,7 @@ export const customerItemTheme = createTheme({
     }
 });
 
-export const customerFormTheme = createTheme({
+export const customerFormTheme: Theme = createTheme({
     components: {
         MuiTextField: {
             styleOverrides: styleOverridesFormTextField
@@ -120,7 +120,7 @@ export const customerFormTheme = createTheme({
     }
 });
 
-export const landingTheme = createTheme({
+export const landingTheme: Theme = createTheme({
     components: {
         MuiButton: {
             styleOverrides: {
@@ -137,7 +137,7 @@ export const landingTheme = createTheme({
     }
 });
 
-export const navbarTheme = createTheme({
+export const navbarTheme: Theme = createTheme({
     palette: {
         background: {
             paper: "rgb(5, 30, 52)"
@@ -165,7 +165,7 @@ export const navbarTheme = createTheme({
     }
 });
 
-export const sideMenuTheme = createTheme({
+export const sideMenuTheme: Theme = createTheme({
     components: {
         MuiListItemButton: {
             defaultProps: {
@@ -177,5 +177,30 @@ export const sideMenuTheme = createTheme({
         mode: "dark",
         primary: {main: "rgb(102, 157, 246)"},
         background: {paper: "rgb(5, 30, 52)"}
+    }
+});
+
+export const dashboardTheme: Theme = createTheme({
+    components: {
+        MuiTable: {
+            styleOverrides: {
+                root: {
+                    "& .MuiTableHead-root": {
+                        "& .MuiTableRow-root": {
+                            "& .MuiTableCell-root": {
+                                borderBottom: "1px solid rgba(0, 0, 0, 0.87)"
+                            }
+                        }
+                    },
+                    "& .MuiTableBody-root": {
+                        "& .MuiTableRow-root": {
+                            "& .MuiTableCell-root": {
+                                borderBottom: "1px solid rgba(0, 0, 0, 0.87)"
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 });

@@ -1,4 +1,4 @@
-import {Navigate, Outlet, useLocation} from "react-router-dom";
+import {Location, Navigate, Outlet, useLocation} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {AppDispatch} from "../store/Store.tsx";
 import {useEffect} from "react";
@@ -7,9 +7,9 @@ import jwtDecode from "jwt-decode";
 import {validateToken} from "../utils/AuthUtils.tsx";
 
 export const RequireAuth = () => {
-    const validToken = validateToken();
+    const validToken: boolean = validateToken();
 
-    const location = useLocation();
+    const location: Location = useLocation();
     const dispatch = useDispatch<AppDispatch>();
 
     // Auto logout feature to remove jwt from localStorage when current jwt expired

@@ -13,11 +13,36 @@ code {
     monospace;
 }
 
-* {
+*:not(p) {
     scrollbar-width: thin;
-    color: white;
+    color: #E0E3E7;
+}
+
+.apexcharts-menu-item, .apexcharts-tooltip-title, .apexcharts-tooltip-text-y-label, .apexcharts-tooltip-text-y-value {
+    color: #000000;
+}
+
+.MuiSkeleton-root {
+    background-color: #B2BAC2;
 }
 
 a {
     text-decoration: none;
+}
+
+.table-link {
+    color: rgba(0, 0, 0, 0.87);
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: inherit;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #E0E3E7;
+    border-radius: 20px;
 }

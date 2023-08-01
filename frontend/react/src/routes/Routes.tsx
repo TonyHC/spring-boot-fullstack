@@ -5,19 +5,21 @@ import NotFoundPage from "../pages/NotFoundPage";
 import CustomerFormPage from "../pages/CustomerFormPage.tsx";
 import CustomerDashboardPage from "../pages/CustomerDashboardPage.tsx";
 import {RequireAuth} from "./RequireAuth.tsx";
-import {useSelector} from "react-redux";
-import {RootState} from "../store/Store.tsx";
+import DashboardHomePage from "../pages/DashboardHomePage.tsx";
 
-const RouterRoutes = () => {
-    const {isAuth} = useSelector((state: RootState) => state.auth);
+interface RouterRoutesProps {
+    isAuth: boolean;
+}
 
+const RouterRoutes = ({isAuth}: RouterRoutesProps) => {
     return (
         <Routes>
             <Route path="/" element={<LandingPage/>}/>
-            <Route path="/login" element={isAuth ? <CustomerDashboardPage /> : <LoginPage/>}/>
-            <Route path="/sign-up" element={isAuth ? <CustomerDashboardPage /> : <CustomerFormPage/>}/>
+            <Route path="/login" element={isAuth ? <DashboardHomePage/> : <LoginPage/>}/>
+            <Route path="/sign-up" element={isAuth ? <DashboardHomePage/> : <CustomerFormPage/>}/>
 
             <Route element={<RequireAuth/>}>
+                <Route path="/dashboard" element={<DashboardHomePage/>}/>
                 <Route path="/customer-dashboard" element={<CustomerDashboardPage/>}/>
                 <Route path="/customer-form" element={<CustomerFormPage/>}>
                     <Route path=":customerId" element={<CustomerFormPage/>}/>

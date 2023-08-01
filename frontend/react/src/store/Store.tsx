@@ -4,6 +4,7 @@ import {persistReducer, persistStore} from "redux-persist";
 
 import customerReducer from "./customer/CustomerSlice.tsx";
 import authReducer from "./auth/AuthSlice.tsx";
+import {Persistor} from "redux-persist/es/types";
 
 const reducers = combineReducers({
     customer: customerReducer,
@@ -27,7 +28,7 @@ export const store = configureStore({
         })
 });
 
-export const persistor = persistStore(store);
+export const persistor: Persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

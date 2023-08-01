@@ -1,4 +1,4 @@
-import axios, {AxiosError, AxiosHeaders} from "axios";
+import axios, {AxiosError, AxiosHeaders, AxiosHeaderValue} from "axios";
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {NavigateFunction} from "react-router-dom";
 import {customerAuthAPI} from "../customer/CustomerActions.tsx";
@@ -38,14 +38,14 @@ export const performLogin = createAsyncThunk<void, performLoginData, { rejectVal
             const headers = res.headers;
 
             if (headers instanceof AxiosHeaders) {
-                const token = headers.get("authorization");
+                const token: AxiosHeaderValue = headers.get("authorization");
 
                 if (typeof token === "string") {
                     localStorage.setItem("token", token);
                 }
             }
 
-            navigate("/customer-dashboard", {replace: true});
+            navigate("/dashboard", {replace: true});
         } catch (err) {
             const error: AxiosError<ServerError> = err as never;
 

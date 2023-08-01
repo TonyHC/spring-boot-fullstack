@@ -1,7 +1,7 @@
 import {Form, Formik, FormikValues} from 'formik';
 import * as Yup from 'yup';
 
-import {Box, Button, CircularProgress, MenuItem, Stack, Typography} from "@mui/material";
+import {Box, Breadcrumbs, Button, MenuItem, Skeleton, Stack, Toolbar, Typography} from "@mui/material";
 import {ThemeProvider} from "@mui/material/styles";
 import NavBar from "../navigation/Navbar.tsx";
 import {Customer} from "../../store/customer/CustomerSlice.tsx";
@@ -10,11 +10,31 @@ import {FireAlert} from "../ui/Alert.tsx";
 import {ServerError} from "../../store/customer/CustomerActions.tsx";
 import {CustomTextInput} from "../ui/TextField.tsx";
 import {CustomSelect} from "../ui/Select.tsx";
+import Footer from "./Footer.tsx";
+import {Link} from "react-router-dom";
+import {NavigateNext as NavigateNextIcon} from "@mui/icons-material";
+
+enum FormTitles {
+    CreateAccount = "Create Account",
+    CreateCustomer = "Create Customer",
+    UpdateCustomer = "Update Customer"
+}
+
+const createBreadCrumbs = (formTitle: string) => {
+    return [
+        <Link to="/dashboard" key="1">Dashboard</Link>,
+        <Link to="/customer-dashboard" key="2">Customers</Link>,
+        <Typography key="3">
+            {formTitle}
+        </Typography>
+    ];
+};
 
 interface UserHomeProps {
     editMode: boolean;
     status: string;
     error: ServerError | undefined;
+    isAuth: boolean;
     actionType?: string;
     onCreateCustomer?: (customer: FormikValues) => Promise<void>;
     onUpdateCustomer?: (customer: FormikValues, customerId: string) => Promise<void>;
@@ -22,8 +42,11 @@ interface UserHomeProps {
 }
 
 const CustomerForm = (
-    {status, error, editMode, actionType, onCreateCustomer, onUpdateCustomer, existingCustomer}: UserHomeProps
+    {status, error, editMode, isAuth, actionType, onCreateCustomer, onUpdateCustomer, existingCustomer}: UserHomeProps
 ) => {
+    const breadCrumbTitle = !isAuth ? FormTitles.CreateAccount :
+        onCreateCustomer ? FormTitles.CreateCustomer : FormTitles.UpdateCustomer;
+
     const initialFormValues = (editMode) ? {
         firstName: existingCustomer ? existingCustomer.firstName : "",
         lastName: existingCustomer ? existingCustomer.lastName : "",
@@ -88,132 +111,156 @@ const CustomerForm = (
     return (
         <>
             <NavBar/>
-            {
-                (status === "loading" && actionType === "customer/getCustomerById") ?
-                    <CircularProgress sx={{m: "auto"}}/> :
+            <Stack direction="column" flexGrow={1}>
+                {
                     <>
+                        {
+                            isAuth &&
+                            <>
+                                <Toolbar/>
+                                <Breadcrumbs
+                                    separator={<NavigateNextIcon fontSize="small"/>}
+                                    aria-label="breadcrumb"
+                                    sx={{mt: 2}}>
+                                    {status === "loading" ?
+                                        <Skeleton width={350}/> : createBreadCrumbs(breadCrumbTitle)}
+                                </Breadcrumbs>
+                            </>
+                        }
                         <Box
                             sx={{
                                 width: "auto",
                                 height: "auto",
-                                mt: 12,
-                                mb: 5,
+                                my: 5,
                                 mx: "auto",
                                 outline: "1px solid #E0E3E7",
                                 boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;",
                                 p: 5
                             }}
                         >
-                            <Typography
-                                variant="h4"
-                                component="h4"
-                                textAlign="center"
-                                fontFamily="monospace"
-                            >
-                                {onCreateCustomer ? "Create customer" : onUpdateCustomer ? "Update customer" : "Create account"}
-                            </Typography>
-
-                            {(error && error.message) &&
-                                <FireAlert variant="outlined" severity="error" color="error">
-                                    {error.message}
-                                </FireAlert>
-                            }
-
-                            <Formik
-                                enableReinitialize={true}
-                                initialValues={initialFormValues}
-                                validateOnMount={true}
-                                validationSchema={validationSchema}
-                                onSubmit={(customer, {setSubmitting}) => {
-                                    if (editMode && onUpdateCustomer && existingCustomer) {
-                                        void onUpdateCustomer(customer, existingCustomer.id.toString());
-                                    }
-
-                                    if (!editMode && onCreateCustomer) {
-                                        void onCreateCustomer(customer);
-                                    }
-
-                                    setSubmitting(true);
-                                }}
-                            >
-                                {({isValid, dirty, isSubmitting}) => (
-                                    <Form>
-                                        <Stack
-                                            direction="column"
-                                            justifyContent="center"
-                                            alignItems="center"
-                                            mt={3}
-                                            flexGrow={1}
+                            {
+                                (status === "loading" && actionType === "customer/getCustomerById") ?
+                                    <Skeleton height={900} width={300} sx={{ mt: -25, mb: -20 }} /> :
+                                    <>
+                                        <Typography
+                                            variant="h4"
+                                            component="h4"
+                                            textAlign="center"
+                                            fontFamily="monospace"
                                         >
-                                            <ThemeProvider theme={customerFormTheme}>
-                                                <CustomTextInput
-                                                    id="firstName"
-                                                    label="First Name"
-                                                    name="firstName"
-                                                    type="text"
-                                                    placeholder="Test"
-                                                />
-                                                <CustomTextInput
-                                                    id="lastName"
-                                                    label="Last Name"
-                                                    name="lastName"
-                                                    type="text"
-                                                    placeholder="Formik"
-                                                />
-                                                <CustomTextInput
-                                                    id="email"
-                                                    label="Email"
-                                                    name="email"
-                                                    type="text"
-                                                    placeholder="test@formik.com"
-                                                />
-                                                {!editMode && (
-                                                    <CustomTextInput
-                                                        id="password"
-                                                        label="Password"
-                                                        name="password"
-                                                        type="password"
-                                                    />
-                                                )}
-                                                <CustomTextInput
-                                                    id="age"
-                                                    label="Age"
-                                                    name="age"
-                                                    type="number"
-                                                    placeholder="Enter your age"
-                                                />
-                                                <CustomSelect
-                                                    id="gender-select"
-                                                    labelId="gender-select-label"
-                                                    label="Gender"
-                                                    name="gender"
-                                                >
-                                                    <MenuItem value="">
-                                                        <em>Select gender</em>
-                                                    </MenuItem>
-                                                    <MenuItem value="MALE">Male</MenuItem>
-                                                    <MenuItem value="FEMALE">Female</MenuItem>
-                                                </CustomSelect>
-                                                <Button
-                                                    disabled={!(isValid && dirty) || isSubmitting}
-                                                    color="inherit"
-                                                    variant="outlined"
-                                                    type="submit"
-                                                    fullWidth
-                                                    sx={{
-                                                        fontFamily: "monospace",
-                                                        fontWeight: 700
-                                                    }}>
-                                                    Submit
-                                                </Button>
-                                            </ThemeProvider>
-                                        </Stack>
-                                    </Form>
-                                )}
-                            </Formik>
+                                            {breadCrumbTitle}
+                                        </Typography>
+
+                                        {(error && error.message) &&
+                                            <FireAlert variant="outlined" severity="error" color="error">
+                                                {error.message}
+                                            </FireAlert>
+                                        }
+
+                                        <Formik
+                                            enableReinitialize={true}
+                                            initialValues={initialFormValues}
+                                            validateOnMount={true}
+                                            validationSchema={validationSchema}
+                                            onSubmit={(customer, {setSubmitting}) => {
+                                                if (editMode && onUpdateCustomer && existingCustomer) {
+                                                    void onUpdateCustomer(customer, existingCustomer.id.toString());
+                                                }
+
+                                                if (!editMode && onCreateCustomer) {
+                                                    void onCreateCustomer(customer);
+                                                }
+
+                                                setSubmitting(true);
+                                            }}
+                                        >
+                                            {({isValid, dirty, isSubmitting}) => (
+                                                <Form>
+                                                    <Stack
+                                                        direction="column"
+                                                        justifyContent="center"
+                                                        alignItems="center"
+                                                        mt={3}
+                                                        flexGrow={1}
+                                                    >
+                                                        <ThemeProvider theme={customerFormTheme}>
+                                                            <CustomTextInput
+                                                                id="firstName"
+                                                                label="First Name"
+                                                                name="firstName"
+                                                                type="text"
+                                                                placeholder="Test"
+                                                            />
+                                                            <CustomTextInput
+                                                                id="lastName"
+                                                                label="Last Name"
+                                                                name="lastName"
+                                                                type="text"
+                                                                placeholder="Formik"
+                                                            />
+                                                            <CustomTextInput
+                                                                id="email"
+                                                                label="Email"
+                                                                name="email"
+                                                                type="text"
+                                                                placeholder="test@formik.com"
+                                                            />
+                                                            {(!editMode && onCreateCustomer) && (
+                                                                <CustomTextInput
+                                                                    id="password"
+                                                                    label="Password"
+                                                                    name="password"
+                                                                    type="password"
+                                                                />
+                                                            )}
+                                                            <CustomTextInput
+                                                                id="age"
+                                                                label="Age"
+                                                                name="age"
+                                                                type="number"
+                                                            />
+                                                            <CustomSelect
+                                                                id="gender-select"
+                                                                labelId="gender-select-label"
+                                                                label="Gender"
+                                                                name="gender"
+                                                            >
+                                                                <MenuItem value="">
+                                                                    <em>Select gender</em>
+                                                                </MenuItem>
+                                                                <MenuItem value="MALE">Male</MenuItem>
+                                                                <MenuItem value="FEMALE">Female</MenuItem>
+                                                            </CustomSelect>
+                                                            <Button
+                                                                disabled={!(isValid && dirty) || isSubmitting}
+                                                                color="inherit"
+                                                                variant="outlined"
+                                                                type="submit"
+                                                                fullWidth
+                                                                sx={{
+                                                                    fontFamily: "monospace",
+                                                                    fontWeight: 700
+                                                                }}>
+                                                                Submit
+                                                            </Button>
+                                                        </ThemeProvider>
+                                                    </Stack>
+                                                </Form>
+                                            )}
+                                        </Formik>
+                                    </>
+                            }
+                            {
+                                !isAuth &&
+                                <Typography variant="caption" display="block" mt={3} mb={-3} textAlign="center">
+                                    Already have a account? <Link to="/login">Sign in</Link>
+                                </Typography>
+                            }
                         </Box>
                     </>
-            }
+                }
+                <Footer/>
+            </Stack>
         </>
     );
 };

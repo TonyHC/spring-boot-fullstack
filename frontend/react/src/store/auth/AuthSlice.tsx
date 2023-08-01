@@ -19,13 +19,15 @@ type AuthSlice = {
     isAuth: boolean;
     error: ServerError | undefined;
     status: string;
+    openActionsList: boolean;
 }
 
 const initialState: AuthSlice = {
     user: {} as User,
     isAuth: false,
     error: {} as ServerError,
-    status: "idle"
+    status: "idle",
+    openActionsList: false
 };
 
 const authSlice = createSlice(({
@@ -34,6 +36,12 @@ const authSlice = createSlice(({
     reducers: {
         resetErrorState: (state) => {
             state.error = {} as ServerError;
+        },
+        toggleOpenActionListState: (state) => {
+            state.openActionsList = !state.openActionsList;
+        },
+        resetOpenActionsListState: (state) => {
+            state.openActionsList = false;
         }
     },
     extraReducers: (builder) => {
@@ -79,5 +87,5 @@ const authSlice = createSlice(({
     }
 }))
 
-export const {resetErrorState} = authSlice.actions;
+export const {resetErrorState, toggleOpenActionListState, resetOpenActionsListState} = authSlice.actions;
 export default authSlice.reducer;

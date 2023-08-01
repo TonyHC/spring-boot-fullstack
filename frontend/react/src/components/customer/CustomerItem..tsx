@@ -11,36 +11,38 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Skeleton,
     Typography
 } from "@mui/material";
 import {ThemeProvider} from "@mui/material/styles";
-import {useNavigate} from "react-router-dom";
+import {NavigateFunction, useNavigate} from "react-router-dom";
 import {customerItemTheme} from "../../themes/CustomThemes.tsx";
 
 interface CustomerItemInterface {
     key: React.Key;
     customer: Customer;
+    status: string;
     onDeleteCustomer: (customerId: string) => Promise<void>;
 }
 
-const CustomerItem = ({customer, onDeleteCustomer}: CustomerItemInterface) => {
-    const navigate = useNavigate();
+const CustomerItem = ({customer, status, onDeleteCustomer}: CustomerItemInterface) => {
+    const navigate: NavigateFunction = useNavigate();
     const [openDialog, setOpenDialog] = React.useState(false);
 
-    const handleClickOpen = () => {
+    const handleClickOpen = (): void => {
         setOpenDialog(true);
     };
 
-    const handleClose = () => {
+    const handleClose = (): void => {
         setOpenDialog(false);
     };
 
-    const deleteCustomerHandler = () => {
+    const deleteCustomerHandler = (): void => {
         setOpenDialog(false);
         void onDeleteCustomer(customer.id.toString());
     }
 
-    const updateCustomerClickHandler = () => {
+    const updateCustomerClickHandler = (): void => {
         navigate(`/customer-form/${customer.id}`);
     };
 
@@ -56,11 +58,14 @@ const CustomerItem = ({customer, onDeleteCustomer}: CustomerItemInterface) => {
                     boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;"
                 }}
             >
-                <CardMedia
-                    sx={{width: 'auto', height: 175}}
-                    image="https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-980x653.jpg"
-                    title="placeholder img"
-                />
+                {
+                    status == "loading" ? <Skeleton height={280} sx={{mt: -7.5, mb: -6}}/> :
+                        <CardMedia
+                            sx={{width: 'auto', height: 175}}
+                            image="https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-980x653.jpg"
+                            title="placeholder img"
+                        />
+                }
                 <CardContent>
                     <Typography
                         variant="h5"
@@ -72,18 +77,23 @@ const CustomerItem = ({customer, onDeleteCustomer}: CustomerItemInterface) => {
                             color: "inherit",
                             textDecoration: "none"
                         }}>
-                        {customer.firstName} {customer.lastName}
+                        {status == "loading" ? <Skeleton/> : `${customer.firstName} ${customer.lastName}`}
                     </Typography>
                     <Typography color="text.secondary" component={"div"} sx={{fontSize: "0.9rem", color: "inherit"}}>
-                        {customer.email}
+                        {status == "loading" ? <Skeleton/> : `${customer.email}`}
                     </Typography>
                     <Typography color="text.secondary" component={"div"} sx={{fontSize: "0.9rem", color: "inherit"}}>
-                        Age {customer.age} | {customer.gender.substring(0, 1) + customer.gender.substring(1).toLowerCase()}
+                        {status == "loading" ?
+                            <Skeleton/> : `Age ${customer.age} |  ${customer.gender.substring(0, 1) + customer.gender.substring(1).toLowerCase()}`}
                     </Typography>
                 </CardContent>
                 <CardActions sx={{mt: -2}}>
-                    <Button size="small" onClick={updateCustomerClickHandler}>Update Info</Button>
-                    <Button size="small" color="error" onClick={handleClickOpen}>Delete</Button>
+                    <Button size="small" onClick={updateCustomerClickHandler}>
+                        {status === "loading" ? <Skeleton width={50}/> : 'Update Info'}
+                    </Button>
+                    <Button size="small" color="error" onClick={handleClickOpen}>
+                        {status === "loading" ? <Skeleton width={50}/> : 'Delete'}
+                    </Button>
                 </CardActions>
             </Card>
             <ThemeProvider theme={customerItemTheme}>

@@ -6,6 +6,7 @@ import {
     Divider,
     Drawer,
     IconButton,
+    Link,
     List,
     ListItem,
     ListItemButton,
@@ -13,6 +14,7 @@ import {
     ListItemText,
     ListSubheader,
     Paper,
+    Stack,
     Toolbar,
     Tooltip,
     Typography
@@ -38,15 +40,18 @@ import {
     StarBorder
 } from "@mui/icons-material/";
 import {sideMenuTheme} from "../../themes/CustomThemes.tsx";
-import {useNavigate} from "react-router-dom";
+import {NavigateFunction, useNavigate} from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch, RootState} from "../../store/Store.tsx";
+import {toggleOpenActionListState} from "../../store/auth/AuthSlice.tsx";
 
 const drawerWidth = 256;
 
 const buildListData = [
-    {icon: <People/>, label: "Authentication"},
-    {icon: <Dns/>, label: "Database"},
-    {icon: <PermMedia/>, label: "Storage"},
-    {icon: <Public/>, label: "Hosting"}
+    {icon: <People/>, label: "Customer", path: "/customer-dashboard"},
+    {icon: <Dns/>, label: "Dashboard", path: "/dashboard"},
+    {icon: <PermMedia/>, label: "Profile", path: "/dashboard"},
+    {icon: <Public/>, label: "Settings", path: "/dashboard"}
 ];
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
@@ -63,27 +68,24 @@ const FireNav = styled(List)<{ component?: React.ElementType }>({
     },
 });
 
-/*
-    TODO -> Update the list items of the SideMenu component by either adding links to another component or
-    removing unnecessary items
-*/
-
 const SideMenu = () => {
-    const [openBuildList, setOpenBuildList] = useState(false);
-    const [openInboxList, setOpenInboxList] = useState(false);
-    const navigate = useNavigate();
+    const {openActionsList} = useSelector((state: RootState) => state.auth);
+    const dispatch = useDispatch<AppDispatch>();
 
-    const handleClick = () => {
+    const [openInboxList, setOpenInboxList] = useState(false);
+    const navigate: NavigateFunction = useNavigate();
+
+    const handleClick = (): void => {
         setOpenInboxList(!openInboxList);
     };
 
-    const dashboardClickHandler = () => {
-        navigate("/customer-dashboard");
+    const dashboardClickHandler = (): void => {
+        navigate("/dashboard");
     };
 
-    const githubClickHandler = () => {
-        window.location.assign("https://github.com/TonyHC/spring-boot-fullstack");
-    }
+    const navigateClickHandler = (path: string): void => {
+        navigate(path);
+    };
 
     return (
         <Drawer
@@ -109,7 +111,7 @@ const SideMenu = () => {
                                         <Home color="primary"/>
                                     </ListItemIcon>
                                     <ListItemText
-                                        primary="Dashboard"
+                                        primary="Home"
                                         primaryTypographyProps={{
                                             color: "primary",
                                             fontWeight: "medium",
@@ -153,34 +155,33 @@ const SideMenu = () => {
                                 </Tooltip>
                             </ListItem>
                             <Divider/>
-                            <Box sx={{bgcolor: openBuildList ? "rgba(71, 98, 130, 0.2)" : null}}>
+                            <Box sx={{bgcolor: openActionsList ? "rgba(71, 98, 130, 0.2)" : null}}>
                                 <ListItemButton
                                     alignItems="flex-start"
-                                    onClick={() => setOpenBuildList(!openBuildList)}
+                                    onClick={() => dispatch(toggleOpenActionListState())}
                                     sx={{
                                         px: 3,
                                         pt: 2.5,
-                                        pb: openBuildList ? 0 : 2.5,
+                                        pb: openActionsList ? 0 : 2.5,
                                         "&:hover, &:focus": {
-                                            "& svg": {opacity: openBuildList ? 1 : 0}
+                                            "& svg": {opacity: openActionsList ? 1 : 0}
                                         }
                                     }}
                                 >
                                     <ListItemText
-                                        primary="Build"
+                                        primary="Actions"
                                         primaryTypographyProps={{
                                             fontSize: 15,
                                             fontWeight: "medium",
                                             lineHeight: "20px",
                                             mb: "2px"
                                         }}
-                                        secondary="Authentication, Firestore Database, Realtime Database, Storage, H
-                                        osting, Functions, and Machine Learning"
+                                        secondary="Customers, Dashboard, Settings, Profile"
                                         secondaryTypographyProps={{
                                             noWrap: true,
                                             fontSize: 12,
                                             lineHeight: "16px",
-                                            color: openBuildList ? "rgba(0,0,0,0)" : "rgba(255,255,255,0.5)"
+                                            color: openActionsList ? "rgba(0,0,0,0)" : "rgba(255,255,255,0.5)"
                                         }}
                                         sx={{my: 0}}
                                     />
@@ -188,12 +189,12 @@ const SideMenu = () => {
                                         sx={{
                                             mr: -1,
                                             opacity: 0,
-                                            transform: openBuildList ? "rotate(-180deg)" : "rotate(0)",
+                                            transform: openActionsList ? "rotate(-180deg)" : "rotate(0)",
                                             transition: "0.2s"
                                         }}
                                     />
                                 </ListItemButton>
-                                {openBuildList &&
+                                {openActionsList &&
                                     buildListData.map((item) => (
                                         <ListItemButton
                                             key={item.label}
@@ -202,6 +203,7 @@ const SideMenu = () => {
                                                 minHeight: 45,
                                                 color: "rgba(255,255,255,.8)"
                                             }}
+                                            onClick={() => navigateClickHandler(item.path)}
                                         >
                                             <ListItemIcon sx={{color: "inherit"}}>
                                                 {item.icon}
@@ -259,7 +261,8 @@ const SideMenu = () => {
                             </ListItemButton>
                             <Collapse in={openInboxList} timeout="auto" unmountOnExit>
                                 <List component="div" disablePadding>
-                                    <ListItemButton sx={{paddingLeft: 2}}>
+                                    <ListItemButton sx={{paddingLeft: 2}}
+                                                    onClick={() => navigateClickHandler("/dashboard")}>
                                         <ListItemIcon>
                                             <StarBorder/>
                                         </ListItemIcon>
@@ -287,16 +290,14 @@ const SideMenu = () => {
                     </Paper>
                 </Box>
                 <Box display="flex" sx={{bgcolor: "background.paper"}}>
-                    <ListItemButton sx={{height: 50, pl: 3}} onClick={githubClickHandler}>
-                        <ListItemIcon>
-                            <GitHub color="primary"/>
-                        </ListItemIcon>
-                        <ListItemText sx={{ml: -2}}>
+                    <Stack direction="row" display="flex" alignItems="center" justifyContent="center" px={3} py={2}>
+                        <GitHub fontSize="medium" color="primary"/>
+                        <Link underline="none" color="inherit" ml={2} href="https://github.com/TonyHC">
                             <Typography variant="body2">
                                 GitHub
                             </Typography>
-                        </ListItemText>
-                    </ListItemButton>
+                        </Link>
+                    </Stack>
                 </Box>
             </ThemeProvider>
         </Drawer>

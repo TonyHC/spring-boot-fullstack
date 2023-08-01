@@ -1,22 +1,23 @@
 import CustomerForm from "../components/shared/CustomerForm.tsx";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.tsx";
-import {useLocation, useNavigate, useParams} from "react-router-dom";
+import {Location, NavigateFunction, useLocation, useNavigate, useParams} from "react-router-dom";
 import {createCustomer, getCustomerById, updateCustomerById} from "../store/customer/CustomerActions.tsx";
-import {useEffect, useState} from "react";
+import {JSX, useEffect, useState} from "react";
 import NotFoundPage from "./NotFoundPage.tsx";
-import useCurrentPage, {routes} from "../hooks/CurrentPage.tsx";
+import useCurrentPage, {customerFormRoutes} from "../hooks/CurrentPage.tsx";
 import {FormikValues} from "formik";
 import {resetErrorState} from "../store/customer/CustomerSlice.tsx";
 
 const CustomerFormPage = () => {
-    const [editMode, setEditMode] = useState(false);
+    const [editMode, setEditMode] = useState<boolean>(false);
     const {customer, status, actionType, error} = useSelector((state: RootState) => state.customer);
+    const {isAuth} = useSelector((state: RootState) => state.auth);
     const dispatch = useDispatch<AppDispatch>();
 
     const params = useParams();
-    const location = useLocation();
-    const navigate = useNavigate();
+    const location: Location = useLocation();
+    const navigate: NavigateFunction = useNavigate();
     const {customerId} = params;
 
     useEffect(() => {
@@ -31,23 +32,23 @@ const CustomerFormPage = () => {
         dispatch(resetErrorState());
     }, [dispatch, location.pathname]);
 
-    const createCustomerHandler = async (customer: FormikValues) => {
+    const createCustomerHandler = async (customer: FormikValues): Promise<void> => {
         await dispatch(createCustomer({navigate, customer}));
     }
 
-    const updateCustomerHandler = async (customer: FormikValues, customerId: string) => {
+    const updateCustomerHandler = async (customer: FormikValues, customerId: string): Promise<void> => {
         await dispatch(updateCustomerById({navigate, customer, customerId}));
     }
 
-    const currentPath = useCurrentPage();
+    const currentPath: string = useCurrentPage(customerFormRoutes);
 
-    const renderPage = () => {
-        if (currentPath === routes[0].path || currentPath === routes[1].path) {
-            return <CustomerForm status={status} error={error} editMode={editMode}
+    const renderPage = (): JSX.Element => {
+        if (currentPath === customerFormRoutes[0].path || currentPath === customerFormRoutes[1].path) {
+            return <CustomerForm status={status} error={error} editMode={editMode} isAuth={isAuth}
                                  onCreateCustomer={createCustomerHandler}/>
-        } else if (currentPath === routes[2].path) {
+        } else if (currentPath === customerFormRoutes[2].path) {
             return <CustomerForm status={status} error={error} actionType={actionType} editMode={editMode}
-                                 onUpdateCustomer={updateCustomerHandler}
+                                 isAuth={isAuth} onUpdateCustomer={updateCustomerHandler}
                                  existingCustomer={customer}/>
         } else {
             return <NotFoundPage/>

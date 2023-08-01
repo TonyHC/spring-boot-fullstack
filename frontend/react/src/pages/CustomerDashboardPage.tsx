@@ -1,8 +1,8 @@
 import CustomerDashboard from "../components/customer/CustomerDashboard.tsx";
-import {useEffect} from "react";
 import {deleteCustomerById, getAllCustomers} from "../store/customer/CustomerActions.tsx";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.tsx";
+import {useEffect} from "react";
 
 const CustomerDashboardPage = () => {
     const {customers, status, error} = useSelector((state: RootState) => state.customer);
@@ -12,7 +12,7 @@ const CustomerDashboardPage = () => {
         void dispatch(getAllCustomers());
     }, [dispatch]);
 
-    const deleteCustomerHandler = async (customerId: string) => {
+    const deleteCustomerHandler = async (customerId: string): Promise<void> => {
         await dispatch(deleteCustomerById(customerId));
     }
 

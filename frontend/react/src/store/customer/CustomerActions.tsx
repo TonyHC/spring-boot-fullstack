@@ -1,4 +1,4 @@
-import axios, {AxiosError, AxiosHeaders} from "axios";
+import axios, {AxiosError, AxiosHeaders, AxiosHeaderValue, AxiosInstance} from "axios";
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {NavigateFunction} from "react-router-dom";
 import {Customer} from "./CustomerSlice.tsx";
@@ -22,12 +22,12 @@ export interface ServerError {
     path: string;
 }
 
-export const customerAuthAPI = axios.create({
+export const customerAuthAPI: AxiosInstance = axios.create({
     baseURL: `${import.meta.env.VITE_API_BASE_URL}/api/v1/customers`
 });
 
 customerAuthAPI.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
+    const token: string | null = localStorage.getItem("token");
 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -45,7 +45,7 @@ export const createCustomer = createAsyncThunk<void, createCustomerData, { rejec
             const headers = res.headers;
 
             if (headers instanceof AxiosHeaders) {
-                const token = headers.get("authorization");
+                const token: AxiosHeaderValue = headers.get("authorization");
 
                 if (typeof token === "string") {
                     localStorage.setItem("token", token);

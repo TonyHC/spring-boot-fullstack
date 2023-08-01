@@ -97,21 +97,21 @@ const NavBar = () => {
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    const handleClick = (event: React.MouseEvent<HTMLElement>): void => {
         setAnchorEl(event.currentTarget);
     };
-    const handleClose = () => {
+    const handleClose = (): void => {
         setAnchorEl(null);
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const input = (e.target as HTMLInputElement).value;
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        const input: string = (e.target as HTMLInputElement).value;
         setSearchKeyword(input);
     };
 
     const handleSearchTextFieldKeyDown = (
         e: React.KeyboardEvent<HTMLInputElement>
-    ) => {
+    ): void => {
         if (e.key == "Enter") {
             console.log((e.target as HTMLInputElement).value);
             setSearchKeyword("");
@@ -120,26 +120,26 @@ const NavBar = () => {
 
     const handleAutocompleteKeyDown = (
         e: React.KeyboardEvent<HTMLInputElement>
-    ) => {
+    ): void => {
         if (e.key == "Enter") {
             console.log((e.target as HTMLInputElement).value);
         }
     };
 
-    const homeClickHandler = () => {
+    const homeClickHandler = (): void => {
         navigate("/");
     };
 
-    const loginClickHandler = () => {
+    const loginClickHandler = (): void => {
         navigate("/login");
     };
 
-    const dashboardClickHandler = () => {
+    const dashboardHandler = (): void => {
         setAnchorEl(null);
-        navigate("/customer-dashboard");
+        navigate("/dashboard");
     };
 
-    const handleLogout = () => {
+    const logoutHandler = (): void => {
         setAnchorEl(null);
         void logout();
         navigate("/login", {replace: true});
@@ -169,7 +169,7 @@ const NavBar = () => {
                                     color: "inherit",
                                     textDecoration: "none",
                                 }}>
-                                LOGO
+                                DEMO
                             </Typography>
                         </Button>
                     </Stack>
@@ -268,17 +268,17 @@ const NavBar = () => {
                                 transformOrigin={{horizontal: "right", vertical: "top"}}
                                 anchorOrigin={{horizontal: "right", vertical: "bottom"}}
                             >
+                                <MenuItem onClick={dashboardHandler}>
+                                    <ListItemIcon>
+                                        <PersonAdd fontSize="small"/>
+                                    </ListItemIcon>
+                                    Dashboard
+                                </MenuItem>
                                 <MenuItem onClick={handleClose}>
                                     <ListItemIcon>
                                         <AccountCircle fontSize="medium"/>
                                     </ListItemIcon>
                                     Profile
-                                </MenuItem>
-                                <MenuItem onClick={dashboardClickHandler}>
-                                    <ListItemIcon>
-                                        <PersonAdd fontSize="small"/>
-                                    </ListItemIcon>
-                                    Dashboard
                                 </MenuItem>
                                 <MenuItem onClick={handleClose}>
                                     <ListItemIcon>
@@ -287,7 +287,7 @@ const NavBar = () => {
                                     Settings
                                 </MenuItem>
                                 <Divider sx={{borderColor: "#90a4ae"}}/>
-                                <MenuItem onClick={handleLogout}>
+                                <MenuItem onClick={logoutHandler}>
                                     <ListItemIcon>
                                         <Logout fontSize="small"/>
                                     </ListItemIcon>

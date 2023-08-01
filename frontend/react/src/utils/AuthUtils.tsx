@@ -2,8 +2,8 @@ import {persistor} from "../store/Store.tsx";
 import {tokenDecoded} from "../store/auth/AuthActions.tsx";
 import jwtDecode from "jwt-decode";
 
-export const validateToken = () => {
-    const token = localStorage.getItem("token");
+export const validateToken = (): boolean => {
+    const token: string | null = localStorage.getItem("token");
 
     if (token) {
         const decodedToken: tokenDecoded = jwtDecode(token);
@@ -19,7 +19,7 @@ export const validateToken = () => {
     }
 }
 
-export const logout = async () => {
+export const logout = async (): Promise<void> => {
     await persistor.purge();
     localStorage.removeItem("token");
 };

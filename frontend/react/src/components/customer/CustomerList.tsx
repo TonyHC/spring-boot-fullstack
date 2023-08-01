@@ -4,21 +4,23 @@ import {Stack} from "@mui/material";
 
 interface CustomerListProps {
     customers: Customer[];
+    status: string;
     onDeleteCustomer: (customerId: string) => Promise<void>;
 }
 
-const CustomerList = ({customers, onDeleteCustomer}: CustomerListProps) => {
+const CustomerList = ({customers, status, onDeleteCustomer}: CustomerListProps) => {
     return (
         <>
             <Stack
                 direction="row"
                 useFlexGap flexWrap="wrap"
                 alignItems="center"
-                justifyContent="space-around"
+                justifyContent="center"
             >
                 {
                     customers.map(customer => (
-                        <CustomerItem key={customer.id} customer={customer} onDeleteCustomer={onDeleteCustomer}/>
+                        <CustomerItem key={customer.id} customer={customer} status={status}
+                                      onDeleteCustomer={onDeleteCustomer}/>
                     ))
                 }
             </Stack>
