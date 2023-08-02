@@ -55,13 +55,13 @@ jobs:
           --data '{"text":":docker: Image tag: ${{ steps.build-number.outputs.BUILD_NUMBER }} pushed to ${{ secrets.DOCKERHUB_FRONTEND_URL }}"}'
           ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      - name: Update Dockerrun.aws.json image tag name with new build number
-        run: |
-          echo "Dockerrun.aws.json before updating image tag name"
-          cat ../../Dockerrun.aws.json
-          sed -i -E 's_(tchao98/spring-boot-demo-react-client:)([^"]*)_\1'${{ steps.build-number.outputs.BUILD_NUMBER }}'_' ../../Dockerrun.aws.json
-          echo "Dockerrun.aws.json after updating image tag name"
-          cat ../../Dockerrun.aws.json
+      # - name: Update Dockerrun.aws.json image tag name with new build number
+      #  run: |
+      #    echo "Dockerrun.aws.json before updating image tag name"
+      #    cat ../../Dockerrun.aws.json
+      #    sed -i -E 's_(tchao98/spring-boot-demo-react-client:)([^"]*)_\1'${{ steps.build-number.outputs.BUILD_NUMBER }}'_' ../../Dockerrun.aws.json
+      #    echo "Dockerrun.aws.json after updating image tag name"
+      #    cat ../../Dockerrun.aws.json
 
       # - name: Send Slack Message
       #   run: >
@@ -88,13 +88,13 @@ jobs:
           --data '{"text":":githubloading: Committing to repo: ${{ github.server_url }}/${{ github.repository }}"}' 
           ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      - name: Commit and push Dockerrun.aws.json
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add ../../Dockerrun.aws.json
-          git commit -m "Update Dockerrun.aws.json docker image with new tag ${{ steps.build-number.outputs.BUILD_NUMBER }}"
-          git push
+      # - name: Commit and push Dockerrun.aws.json
+      #  run: |
+      #    git config user.name github-actions
+      #    git config user.email github-actions@github.com
+      #    git add ../../Dockerrun.aws.json
+      #    git commit -m "Update Dockerrun.aws.json docker image with new tag ${{ steps.build-number.outputs.BUILD_NUMBER }}"
+      #    git push
 
       # - name: Send Slack Message
       #   run: >
