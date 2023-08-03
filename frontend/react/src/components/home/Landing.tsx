@@ -21,7 +21,7 @@ const Landing = ({isAuth}: LandingProps) => {
     };
 
     const dashboardClickHandler = (): void => {
-        navigate("/customer-dashboard");
+        navigate("/dashboard");
     };
 
     return (

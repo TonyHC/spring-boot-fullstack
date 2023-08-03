@@ -1,11 +1,14 @@
 import {Route, Routes} from "react-router-dom";
-import LandingPage from "../pages/LandingPage";
-import LoginPage from "../pages/LoginPage";
-import NotFoundPage from "../pages/NotFoundPage";
-import CustomerFormPage from "../pages/CustomerFormPage.tsx";
-import CustomerDashboardPage from "../pages/CustomerDashboardPage.tsx";
 import {RequireAuth} from "./RequireAuth.tsx";
-import DashboardHomePage from "../pages/DashboardHomePage.tsx";
+import React, {Suspense} from "react";
+import {CircularProgress} from "@mui/material";
+
+const LoginPage = React.lazy(() => import("../pages/LoginPage.tsx"));
+const DashboardHomePage = React.lazy(() => import("../pages/DashboardHomePage.tsx"));
+const LandingPage = React.lazy(() => import("../pages/LandingPage.tsx"));
+const CustomerDashboardPage = React.lazy(() => import("../pages/CustomerDashboardPage.tsx"));
+const CustomerFormPage = React.lazy(() => import("../pages/CustomerFormPage.tsx"));
+const NotFoundPage = React.lazy(() => import("../pages/NotFoundPage.tsx"));
 
 interface RouterRoutesProps {
     isAuth: boolean;
@@ -13,21 +16,23 @@ interface RouterRoutesProps {
 
 const RouterRoutes = ({isAuth}: RouterRoutesProps) => {
     return (
-        <Routes>
-            <Route path="/" element={<LandingPage/>}/>
-            <Route path="/login" element={isAuth ? <DashboardHomePage/> : <LoginPage/>}/>
-            <Route path="/sign-up" element={isAuth ? <DashboardHomePage/> : <CustomerFormPage/>}/>
+        <Suspense fallback={<CircularProgress sx={{ m: 'auto' }} />}>
+            <Routes>
+                <Route path="/" element={<LandingPage/>}/>
+                <Route path="/login" element={isAuth ? <DashboardHomePage/> : <LoginPage/>}/>
+                <Route path="/sign-up" element={isAuth ? <DashboardHomePage/> : <CustomerFormPage/>}/>
 
-            <Route element={<RequireAuth/>}>
-                <Route path="/dashboard" element={<DashboardHomePage/>}/>
-                <Route path="/customer-dashboard" element={<CustomerDashboardPage/>}/>
-                <Route path="/customer-form" element={<CustomerFormPage/>}>
-                    <Route path=":customerId" element={<CustomerFormPage/>}/>
+                <Route element={<RequireAuth/>}>
+                    <Route path="/dashboard" element={<DashboardHomePage/>}/>
+                    <Route path="/customer-dashboard" element={<CustomerDashboardPage/>}/>
+                    <Route path="/customer-form" element={<CustomerFormPage/>}>
+                        <Route path=":customerId" element={<CustomerFormPage/>}/>
+                    </Route>
                 </Route>
-            </Route>
 
-            <Route path="*" element={<NotFoundPage/>}/>
-        </Routes>
+                <Route path="*" element={<NotFoundPage />}/>
+            </Routes>
+        </Suspense>
     );
 };
 
