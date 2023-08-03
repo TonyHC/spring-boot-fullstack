@@ -1,29 +1,44 @@
 package com.tonyhc.springbootdemo.customer;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository("JDBC")
 public class CustomerJDBCDataAccessService implements CustomerDao {
     private final JdbcTemplate jdbcTemplate;
     private final CustomerRowMapper customerRowMapper;
+    private final PaginationUtil paginationUtil;
 
-    public CustomerJDBCDataAccessService(JdbcTemplate jdbcTemplate, CustomerRowMapper customerRowMapper) {
+
+    public CustomerJDBCDataAccessService(JdbcTemplate jdbcTemplate, CustomerRowMapper customerRowMapper, PaginationUtil paginationUtil) {
         this.jdbcTemplate = jdbcTemplate;
         this.customerRowMapper = customerRowMapper;
+        this.paginationUtil = paginationUtil;
     }
 
     @Override
-    public List<Customer> findAllCustomers() {
-        String sql = """
-                SELECT customer_id, first_name, last_name, email, password, age, gender
-                FROM customer;
-                """;
+    public Page<Customer> findPageOfCustomers(int page, int size, String sort) {
+        Pageable pageable = paginationUtil.createPageable(page, size, sort);
+        String[] sortOptions = sort.split(",");
 
-        return jdbcTemplate.query(sql, customerRowMapper);
+        String sql = "SELECT customer_id, first_name, last_name, email, password, age, gender FROM CUSTOMER"
+                + " ORDER BY " + sortOptions[0] + " " + sortOptions[1].toUpperCase() + " LIMIT ?" + " OFFSET ?";
+
+        List<Customer> query = jdbcTemplate.query(
+                sql,
+                customerRowMapper,
+                size,
+                pageable.getOffset()
+        );
+
+        return new PageImpl<>(query, pageable, getNumberOfRows());
     }
 
     @Override
@@ -98,10 +113,10 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
     public void updateCustomer(Customer customer) {
         if (customer.getFirstName() != null) {
             String sql = """
-                UPDATE customer
-                SET first_name = ?
-                WHERE customer_id = ?
-                """;
+                    UPDATE customer
+                    SET first_name = ?
+                    WHERE customer_id = ?
+                    """;
 
             int result = jdbcTemplate.update(
                     sql,
@@ -114,10 +129,10 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
 
         if (customer.getLastName() != null) {
             String sql = """
-                UPDATE customer
-                SET last_name = ?
-                WHERE customer_id = ?
-                """;
+                    UPDATE customer
+                    SET last_name = ?
+                    WHERE customer_id = ?
+                    """;
 
             int result = jdbcTemplate.update(
                     sql,
@@ -130,10 +145,10 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
 
         if (customer.getEmail() != null) {
             String sql = """
-                UPDATE customer
-                SET email = ?
-                WHERE customer_id = ?
-                """;
+                    UPDATE customer
+                    SET email = ?
+                    WHERE customer_id = ?
+                    """;
 
             int result = jdbcTemplate.update(
                     sql,
@@ -146,10 +161,10 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
 
         if (customer.getAge() != null) {
             String sql = """
-                UPDATE customer
-                SET age = ?
-                WHERE customer_id = ?
-                """;
+                    UPDATE customer
+                    SET age = ?
+                    WHERE customer_id = ?
+                    """;
 
             int result = jdbcTemplate.update(
                     sql,
@@ -162,10 +177,10 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
 
         if (customer.getGender() != null) {
             String sql = """
-                UPDATE customer
-                SET gender = ?
-                WHERE customer_id = ?
-                """;
+                    UPDATE customer
+                    SET gender = ?
+                    WHERE customer_id = ?
+                    """;
 
             int result = jdbcTemplate.update(
                     sql,
@@ -187,5 +202,13 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
         int result = jdbcTemplate.update(sql, id);
 
         System.out.println("jdbcTemplate.update = " + result);
+    }
+
+    private int getNumberOfRows() {
+        String sql = """
+                SELECT COUNT(*) FROM customer;
+                """;
+
+        return Objects.requireNonNull(jdbcTemplate.queryForObject(sql, Integer.class));
     }
 }

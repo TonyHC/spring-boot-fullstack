@@ -11,6 +11,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -21,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 class CustomerServiceTest {
-
     @Mock
     private CustomerDao customerDao;
 
@@ -36,6 +38,8 @@ class CustomerServiceTest {
 
     private AutoCloseable autoCloseable;
 
+    private final PaginationUtil paginationUtil = new PaginationUtil();
+
     @BeforeEach
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
@@ -48,13 +52,87 @@ class CustomerServiceTest {
     }
 
     @Test
-    void itShouldFindAllCustomers() {
+    void itShouldFindLastCustomers() {
         // Given
+        Long customerId = 1L;
+        String firstName = "Test";
+        String lastName = "Users";
+        String email = "testusers@mail.com";
+        String password = "password";
+        int age = 41;
+        Gender gender = Gender.MALE;
+
+        Customer customer = new Customer(
+                customerId, firstName, lastName, email, password, age, gender
+        );
+
+        CustomerDTO customerDTO = new CustomerDTO(
+                customerId, firstName, lastName, email, age, gender, List.of("ROLE_USER"), email
+        );
+
+        List<Customer> customers = List.of(customer);
+
+        int page = 0;
+        int size = 5;
+        String sort = "customer_id,desc";
+
+        Pageable pageable = paginationUtil.createPageable(page, size, sort);
+        Page<Customer> customerPage = new PageImpl<>(customers, pageable, customers.size());
+
+        when(customerDao.findPageOfCustomers(page, size, sort)).thenReturn(customerPage);
+        when(customerDTOMapper.apply(customer)).thenReturn(customerDTO);
+
         // When
-        underTest.findAllCustomers();
+        List<CustomerDTO> actual = underTest.findLastCustomers(size);
 
         // Then
-        verify(customerDao).findAllCustomers();
+        assertThat(actual).hasSize(customerPage.getContent().size());
+    }
+
+    @Test
+    void itShouldFindPageOfCustomers() {
+        // Given
+        Long customerId = 1L;
+        String firstName = "Test";
+        String lastName = "Users";
+        String email = "testusers@mail.com";
+        String password = "password";
+        int age = 41;
+        Gender gender = Gender.MALE;
+
+        Customer customer = new Customer(
+                customerId, firstName, lastName, email, password, age, gender
+        );
+
+        CustomerDTO expected = new CustomerDTO(
+                customerId, firstName, lastName, email, age, gender, List.of("ROLE_USER"), email
+        );
+
+        List<Customer> customers = List.of(customer);
+
+        int page = 0;
+        int size = 2;
+        String sort = "customer_id,asc";
+
+        Pageable pageable = paginationUtil.createPageable(page, size, sort);
+        Page<Customer> customerPage = new PageImpl<>(customers, pageable, customers.size());
+
+        when(customerDao.findPageOfCustomers(page, size, sort)).thenReturn(customerPage);
+        when(customerDTOMapper.apply(customer)).thenReturn(expected);
+
+        // When
+        CustomerPageDTO pageOfCustomers = underTest.findPageOfCustomers(page, size, sort);
+
+        // Then
+        SoftAssertions softAssertions = new SoftAssertions();
+
+        softAssertions.assertThat(pageOfCustomers.customers()).contains(expected);
+        softAssertions.assertThat(pageOfCustomers.currentPage()).isEqualTo(0);
+        softAssertions.assertThat(pageOfCustomers.pageSize()).isEqualTo(2);
+        softAssertions.assertThat(pageOfCustomers.totalPages()).isEqualTo(1);
+        softAssertions.assertThat(pageOfCustomers.totalItems()).isEqualTo(1);
+
+        softAssertions.assertAll();
     }
 
     @Test

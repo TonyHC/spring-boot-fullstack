@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 
 class CustomerJPADataAccessServiceTest {
@@ -15,13 +16,16 @@ class CustomerJPADataAccessServiceTest {
     @Mock
     private CustomerRepository customerRepository;
 
+    @Mock
+    private PaginationUtil paginationUtil;
+
     @InjectMocks
     private CustomerJPADataAccessService underTest;
 
     @BeforeEach
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
-        underTest = new CustomerJPADataAccessService(customerRepository);
+        underTest = new CustomerJPADataAccessService(customerRepository, paginationUtil);
     }
 
     @AfterEach
@@ -30,13 +34,18 @@ class CustomerJPADataAccessServiceTest {
     }
 
     @Test
-    void itShouldFindAllCustomers() {
+    void itShouldFindPageOfCustomers() {
         // Given
+        int page = 0;
+        int size = 2;
+        String sort = "id,ASC";
+
         // When
-        underTest.findAllCustomers();
+        underTest.findPageOfCustomers(page, size, sort);
 
         // Then
-        verify(customerRepository).findAll();
+        verify(paginationUtil).createPageable(anyInt(), anyInt(), anyString());
+        verify(customerRepository).findPageOfCustomers(any());
     }
 
     @Test
@@ -91,7 +100,7 @@ class CustomerJPADataAccessServiceTest {
     void itShouldRegisterCustomer() {
         // Given
         Customer customer = new Customer(
-          "Test", "Users", "testusers@mail.com", "password", 41, Gender.MALE
+                "Test", "Users", "testusers@mail.com", "password", 41, Gender.MALE
         );
 
         // When

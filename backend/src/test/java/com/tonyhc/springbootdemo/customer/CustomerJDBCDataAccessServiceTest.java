@@ -4,8 +4,8 @@ import com.tonyhc.springbootdemo.AbstractTestcontainers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,21 +14,23 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CustomerJDBCDataAccessServiceTest extends AbstractTestcontainers {
     private final CustomerRowMapper customerRowMapper = new CustomerRowMapper();
+    private final PaginationUtil paginationUtil = new PaginationUtil();
 
     private CustomerJDBCDataAccessService underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new CustomerJDBCDataAccessService(
-                getJdbcTemplate(),
-                customerRowMapper
-        );
+        underTest = new CustomerJDBCDataAccessService(getJdbcTemplate(), customerRowMapper, paginationUtil);
     }
 
     @Test
-    void itShouldFindAllCustomers() {
+    void itShouldFindPageOfCustomers() {
         // Given
-        Customer customer = new Customer(
+        int page = 0;
+        int size = 5;
+        String sort = "customer_id,ASC";
+
+        Customer customerOne = new Customer(
                 FAKER.name().firstName(),
                 FAKER.name().lastName(),
                 FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID(),
@@ -37,13 +39,23 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestcontainers {
                 Gender.MALE
         );
 
-        underTest.registerCustomer(customer);
+        Customer customerTwo = new Customer(
+                FAKER.name().firstName(),
+                FAKER.name().lastName(),
+                FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID(),
+                "password",
+                FAKER.number().numberBetween(18, 80),
+                Gender.MALE
+        );
+
+        underTest.registerCustomer(customerOne);
+        underTest.registerCustomer(customerTwo);
 
         // When
-        List<Customer> customers = underTest.findAllCustomers();
+        Page<Customer> pageOfCustomers = underTest.findPageOfCustomers(page, size, sort);
 
         // Then
-        assertThat(customers).isNotEmpty();
+        assertThat(pageOfCustomers).isNotNull();
     }
 
     @Test
@@ -62,9 +74,7 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestcontainers {
 
         underTest.registerCustomer(customer);
 
-        Long customerId = underTest.findAllCustomers().stream()
-                .filter(c -> c.getEmail().equals(email))
-                .findFirst()
+        Long customerId = underTest.findCustomerByEmail(email)
                 .map(Customer::getId)
                 .orElseThrow();
 
@@ -146,9 +156,7 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestcontainers {
 
         underTest.registerCustomer(customer);
 
-        Long customerId = underTest.findAllCustomers().stream()
-                .filter(c -> c.getEmail().equals(email))
-                .findFirst()
+        Long customerId = underTest.findCustomerByEmail(email)
                 .map(Customer::getId)
                 .orElseThrow();
 
@@ -193,9 +201,7 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestcontainers {
         // When
         underTest.registerCustomer(customer);
 
-        Long customerId = underTest.findAllCustomers().stream()
-                .filter(c -> c.getEmail().equals(email))
-                .findFirst()
+        Long customerId = underTest.findCustomerByEmail(email)
                 .map(Customer::getId)
                 .orElseThrow();
 
@@ -255,9 +261,7 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestcontainers {
 
         underTest.registerCustomer(customer);
 
-        Long customerId = underTest.findAllCustomers().stream()
-                .filter(c -> c.getEmail().equals(email))
-                .findFirst()
+        Long customerId = underTest.findCustomerByEmail(email)
                 .map(Customer::getId)
                 .orElseThrow();
 
@@ -305,9 +309,7 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestcontainers {
 
         underTest.registerCustomer(customer);
 
-        Long customerId = underTest.findAllCustomers().stream()
-                .filter(c -> c.getEmail().equals(email))
-                .findFirst()
+        Long customerId = underTest.findCustomerByEmail(email)
                 .map(Customer::getId)
                 .orElseThrow();
 
@@ -354,9 +356,7 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestcontainers {
 
         underTest.registerCustomer(customer);
 
-        Long customerId = underTest.findAllCustomers().stream()
-                .filter(c -> c.getEmail().equals(email))
-                .findFirst()
+        Long customerId = underTest.findCustomerByEmail(email)
                 .map(Customer::getId)
                 .orElseThrow();
 
@@ -401,9 +401,7 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestcontainers {
 
         underTest.registerCustomer(customer);
 
-        Long customerId = underTest.findAllCustomers().stream()
-                .filter(c -> c.getEmail().equals(email))
-                .findFirst()
+        Long customerId = underTest.findCustomerByEmail(email)
                 .map(Customer::getId)
                 .orElseThrow();
 

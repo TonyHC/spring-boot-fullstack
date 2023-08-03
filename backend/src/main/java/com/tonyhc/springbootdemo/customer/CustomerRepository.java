@@ -1,5 +1,7 @@
 package com.tonyhc.springbootdemo.customer;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -12,6 +14,9 @@ import java.util.Optional;
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT customer FROM Customer customer WHERE customer.email = :email")
     Optional<Customer> findCustomerByEmail(String email);
+
+    @Query("SELECT customer FROM Customer customer")
+    Page<Customer> findPageOfCustomers(Pageable pageable);
 
     @Query("SELECT CASE WHEN (COUNT(customer) > 0) THEN TRUE ELSE FALSE END FROM " +
             "Customer customer WHERE customer.id = :id")

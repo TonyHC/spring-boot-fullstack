@@ -1,10 +1,13 @@
 package com.tonyhc.springbootdemo.customer;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+
 import java.util.List;
 import java.util.Optional;
 
 public interface CustomerDao {
-    List<Customer> findAllCustomers();
+    Page<Customer> findPageOfCustomers(int page, int size, String sort);
     Optional<Customer> findCustomerById(Long id);
     Optional<Customer> findCustomerByEmail(String email);
     boolean existsCustomerWithId(Long id);

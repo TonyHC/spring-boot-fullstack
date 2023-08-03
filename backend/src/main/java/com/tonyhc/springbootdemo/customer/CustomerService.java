@@ -4,6 +4,7 @@ import com.tonyhc.springbootdemo.exception.DuplicateResourceException;
 import com.tonyhc.springbootdemo.exception.RequestValidationException;
 import com.tonyhc.springbootdemo.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,17 +17,33 @@ public class CustomerService {
     private final CustomerDTOMapper customerDTOMapper;
 
 
-    public CustomerService(@Qualifier("JDBC") CustomerDao customerDao, PasswordEncoder passwordEncoder, CustomerDTOMapper customerDTOMapper) {
+    public CustomerService(@Qualifier("JDBC") CustomerDao customerDao, PasswordEncoder passwordEncoder,
+                           CustomerDTOMapper customerDTOMapper) {
         this.customerDao = customerDao;
         this.passwordEncoder = passwordEncoder;
         this.customerDTOMapper = customerDTOMapper;
     }
 
-    public List<CustomerDTO> findAllCustomers() {
-        return customerDao.findAllCustomers()
-                .stream()
+    public List<CustomerDTO> findLastCustomers(int size) {
+        return customerDao.findPageOfCustomers(0, size, "customer_id,desc")
                 .map(customerDTOMapper)
                 .toList();
+    }
+
+    public CustomerPageDTO findPageOfCustomers(int page, int size, String sort) {
+        Page<CustomerDTO> customerPage = customerDao.findPageOfCustomers(page, size, sort)
+                .map(customerDTOMapper);
+
+        // TODO -> Decide on the Pagination error when the page content size is zero (HTTP Status Code -> 200 | 204 | 404)
+
+        return new CustomerPageDTO(
+                customerPage.getContent(),
+                customerPage.getNumber(),
+                customerPage.getTotalElements(),
+                customerPage.getTotalPages(),
+                customerPage.getSize(),
+                sort
+        );
     }
 
     public CustomerDTO findCustomerById(Long id) {

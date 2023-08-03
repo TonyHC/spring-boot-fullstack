@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,9 +57,9 @@ class CustomerIT {
                 .getResponseHeaders()
                 .get(AUTHORIZATION)).get(0);
 
-        // Send a GET request to retrieve all customers
+        // Send a GET request to retrieve last five customers
         List<CustomerDTO> responseBody = webTestClient.get()
-                .uri(CUSTOMER_PATH)
+                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
                 .accept(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .exchange()
@@ -93,6 +96,88 @@ class CustomerIT {
 
     @Transactional
     @Test
+    void itShouldFindPageOfCustomers() {
+        // Create customer registration request
+        Faker faker = new Faker();
+
+        String firstName = faker.name().firstName();
+        String lastName = faker.name().lastName();
+        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
+        String password = "password";
+        int age = faker.number().numberBetween(18, 80);
+        Gender gender = Gender.MALE;
+
+        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
+                firstName, lastName, email, password, age, gender
+        );
+
+        // Send a POST request to register customer and retrieve the JWT
+        String jwtToken = Objects.requireNonNull(webTestClient.post()
+                .uri(CUSTOMER_PATH)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(customerRegistrationRequest), CustomerRegistrationRequest.class)
+                .exchange()
+                .expectStatus().isOk()
+                .returnResult(Void.class)
+                .getResponseHeaders()
+                .get(AUTHORIZATION)).get(0);
+
+        // Send a GET request to retrieve last five customers
+        List<CustomerDTO> responseBody = webTestClient.get()
+                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
+                .accept(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(new ParameterizedTypeReference<CustomerDTO>() {
+                })
+                .returnResult()
+                .getResponseBody();
+
+        // Create CustomerPageDTO
+        PaginationUtil paginationUtil = new PaginationUtil();
+
+        int page = 0;
+        int size = 5;
+        String sort = "customer_id,desc";
+
+        List<CustomerDTO> customerDTOS = Objects.requireNonNull(responseBody).subList(0, size);
+        Pageable pageable = paginationUtil.createPageable(page, size, sort);
+        Page<CustomerDTO> customerDTOPage = new PageImpl<>(customerDTOS, pageable, customerDTOS.size());
+
+        CustomerPageDTO expected = new CustomerPageDTO(
+                customerDTOPage.getContent(),
+                customerDTOPage.getNumber(),
+                customerDTOPage.getTotalElements(),
+                customerDTOPage.getTotalPages(),
+                customerDTOPage.getSize(),
+                sort
+        );
+
+        // Send GET request to verify the page of customers
+        CustomerPageDTO actual = webTestClient.get()
+                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH + "/page")
+                        .queryParam("page", page)
+                        .queryParam("size", size)
+                        .queryParam("sort", sort)
+                        .build())
+                .accept(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<CustomerPageDTO>() {
+                })
+                .returnResult()
+                .getResponseBody();
+
+        assertThat(actual).usingRecursiveComparison()
+                .ignoringFields("totalItems", "totalPages")
+                .isEqualTo(expected);
+    }
+
+    @Transactional
+    @Test
     void itShouldRegisterNewCustomer() {
         // Create customer registration request
         Faker faker = new Faker();
@@ -120,9 +205,9 @@ class CustomerIT {
                 .getResponseHeaders()
                 .get(AUTHORIZATION)).get(0);
 
-        // Send a GET request to retrieve all customers
+        // Send a GET request to retrieve last five customers
         List<CustomerDTO> responseBody = webTestClient.get()
-                .uri(CUSTOMER_PATH)
+                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
                 .accept(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .exchange()
@@ -213,9 +298,9 @@ class CustomerIT {
                 .getResponseHeaders()
                 .get(AUTHORIZATION)).get(0);
 
-        // Send a GET request to retrieve all customers
+        // Send a GET request to retrieve last five customers
         List<CustomerDTO> responseBody = webTestClient.get()
-                .uri(CUSTOMER_PATH)
+                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
                 .accept(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .exchange()
@@ -313,9 +398,9 @@ class CustomerIT {
                 .getResponseHeaders()
                 .get(AUTHORIZATION)).get(0);
 
-        // Send a GET request to retrieve all customers
+        // Send a GET request to retrieve last five customers
         List<CustomerDTO> responseBody = webTestClient.get()
-                .uri(CUSTOMER_PATH)
+                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
                 .accept(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .exchange()

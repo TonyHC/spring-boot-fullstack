@@ -3,7 +3,6 @@ package com.tonyhc.springbootdemo.customer;
 import com.tonyhc.springbootdemo.jwt.JWTUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,9 +19,18 @@ public class CustomerController {
         this.jwtUtil = jwtUtil;
     }
 
-    @GetMapping
-    public List<CustomerDTO> findAllCustomers() {
-        return customerService.findAllCustomers();
+    @GetMapping()
+    public List<CustomerDTO> findLastCustomers(@RequestParam(value = "size", defaultValue = "5") Integer size) {
+        return customerService.findLastCustomers(size);
+    }
+
+    @GetMapping("/page")
+    public CustomerPageDTO findCustomersPage(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size,
+            @RequestParam(value = "sort", defaultValue = "customer_id,ASC") String sort
+    ) {
+        return customerService.findPageOfCustomers(page, size, sort);
     }
 
     @GetMapping("{customerId}")
@@ -46,7 +54,7 @@ public class CustomerController {
 
     @PatchMapping("{customerId}")
     public void updateCustomerById(@PathVariable(value = "customerId") Long customerId,
-                                           @Valid @RequestBody CustomerUpdateRequest customerUpdateRequest) {
+                                   @Valid @RequestBody CustomerUpdateRequest customerUpdateRequest) {
         customerService.updateCustomerById(customerUpdateRequest, customerId);
     }
 
