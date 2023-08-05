@@ -20,8 +20,8 @@ public class CustomerController {
     }
 
     @GetMapping()
-    public List<CustomerDTO> findLastCustomers(@RequestParam(value = "size", defaultValue = "5") Integer size) {
-        return customerService.findLastCustomers(size);
+    public List<CustomerDTO> findLatestCustomers(@RequestParam(value = "size", defaultValue = "5") Integer size) {
+        return customerService.findLatestCustomers(size);
     }
 
     @GetMapping("/page")

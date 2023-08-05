@@ -24,7 +24,7 @@ public class CustomerService {
         this.customerDTOMapper = customerDTOMapper;
     }
 
-    public List<CustomerDTO> findLastCustomers(int size) {
+    public List<CustomerDTO> findLatestCustomers(int size) {
         return customerDao.findPageOfCustomers(0, size, "customer_id,desc")
                 .map(customerDTOMapper)
                 .toList();
@@ -33,8 +33,6 @@ public class CustomerService {
     public CustomerPageDTO findPageOfCustomers(int page, int size, String sort) {
         Page<CustomerDTO> customerPage = customerDao.findPageOfCustomers(page, size, sort)
                 .map(customerDTOMapper);
-
-        // TODO -> Decide on the Pagination error when the page content size is zero (HTTP Status Code -> 200 | 204 | 404)
 
         return new CustomerPageDTO(
                 customerPage.getContent(),

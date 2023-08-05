@@ -16,7 +16,6 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
     private final CustomerRowMapper customerRowMapper;
     private final PaginationUtil paginationUtil;
 
-
     public CustomerJDBCDataAccessService(JdbcTemplate jdbcTemplate, CustomerRowMapper customerRowMapper, PaginationUtil paginationUtil) {
         this.jdbcTemplate = jdbcTemplate;
         this.customerRowMapper = customerRowMapper;

@@ -83,7 +83,7 @@ class CustomerServiceTest {
         when(customerDTOMapper.apply(customer)).thenReturn(customerDTO);
 
         // When
-        List<CustomerDTO> actual = underTest.findLastCustomers(size);
+        List<CustomerDTO> actual = underTest.findLatestCustomers(size);
 
         // Then
         assertThat(actual).hasSize(customerPage.getContent().size());

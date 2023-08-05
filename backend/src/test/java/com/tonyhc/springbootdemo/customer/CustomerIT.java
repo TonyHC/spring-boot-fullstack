@@ -155,7 +155,7 @@ class CustomerIT {
                 sort
         );
 
-        // Send GET request to verify the page of customers
+        // Send GET request to retrieve the page of customers
         CustomerPageDTO actual = webTestClient.get()
                 .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH + "/page")
                         .queryParam("page", page)
@@ -171,6 +171,7 @@ class CustomerIT {
                 .returnResult()
                 .getResponseBody();
 
+        // Assert page of customers contains the correct information
         assertThat(actual).usingRecursiveComparison()
                 .ignoringFields("totalItems", "totalPages")
                 .isEqualTo(expected);
