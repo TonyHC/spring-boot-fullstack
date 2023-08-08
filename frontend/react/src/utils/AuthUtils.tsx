@@ -7,13 +7,7 @@ export const validateToken = (): boolean => {
 
     if (token) {
         const decodedToken: tokenDecoded = jwtDecode(token);
-
-        if (Date.now() > decodedToken.exp * 1000) {
-            void logout();
-            return false;
-        }
-
-        return true;
+        return Date.now() <= decodedToken.exp * 1000;
     } else {
         return false;
     }
