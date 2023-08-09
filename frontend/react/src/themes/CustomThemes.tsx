@@ -45,6 +45,37 @@ const styleOverridesFormTextField = {
     }
 };
 
+const styleOverridesFormControl = {
+    root: {
+        marginBottom: "24px",
+        "& .MuiInputLabel-root": {
+            color: "inherit"
+        },
+        "& .MuiOutlinedInput-input": {
+            color: "inherit"
+        },
+        "& .MuiInputBase-root": {
+            color: "inherit",
+            "& fieldset": {
+                borderColor: "#E0E3E7"
+            },
+            "&:hover fieldset": {
+                borderColor: "#B2BAC2"
+            },
+            "&.Mui-focused fieldset": {
+                borderColor: "#6F7E8C"
+            }
+        }
+    }
+};
+
+const styleOverridesPaper = {
+    root: {
+        backgroundColor: "rgb(5, 30, 52)",
+        border: "1px solid #E0E3E7"
+    }
+};
+
 export const loginTheme: Theme = createTheme({
     components: {
         MuiTextField: {
@@ -85,37 +116,10 @@ export const customerFormTheme: Theme = createTheme({
             styleOverrides: styleOverridesFormButton
         },
         MuiFormControl: {
-            styleOverrides: {
-                root: {
-                    marginBottom: "24px",
-                    "& .MuiInputLabel-root": {
-                        color: "inherit"
-                    },
-                    "& .MuiOutlinedInput-input": {
-                        color: "inherit"
-                    },
-                    "& .MuiInputBase-root": {
-                        color: "inherit",
-                        "& fieldset": {
-                            borderColor: "#E0E3E7"
-                        },
-                        "&:hover fieldset": {
-                            borderColor: "#B2BAC2"
-                        },
-                        "&.Mui-focused fieldset": {
-                            borderColor: "#6F7E8C"
-                        }
-                    }
-                }
-            }
+            styleOverrides: styleOverridesFormControl
         },
         MuiPaper: {
-            styleOverrides: {
-                root: {
-                    backgroundColor: "rgb(5, 30, 52)",
-                    border: "1px solid #E0E3E7"
-                }
-            }
+            styleOverrides: styleOverridesPaper
         }
     }
 });
@@ -199,6 +203,47 @@ export const dashboardTheme: Theme = createTheme({
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+});
+
+export const customerDashboardTheme: Theme = createTheme({
+    palette: {
+        primary: {
+            main: '#9fa8da'
+        }
+    },
+    components: {
+        MuiPagination: {
+            styleOverrides: {
+                root: {
+                    marginLeft: '24px',
+                    "& .MuiPagination-ul": {
+                        "& .MuiButtonBase-root": {
+                            color: "white",
+                            "&:hover": {
+                                backgroundColor: "#9fa8da"
+                            }
+                        },
+                        "& .MuiPaginationItem-root": {
+                            color: "white",
+                        }
+                    }
+                }
+            }
+        },
+        MuiFormControl: {
+            styleOverrides: styleOverridesFormControl
+        },
+        MuiPaper: {
+            styleOverrides: styleOverridesPaper
+        },
+        MuiFormHelperText: {
+            styleOverrides: {
+                root: {
+                    color: 'white'
                 }
             }
         }

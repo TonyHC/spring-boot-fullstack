@@ -7,7 +7,7 @@ import {JSX, useEffect, useState} from "react";
 import NotFoundPage from "./NotFoundPage.tsx";
 import useCurrentPage, {customerFormRoutes} from "../hooks/CurrentPage.tsx";
 import {FormikValues} from "formik";
-import {resetErrorState} from "../store/customer/CustomerSlice.tsx";
+import {resetErrorState, updateCustomerPageState} from "../store/customer/CustomerSlice.tsx";
 
 const CustomerFormPage = () => {
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -34,6 +34,7 @@ const CustomerFormPage = () => {
 
     const createCustomerHandler = async (customer: FormikValues): Promise<void> => {
         await dispatch(createCustomer({navigate, customer}));
+        dispatch(updateCustomerPageState());
     }
 
     const updateCustomerHandler = async (customer: FormikValues, customerId: string): Promise<void> => {

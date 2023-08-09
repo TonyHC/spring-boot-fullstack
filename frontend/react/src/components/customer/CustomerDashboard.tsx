@@ -1,13 +1,29 @@
-import {Alert, Box, Breadcrumbs, Button, Skeleton, Stack, Toolbar, Typography} from "@mui/material";
+import {
+    Alert,
+    Box,
+    Breadcrumbs,
+    Button,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Pagination,
+    Select,
+    SelectChangeEvent,
+    Skeleton,
+    Stack,
+    Toolbar,
+    Typography
+} from "@mui/material";
 import NavBar from "../navigation/Navbar.tsx";
 import SideMenu from "../navigation/SideMenu.tsx";
 import CustomerList from "./CustomerList.tsx";
-import {Customer} from "../../store/customer/CustomerSlice.tsx";
+import {CustomerPage} from "../../store/customer/CustomerSlice.tsx";
 import {Link, NavigateFunction, useNavigate} from "react-router-dom";
-import {ServerError} from "../../store/customer/CustomerActions.tsx";
 import Footer from "../shared/Footer.tsx";
-import {JSX} from "react";
+import React, {JSX} from "react";
 import {NavigateNext as NavigateNextIcon} from "@mui/icons-material";
+import {ThemeProvider} from "@mui/material/styles";
+import {customerDashboardTheme} from "../../themes/CustomThemes.tsx";
 
 const breadcrumbs: JSX.Element[] = [
     <Link to="/dashboard" key="1">Dashboard</Link>,
@@ -17,13 +33,17 @@ const breadcrumbs: JSX.Element[] = [
 ];
 
 interface CustomerDashboardProps {
-    customers: Customer[];
+    customerPage: CustomerPage;
     status: string;
-    error: ServerError | undefined;
     onDeleteCustomer: (customerId: string) => Promise<void>;
+    handleChange: (event: React.ChangeEvent<unknown>, value: number) => void;
+    handlePageSize: (event: SelectChangeEvent<unknown>) => void;
 }
 
-const CustomerDashboard = ({customers, status, onDeleteCustomer}: CustomerDashboardProps) => {
+const CustomerDashboard = ({
+                               customerPage, status, onDeleteCustomer, handleChange, handlePageSize
+                           }: CustomerDashboardProps) => {
+    const {customers, totalItems: count, currentPage: page, totalPages, pageSize} = customerPage;
     const navigate: NavigateFunction = useNavigate();
 
     const createClickHandler = (): void => {
@@ -71,7 +91,7 @@ const CustomerDashboard = ({customers, status, onDeleteCustomer}: CustomerDashbo
                                             >
                                                 {status === "loading" ?
                                                     <Skeleton
-                                                        width={275}/> : `Result: ${customers.length} customers were found`}
+                                                        width={275}/> : `Result: ${count} customers were found`}
                                             </Typography>
                                         </Stack>
                                         <Button
@@ -89,6 +109,32 @@ const CustomerDashboard = ({customers, status, onDeleteCustomer}: CustomerDashbo
                                     </Toolbar>
                                     <CustomerList customers={customers} status={status}
                                                   onDeleteCustomer={onDeleteCustomer}/>
+                                    {
+                                        status === "loading" ? <Skeleton width={350} sx={{ml: 'auto', mt: 2}}/> :
+                                            <Stack direction="row" display="flex" justifyContent="end"
+                                                   alignItems="baseline" mt={2}>
+                                                <ThemeProvider theme={customerDashboardTheme}>
+                                                    <FormControl size="small">
+                                                        <InputLabel id="demo-simple-select-label">Size</InputLabel>
+                                                        <Select
+                                                            labelId="demo-simple-select-label"
+                                                            id="demo-simple-select"
+                                                            value={pageSize}
+                                                            label="Size"
+                                                            onChange={handlePageSize}
+                                                        >
+                                                            <MenuItem value={10}>10</MenuItem>
+                                                            <MenuItem value={25}>25</MenuItem>
+                                                            <MenuItem value={50}>50</MenuItem>
+                                                            <MenuItem value={100}>100</MenuItem>
+                                                        </Select>
+                                                    </FormControl>
+                                                    <Pagination count={totalPages} page={page + 1}
+                                                                onChange={handleChange}
+                                                                color="primary"/>
+                                                </ThemeProvider>
+                                            </Stack>
+                                    }
                                 </> :
                                 <Alert variant="outlined" severity="error" color="error"
                                        sx={{width: "100%", mt: -1, mb: 2}}>

@@ -1,7 +1,7 @@
 import axios, {AxiosError, AxiosHeaders, AxiosHeaderValue, AxiosInstance} from "axios";
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {NavigateFunction} from "react-router-dom";
-import {Customer} from "./CustomerSlice.tsx";
+import {Customer, CustomerPage} from "./CustomerSlice.tsx";
 import {FormikValues} from "formik";
 
 interface createCustomerData {
@@ -13,6 +13,12 @@ interface updateCustomerData {
     navigate: NavigateFunction;
     customer: FormikValues;
     customerId: string;
+}
+
+interface getCustomerPageData {
+    page: number;
+    size: number;
+    sort: string;
 }
 
 export interface ServerError {
@@ -65,11 +71,40 @@ export const createCustomer = createAsyncThunk<void, createCustomerData, { rejec
     }
 )
 
-export const getAllCustomers = createAsyncThunk<Customer[], void, { rejectValue: ServerError }>(
-    "customer/getAllCustomers",
-    async (_, {rejectWithValue}) => {
+export const findLatestCustomers = createAsyncThunk<Customer[], number, { rejectValue: ServerError }>(
+    "customer/findLatestCustomers",
+    async (size: number, {rejectWithValue}) => {
         try {
-            const res = await customerAuthAPI.get<Customer[]>(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers`);
+            const res = await customerAuthAPI.get<Customer[]>(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers`, {
+                params: {
+                    size
+                }
+            });
+            return res.data;
+        } catch (err) {
+            const error: AxiosError<ServerError> = err as never;
+
+            if (!error.response) {
+                throw err
+            }
+
+            return rejectWithValue(error.response.data)
+        }
+    }
+)
+
+export const getCustomersPage = createAsyncThunk<CustomerPage, getCustomerPageData, { rejectValue: ServerError }>(
+    "customer/getCustomerPageData",
+    async (data: getCustomerPageData, {rejectWithValue}) => {
+        try {
+            const { page, size, sort } = data;
+            const res = await customerAuthAPI.get<CustomerPage>(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/page`, {
+                params: {
+                    page,
+                    size,
+                    sort
+                }
+            });
             return res.data;
         } catch (err) {
             const error: AxiosError<ServerError> = err as never;

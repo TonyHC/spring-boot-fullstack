@@ -26,6 +26,10 @@ code {
     background-color: #B2BAC2;
 }
 
+.MuiTablePagination-menuItem {
+    color: black;
+}
+
 a {
     text-decoration: none;
 }

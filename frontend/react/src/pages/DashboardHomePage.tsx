@@ -2,7 +2,7 @@ import Dashboard from "../components/dashboard/Dashboard.tsx";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.tsx";
 import {useEffect} from "react";
-import {getAllCustomers} from "../store/customer/CustomerActions.tsx";
+import {findLatestCustomers} from "../store/customer/CustomerActions.tsx";
 
 const DashboardHomePage = () => {
     const {user, status: authStatus} = useSelector((state: RootState) => state.auth);
@@ -10,11 +10,12 @@ const DashboardHomePage = () => {
     const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
-        void dispatch(getAllCustomers());
+        void dispatch(findLatestCustomers(1000));
     }, [dispatch]);
 
     return (
-      <Dashboard user={user} authStatus={authStatus} customers={customers} customerStatus={customerStatus} />
+        <Dashboard user={user} authStatus={authStatus} latestCustomers={customers}
+                   customerStatus={customerStatus}/>
     );
 };
 

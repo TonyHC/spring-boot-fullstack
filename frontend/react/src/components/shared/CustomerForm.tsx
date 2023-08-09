@@ -51,14 +51,14 @@ const CustomerForm = (
         firstName: existingCustomer ? existingCustomer.firstName : "",
         lastName: existingCustomer ? existingCustomer.lastName : "",
         email: existingCustomer ? existingCustomer.email : "",
-        age: existingCustomer ? existingCustomer.age : 0,
+        age: existingCustomer ? existingCustomer.age : 18,
         gender: existingCustomer ? existingCustomer.gender : ""
     } : {
         firstName: "",
         lastName: "",
         email: "",
         password: "",
-        age: 0,
+        age: 18,
         gender: ""
     };
 
@@ -73,7 +73,7 @@ const CustomerForm = (
             .email("Must be a valid email")
             .required("Email is required"),
         age: Yup.number()
-            .min(16, "Must be at least 16 years old")
+            .min(18, "Must be at least 18 years old")
             .max(100, "Must be less than 100 years old")
             .required("Age is required"),
         gender: Yup.string()

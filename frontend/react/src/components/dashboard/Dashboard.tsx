@@ -40,17 +40,16 @@ const GridPaper = styled(Paper)<{ component?: React.ElementType }>({
     backgroundColor: '#B2BAC2'
 });
 
-interface homeProps {
+interface DashboardProps {
     user: User;
     authStatus: string;
-    customers: Customer[];
+    latestCustomers: Customer[];
     customerStatus: string;
 }
 
-const Dashboard = ({user, authStatus, customers, customerStatus}: homeProps) => {
-    const lastFiveCustomers: Customer[] = customers.slice(-5).reverse();
-    const male: Customer[] = customers.filter(customer => customer.gender === "MALE");
-    const female: Customer[] = customers.filter(customer => customer.gender === "FEMALE");
+const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: DashboardProps) => {
+    const male: Customer[] = latestCustomers.filter(customer => customer.gender === "MALE");
+    const female: Customer[] = latestCustomers.filter(customer => customer.gender === "FEMALE");
     const greetingMessage: string = getGreeting(new Date().getHours());
 
     const state = {
@@ -60,6 +59,9 @@ const Dashboard = ({user, authStatus, customers, customerStatus}: homeProps) => 
             },
             title: {
                 text: "Male / Female"
+            },
+            subtitle: {
+              text: 'Latest 1000 Customers'
             },
             xaxis: {
                 categories: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+']
@@ -78,11 +80,6 @@ const Dashboard = ({user, authStatus, customers, customerStatus}: homeProps) => 
                 show: true,
                 width: 2,
                 colors: ['transparent']
-            },
-            yaxis: {
-                title: {
-                    text: '# (count)'
-                }
             },
             fill: {
                 opacity: 1
@@ -147,7 +144,7 @@ const Dashboard = ({user, authStatus, customers, customerStatus}: homeProps) => 
                                             Total Customers
                                         </Typography>
                                         <Typography component="p" variant="h4" sx={{color: "rgba(0, 0, 0, 0.87)"}}>
-                                            {customers.length}
+                                            {latestCustomers.length}
                                         </Typography>
                                         <Divider sx={{my: 1}}/>
                                         <Stack direction="row">
@@ -165,7 +162,7 @@ const Dashboard = ({user, authStatus, customers, customerStatus}: homeProps) => 
                                     <GridPaper sx={{minHeight: 150}}>
                                         <Typography component="h2" variant="h6" gutterBottom
                                                     sx={{color: "rgba(0, 0, 0, 0.87)"}}>
-                                            Ratio (M/F)
+                                            Ratio (M/ F)
                                         </Typography>
                                         <Typography component="p" variant="h4" sx={{color: "rgba(0, 0, 0, 0.87)"}}>
                                             {(male.length / female.length).toFixed(2)}
@@ -205,7 +202,7 @@ const Dashboard = ({user, authStatus, customers, customerStatus}: homeProps) => 
                                                         </TableRow>
                                                     </TableHead>
                                                     <TableBody>
-                                                        {lastFiveCustomers.map((customer) => (
+                                                        {latestCustomers.slice(0, 5).map((customer) => (
                                                             <TableRow key={customer.id}>
                                                                 <TableCell>{customer.id}</TableCell>
                                                                 <TableCell>{customer.firstName}</TableCell>
