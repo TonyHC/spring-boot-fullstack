@@ -3,8 +3,10 @@ package com.tonyhc.springbootdemo.customer;
 import com.tonyhc.springbootdemo.jwt.JWTUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -61,5 +63,24 @@ public class CustomerController {
     @DeleteMapping("{customerId}")
     public void deleteCustomerById(@PathVariable(value = "customerId") Long customerId) {
         customerService.deleteCustomerById(customerId);
+    }
+
+    @PostMapping(
+            value = "{customerId}/profile-image",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public void uploadCustomerProfileImage(
+            @PathVariable(value = "customerId") Long customerId,
+            @RequestParam(value = "file") MultipartFile multipartFile
+    ) {
+        customerService.uploadCustomerProfileImage(customerId, multipartFile);
+    }
+
+    @GetMapping(
+            value = "{customerId}/profile-image",
+            produces = MediaType.IMAGE_JPEG_VALUE
+    )
+    public byte[] getCustomerProfileImage(@PathVariable(value = "customerId") Long customerId) {
+        return customerService.getCustomerProfileImage(customerId);
     }
 }

@@ -17,10 +17,10 @@ public class CustomerDTOMapper implements Function<Customer, CustomerDTO> {
                 customer.getEmail(),
                 customer.getAge(),
                 customer.getGender(),
+                customer.getProfileImage(),
                 customer.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .toList(),
-                customer.getUsername()
-        );
+                customer.getUsername());
     }
 }

@@ -24,6 +24,10 @@ import java.util.Objects;
                 @UniqueConstraint(
                         name = "customer_email_unique",
                         columnNames = "email"
+                ),
+                @UniqueConstraint(
+                        name = "customer_profile_image_unique",
+                        columnNames = "profile_image"
                 )
         }
 )
@@ -101,6 +105,12 @@ public class Customer implements UserDetails {
     @GenderIdentitySubset(anyOf = {Gender.MALE, Gender.FEMALE})
     private Gender gender;
 
+    @Column(
+            name = "profile_image",
+            columnDefinition = "VARCHAR(255)"
+    )
+    private String profileImage;
+
     public Customer(String firstName, String lastName, String email, String password, Integer age, Gender gender) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -110,17 +120,22 @@ public class Customer implements UserDetails {
         this.gender = gender;
     }
 
+    public Customer(String firstName, String lastName, String email, String password, Integer age, Gender gender, String profileImage) {
+        this(firstName, lastName, email, password, age, gender);
+        this.profileImage = profileImage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Customer customer = (Customer) o;
-        return Objects.equals(id, customer.id) && Objects.equals(firstName, customer.firstName) && Objects.equals(lastName, customer.lastName) && Objects.equals(email, customer.email) && Objects.equals(age, customer.age) && gender == customer.gender && Objects.equals(password, customer.password);
+        return Objects.equals(id, customer.id) && Objects.equals(firstName, customer.firstName) && Objects.equals(lastName, customer.lastName) && Objects.equals(email, customer.email) && Objects.equals(password, customer.password) && Objects.equals(age, customer.age) && gender == customer.gender && Objects.equals(profileImage, customer.profileImage);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, email, age, gender, password);
+        return Objects.hash(id, firstName, lastName, email, password, age, gender, profileImage);
     }
 
     @Override
@@ -130,9 +145,10 @@ public class Customer implements UserDetails {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
                 ", age=" + age +
                 ", gender=" + gender +
-                ", password='" + password + '\'' +
+                ", profileImage='" + profileImage + '\'' +
                 '}';
     }
 

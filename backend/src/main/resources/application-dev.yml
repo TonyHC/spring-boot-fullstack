@@ -1,30 +1,9 @@
-server:
-  port: 8080
-  error:
-    include-message: always
-
 spring:
   datasource:
     url: jdbc:postgresql://awseb-e-ezjnxfjb44-stack-awsbrdsdatabase-f2ocmocry5g.celwdmxhcr1.na-east-1.rds.amazonaws.com:5432/customer
     username: root
     password: password
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-    hibernate:
-      ddl-auto: validate
-    show-sql: true
 
-cors:
-  allowed-origins: http://localhost:5173, http://localhost:3000, http://localhost:4200
-  allowed-methods: "*"
-  allowed-headers: "*"
-  exposed-headers: "*"
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "health"
+aws:
+  s3:
+    mock: false

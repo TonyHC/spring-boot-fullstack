@@ -57,4 +57,9 @@ public class CustomerJPADataAccessService implements CustomerDao {
     public void deleteCustomerById(Long id) {
         customerRepository.deleteById(id);
     }
+
+    @Override
+    public void updateCustomerProfileImage(String profileImage, Long id) {
+        customerRepository.updateProfileImage(profileImage, id);
+    }
 }

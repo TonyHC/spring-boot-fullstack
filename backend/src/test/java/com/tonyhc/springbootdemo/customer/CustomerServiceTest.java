@@ -3,6 +3,8 @@ package com.tonyhc.springbootdemo.customer;
 import com.tonyhc.springbootdemo.exception.DuplicateResourceException;
 import com.tonyhc.springbootdemo.exception.RequestValidationException;
 import com.tonyhc.springbootdemo.exception.ResourceNotFoundException;
+import com.tonyhc.springbootdemo.s3.S3Buckets;
+import com.tonyhc.springbootdemo.s3.S3Service;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +16,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +38,12 @@ class CustomerServiceTest {
     @Mock
     private CustomerDTOMapper customerDTOMapper;
 
+    @Mock
+    private S3Service s3Service;
+
+    @Mock
+    private S3Buckets s3Buckets;
+
     @InjectMocks
     private CustomerService underTest;
 
@@ -43,7 +54,7 @@ class CustomerServiceTest {
     @BeforeEach
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
-        underTest = new CustomerService(customerDao, passwordEncoder, customerDTOMapper);
+        underTest = new CustomerService(customerDao, passwordEncoder, customerDTOMapper, s3Service, s3Buckets);
     }
 
     @AfterEach
@@ -61,14 +72,15 @@ class CustomerServiceTest {
         String password = "password";
         int age = 41;
         Gender gender = Gender.MALE;
+        String profileImage = "test";
 
         Customer customer = new Customer(
-                customerId, firstName, lastName, email, password, age, gender
+                customerId, firstName, lastName, email, password, age, gender, profileImage
         );
 
         CustomerDTO customerDTO = new CustomerDTO(
-                customerId, firstName, lastName, email, age, gender, List.of("ROLE_USER"), email
-        );
+                customerId, firstName, lastName, email, age, gender, profileImage, List.of("ROLE_USER"),
+                email);
 
         List<Customer> customers = List.of(customer);
 
@@ -99,14 +111,15 @@ class CustomerServiceTest {
         String password = "password";
         int age = 41;
         Gender gender = Gender.MALE;
+        String profileImage = "test";
 
         Customer customer = new Customer(
-                customerId, firstName, lastName, email, password, age, gender
+                customerId, firstName, lastName, email, password, age, gender, profileImage
         );
 
         CustomerDTO expected = new CustomerDTO(
-                customerId, firstName, lastName, email, age, gender, List.of("ROLE_USER"), email
-        );
+                customerId, firstName, lastName, email, age, gender, profileImage, List.of("ROLE_USER"),
+                email);
 
         List<Customer> customers = List.of(customer);
 
@@ -145,14 +158,15 @@ class CustomerServiceTest {
         String password = "password";
         int age = 41;
         Gender gender = Gender.MALE;
+        String profileImage = "test";
 
         Customer customer = new Customer(
-                customerId, firstName, lastName, email, password, age, gender
+                customerId, firstName, lastName, email, password, age, gender, profileImage
         );
 
         CustomerDTO expected = new CustomerDTO(
-                customerId, firstName, lastName, email, age, gender, List.of("ROLE_USER"), email
-        );
+                customerId, firstName, lastName, email, age, gender, profileImage, List.of("ROLE_USER"),
+                email);
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
         when(customerDTOMapper.apply(customer)).thenReturn(expected);
@@ -189,14 +203,15 @@ class CustomerServiceTest {
         String password = "password";
         int age = 41;
         Gender gender = Gender.MALE;
+        String profileImage = "test";
 
         Customer customer = new Customer(
-                customerId, firstName, lastName, email, password, age, gender
+                customerId, firstName, lastName, email, password, age, gender, profileImage
         );
 
         CustomerDTO expected = new CustomerDTO(
-                customerId, firstName, lastName, email, age, gender, List.of("ROLE_USER"), email
-        );
+                customerId, firstName, lastName, email, age, gender, profileImage, List.of("ROLE_USER"),
+                email);
 
         when(customerDao.findCustomerByEmail(email)).thenReturn(Optional.of(customer));
         when(customerDTOMapper.apply(customer)).thenReturn(expected);
@@ -330,7 +345,7 @@ class CustomerServiceTest {
 
         Customer customer = new Customer(
                 customerId, "Dummy", "Users", "dummyusers@mail.com",
-                "password", 40, Gender.MALE
+                "password", 40, Gender.MALE, "dummy"
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
@@ -353,6 +368,7 @@ class CustomerServiceTest {
         softAssertions.assertThat(customerArgumentCaptorValue.getPassword()).isEqualTo(customer.getPassword());
         softAssertions.assertThat(customerArgumentCaptorValue.getAge()).isEqualTo(newAge);
         softAssertions.assertThat(customerArgumentCaptorValue.getGender()).isEqualTo(newGender);
+        softAssertions.assertThat(customerArgumentCaptorValue.getProfileImage()).isEqualTo(customer.getProfileImage());
 
         softAssertions.assertAll();
     }
@@ -370,7 +386,7 @@ class CustomerServiceTest {
 
         Customer customer = new Customer(
                 customerId, "Dummy", "Users", "dummyusers@mail.com",
-                "password", 40, Gender.MALE
+                "password", 40, Gender.MALE, "dummy"
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
@@ -392,12 +408,13 @@ class CustomerServiceTest {
         softAssertions.assertThat(customerArgumentCaptorValue.getPassword()).isEqualTo(customer.getPassword());
         softAssertions.assertThat(customerArgumentCaptorValue.getAge()).isEqualTo(customer.getAge());
         softAssertions.assertThat(customerArgumentCaptorValue.getGender()).isEqualTo(customer.getGender());
+        softAssertions.assertThat(customerArgumentCaptorValue.getProfileImage()).isEqualTo(customer.getProfileImage());
 
         softAssertions.assertAll();
     }
 
     @Test
-    void itShouldUpdateCustomerEmailPropertyWhenIdExists() {
+    void itShouldUpdateCustomerEmailAndProfileImagePropertyWhenIdExists() {
         // Given
         Long customerId = 1L;
         String newEmail = "testusers@mail.com";
@@ -408,7 +425,7 @@ class CustomerServiceTest {
 
         Customer customer = new Customer(
                 customerId, "Dummy", "Users", "dummyusers@mail.com",
-                "password", 40, Gender.MALE
+                "password", 40, Gender.MALE, "dummy"
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
@@ -431,6 +448,7 @@ class CustomerServiceTest {
         softAssertions.assertThat(customerArgumentCaptorValue.getPassword()).isEqualTo(customer.getPassword());
         softAssertions.assertThat(customerArgumentCaptorValue.getAge()).isEqualTo(customer.getAge());
         softAssertions.assertThat(customerArgumentCaptorValue.getGender()).isEqualTo(customer.getGender());
+        softAssertions.assertThat(customerArgumentCaptorValue.getProfileImage()).isEqualTo(customer.getProfileImage());
 
         softAssertions.assertAll();
     }
@@ -448,7 +466,7 @@ class CustomerServiceTest {
 
         Customer customer = new Customer(
                 customerId, "Dummy", "Users", "dummyusers@mail.com",
-                "password", 40, Gender.MALE
+                "password", 40, Gender.MALE, "dummy"
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
@@ -470,6 +488,7 @@ class CustomerServiceTest {
         softAssertions.assertThat(customerArgumentCaptorValue.getPassword()).isEqualTo(customer.getPassword());
         softAssertions.assertThat(customerArgumentCaptorValue.getAge()).isEqualTo(newAge);
         softAssertions.assertThat(customerArgumentCaptorValue.getGender()).isEqualTo(newGender);
+        softAssertions.assertThat(customerArgumentCaptorValue.getProfileImage()).isEqualTo(customer.getProfileImage());
 
         softAssertions.assertAll();
     }
@@ -491,7 +510,7 @@ class CustomerServiceTest {
 
         Customer customer = new Customer(
                 customerId, "Dummy", "Users", "dummyusers@mail.com",
-                "password", 40, Gender.MALE
+                "password", 40, Gender.MALE, "dummy"
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
@@ -516,13 +535,14 @@ class CustomerServiceTest {
         String existingPassword = "password";
         int existingAge = 41;
         Gender existingGender = Gender.FEMALE;
+        String existingProfileImage = "test";
 
         CustomerUpdateRequest customerUpdateRequest = new CustomerUpdateRequest(
                 existingFirstName, existingLastName, existingEmail, existingAge, existingGender
         );
 
         Customer customer = new Customer(
-                customerId, existingFirstName, existingLastName, existingEmail, existingPassword, existingAge, existingGender
+                customerId, existingFirstName, existingLastName, existingEmail, existingPassword, existingAge, existingGender, existingProfileImage
         );
 
         when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
@@ -563,5 +583,161 @@ class CustomerServiceTest {
                 .hasMessageContaining(String.format("Customer with id [%s] was not found", customerId));
 
         verify(customerDao, never()).deleteCustomerById(customerId);
+    }
+
+    @Test
+    void itShouldUploadCustomerProfileImageUsingS3() {
+        // Given
+        Long customerId = 1L;
+        String bucketName = "customer-bucket";
+        byte[] file = "test".getBytes();
+        MultipartFile multipartFile = new MockMultipartFile("file", file);
+
+        when(customerDao.existsCustomerWithId(customerId)).thenReturn(true);
+        when(s3Buckets.getCustomer()).thenReturn(bucketName);
+
+        // When
+        underTest.uploadCustomerProfileImage(customerId, multipartFile);
+
+        // Then
+        ArgumentCaptor<String> profileImageCaptor = ArgumentCaptor.forClass(String.class);
+        verify(customerDao).updateCustomerProfileImage(profileImageCaptor.capture(), eq(customerId));
+
+        verify(s3Service).uploadObject(
+                bucketName,
+                "profile-images/%s/%s".formatted(customerId, profileImageCaptor.getValue()),
+                file
+        );
+    }
+
+    @Test
+    void itShouldThrowWhenCustomerDoesNotExistWhileUploadingCustomerProfileImage() {
+        // Given
+        Long customerId = 1L;
+        byte[] file = "test".getBytes();
+        MultipartFile multipartFile = new MockMultipartFile("file", file);
+
+        when(customerDao.existsCustomerWithId(customerId)).thenReturn(false);
+
+        // When
+        // Then
+        assertThatThrownBy(() -> underTest.uploadCustomerProfileImage(customerId, multipartFile))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining(String.format("Customer with id [%s] was not found", customerId));
+
+        verify(customerDao).existsCustomerWithId(customerId);
+        verifyNoMoreInteractions(customerDao);
+        verifyNoInteractions(s3Buckets);
+        verifyNoInteractions(s3Service);
+    }
+
+    @Test
+    void itShouldThrowWhenUploadFailsWhileImageIsAZeroByteFile() throws IOException {
+        // Given
+        Long customerId = 1L;
+        String bucketName = "customer-bucket";
+
+        MultipartFile multipartFile = mock(MultipartFile.class);
+        when(multipartFile.getBytes()).thenThrow(new IOException("Failed to upload profile image"));
+
+        when(customerDao.existsCustomerWithId(customerId)).thenReturn(true);
+        when(s3Buckets.getCustomer()).thenReturn(bucketName);
+
+        // When
+        // Then
+        assertThatThrownBy(() -> underTest.uploadCustomerProfileImage(customerId, multipartFile))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Failed to upload profile image")
+                .hasRootCauseInstanceOf(IOException.class);
+
+        verify(customerDao, never()).updateCustomerProfileImage(anyString(), anyLong());
+    }
+
+    @Test
+    void itShouldGetCustomerProfileImage() {
+        // Given
+        Long customerId = 1L;
+        String firstName = "Test";
+        String lastName = "Users";
+        String email = "testusers@mail.com";
+        String password = "password";
+        int age = 41;
+        Gender gender = Gender.MALE;
+        String profileImage = "test";
+
+        Customer customer = new Customer(
+                customerId, firstName, lastName, email,
+                password, age, gender, profileImage
+        );
+
+        CustomerDTO customerDTO = new CustomerDTO(
+                customerId, firstName, lastName, email, age, gender, profileImage, List.of("ROLE_USER"), email
+        );
+
+        String bucketName = "profile-images";
+        String key = "profile-images/%s/%s".formatted(customerId, customer.getProfileImage());
+        byte[] image = "SomeImage".getBytes();
+
+        when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
+        when(customerDTOMapper.apply(customer)).thenReturn(customerDTO);
+        when(s3Buckets.getCustomer()).thenReturn(bucketName);
+        when(s3Service.downloadObject(bucketName, key)).thenReturn(image);
+
+        // When
+        byte[] customerProfileImage = underTest.getCustomerProfileImage(customerId);
+
+        // Then
+        assertThat(customerProfileImage).isEqualTo(image);
+    }
+
+    @Test
+    void itShouldThrowWhenCustomerDTONotFoundWhileIdDoesNotExist() {
+        // Given
+        Long customerId = 1L;
+
+        when(customerDao.findCustomerById(customerId)).thenReturn(Optional.empty());
+
+        // When
+        // Then
+        assertThatThrownBy(() -> underTest.getCustomerProfileImage(customerId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining(String.format("Customer with id [%s] was not found", customerId));
+
+        verifyNoInteractions(s3Buckets);
+        verifyNoInteractions(s3Service);
+    }
+
+    @Test
+    void itShouldThrowWhenProfileImageIsEmpty() {
+        // Given
+        Long customerId = 1L;
+        String firstName = "Test";
+        String lastName = "Users";
+        String email = "testusers@mail.com";
+        String password = "password";
+        int age = 41;
+        Gender gender = Gender.MALE;
+        String profileImage = "";
+
+        Customer customer = new Customer(
+                customerId, firstName, lastName, email,
+                password, age, gender, profileImage
+        );
+
+        CustomerDTO customerDTO = new CustomerDTO(
+                customerId, firstName, lastName, email, age, gender, profileImage, List.of("ROLE_USER"), email
+        );
+
+        when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
+        when(customerDTOMapper.apply(customer)).thenReturn(customerDTO);
+
+        // When
+        // Then
+        assertThatThrownBy(() -> underTest.getCustomerProfileImage(customerId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining(String.format("Customer with id [%s] profile image was not found", customerId));
+
+        verifyNoInteractions(s3Buckets);
+        verifyNoInteractions(s3Service);
     }
 }

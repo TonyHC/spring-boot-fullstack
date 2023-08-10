@@ -135,4 +135,17 @@ class CustomerJPADataAccessServiceTest {
         // Then
         verify(customerRepository).deleteById(customerId);
     }
+
+    @Test
+    void itShouldUpdateCustomerProfileImage() {
+        // Given
+        String profileImage = "test";
+        long id = 1L;
+
+        // When
+        underTest.updateCustomerProfileImage(profileImage, id);
+
+        // Then
+        verify(customerRepository).updateProfileImage(profileImage, id);
+    }
 }

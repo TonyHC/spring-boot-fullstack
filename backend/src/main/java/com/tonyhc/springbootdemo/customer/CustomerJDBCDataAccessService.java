@@ -27,7 +27,7 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
         Pageable pageable = paginationUtil.createPageable(page, size, sort);
         String[] sortOptions = sort.split(",");
 
-        String sql = "SELECT customer_id, first_name, last_name, email, password, age, gender FROM CUSTOMER"
+        String sql = "SELECT customer_id, first_name, last_name, email, password, age, gender, profile_image FROM CUSTOMER"
                 + " ORDER BY " + sortOptions[0] + " " + sortOptions[1].toUpperCase() + " LIMIT ?" + " OFFSET ?";
 
         List<Customer> query = jdbcTemplate.query(
@@ -43,7 +43,7 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
     @Override
     public Optional<Customer> findCustomerById(Long id) {
         String sql = """
-                SELECT customer_id, first_name, last_name, email, password, age, gender
+                SELECT customer_id, first_name, last_name, email, password, age, gender, profile_image
                 FROM customer
                 WHERE customer_id = ?;
                 """;
@@ -55,7 +55,7 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
     @Override
     public Optional<Customer> findCustomerByEmail(String email) {
         String sql = """
-                SELECT customer_id, first_name, last_name, email, password, age, gender
+                SELECT customer_id, first_name, last_name, email, password, age, gender, profile_image
                 FROM customer
                 WHERE email = ?;
                 """;
@@ -201,6 +201,17 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
         int result = jdbcTemplate.update(sql, id);
 
         System.out.println("jdbcTemplate.update = " + result);
+    }
+
+    @Override
+    public void updateCustomerProfileImage(String profileImage, Long id) {
+        String sql = """
+                UPDATE customer
+                SET profile_image = ?
+                WHERE customer_id = ?
+                """;
+
+        jdbcTemplate.update(sql, profileImage, id);
     }
 
     private int getNumberOfRows() {

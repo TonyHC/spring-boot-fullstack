@@ -199,4 +199,37 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
         // Then
         assertThat(actual).isFalse();
     }
+
+    @Test
+    void itShouldUpdateProfileImage() {
+        // Given
+        String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
+        String profileImage = "test";
+        int affectedRows = 1;
+
+        Customer customer = new Customer(
+                FAKER.name().firstName(),
+                FAKER.name().lastName(),
+                email,
+                "password",
+                FAKER.number().numberBetween(18, 80),
+                Gender.MALE
+        );
+
+        underTest.save(customer);
+
+        Long customerId = underTest.findCustomerByEmail(email)
+                .map(Customer::getId)
+                .orElseThrow();
+
+        // When
+        int result = underTest.updateProfileImage(profileImage, customerId);
+
+        // Then
+        Optional<Customer> optionalCustomer = underTest.findById(customerId);
+
+        assertThat(result).isEqualTo(affectedRows);
+        assertThat(optionalCustomer).isPresent()
+                .hasValueSatisfying(c -> assertThat(c.getProfileImage()).isEqualTo(profileImage));
+    }
 }

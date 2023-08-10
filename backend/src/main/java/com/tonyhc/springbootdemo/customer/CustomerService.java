@@ -3,25 +3,34 @@ package com.tonyhc.springbootdemo.customer;
 import com.tonyhc.springbootdemo.exception.DuplicateResourceException;
 import com.tonyhc.springbootdemo.exception.RequestValidationException;
 import com.tonyhc.springbootdemo.exception.ResourceNotFoundException;
+import com.tonyhc.springbootdemo.s3.S3Buckets;
+import com.tonyhc.springbootdemo.s3.S3Service;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CustomerService {
     private final CustomerDao customerDao;
     private final PasswordEncoder passwordEncoder;
     private final CustomerDTOMapper customerDTOMapper;
-
+    private final S3Service s3Service;
+    private final S3Buckets s3Buckets;
 
     public CustomerService(@Qualifier("JDBC") CustomerDao customerDao, PasswordEncoder passwordEncoder,
-                           CustomerDTOMapper customerDTOMapper) {
+                           CustomerDTOMapper customerDTOMapper, S3Service s3Service, S3Buckets s3Buckets) {
         this.customerDao = customerDao;
         this.passwordEncoder = passwordEncoder;
         this.customerDTOMapper = customerDTOMapper;
+        this.s3Service = s3Service;
+        this.s3Buckets = s3Buckets;
     }
 
     public List<CustomerDTO> findLatestCustomers(int size) {
@@ -118,11 +127,49 @@ public class CustomerService {
     }
 
     public void deleteCustomerById(Long id) {
+        customerExists(id);
+        customerDao.deleteCustomerById(id);
+    }
+
+    public void uploadCustomerProfileImage(Long customerId, MultipartFile multipartFile) {
+        customerExists(customerId);
+
+        String profileImage = UUID.randomUUID().toString();
+
+        try {
+            s3Service.uploadObject(
+                    s3Buckets.getCustomer(),
+                    "profile-images/%s/%s".formatted(customerId, profileImage),
+                    multipartFile.getBytes()
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        customerDao.updateCustomerProfileImage(profileImage, customerId);
+    }
+
+    public byte[] getCustomerProfileImage(Long customerId) {
+        CustomerDTO existingCustomer = customerDao.findCustomerById(customerId)
+                .map(customerDTOMapper)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException(String.format("Customer with id [%s] was not found", customerId))
+                );
+
+        if (StringUtils.isBlank(existingCustomer.profileImage())) {
+            throw new ResourceNotFoundException(String.format("Customer with id [%s] profile image was not found", customerId));
+        }
+
+        return s3Service.downloadObject(
+                s3Buckets.getCustomer(),
+                "profile-images/%s/%s".formatted(customerId, existingCustomer.profileImage())
+        );
+    }
+
+    private void customerExists(Long id) {
         if (!customerDao.existsCustomerWithId(id)) {
             throw new ResourceNotFoundException(String.format("Customer with id [%s] was not found", id));
         }
-
-        customerDao.deleteCustomerById(id);
     }
 
     private void validateCustomerEmail(String email) {

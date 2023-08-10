@@ -1,6 +1,8 @@
 package com.tonyhc.springbootdemo.customer;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class CustomerRowMapperTest {
     @Test
     void itShouldMapRow() throws SQLException {
@@ -24,6 +27,7 @@ class CustomerRowMapperTest {
         when(mockResultSet.getString("password")).thenReturn("password");
         when(mockResultSet.getInt("age")).thenReturn(31);
         when(mockResultSet.getString("gender")).thenReturn("MALE");
+        when(mockResultSet.getString("profile_image")).thenReturn("test");
 
         // When
         Customer actual = underTest.mapRow(mockResultSet, 1);
@@ -31,7 +35,7 @@ class CustomerRowMapperTest {
         // Then
         Customer expected = new Customer(
             1L,"Test", "Users",  "testusers@mail.com", "password",
-                31,Gender.valueOf("MALE")
+                31,Gender.valueOf("MALE"), "test"
         );
 
         assertThat(actual).usingRecursiveComparison()
