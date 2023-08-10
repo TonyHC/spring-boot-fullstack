@@ -1,5 +1,6 @@
 package com.tonyhc.springbootdemo.customer;
 
+import com.tonyhc.springbootdemo.cloudinary.ImageUpload;
 import com.tonyhc.springbootdemo.exception.DuplicateResourceException;
 import com.tonyhc.springbootdemo.exception.RequestValidationException;
 import com.tonyhc.springbootdemo.exception.ResourceNotFoundException;
@@ -44,6 +45,9 @@ class CustomerServiceTest {
     @Mock
     private S3Buckets s3Buckets;
 
+    @Mock
+    private ImageUpload imageUpload;
+
     @InjectMocks
     private CustomerService underTest;
 
@@ -54,7 +58,7 @@ class CustomerServiceTest {
     @BeforeEach
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
-        underTest = new CustomerService(customerDao, passwordEncoder, customerDTOMapper, s3Service, s3Buckets);
+        underTest = new CustomerService(customerDao, passwordEncoder, customerDTOMapper, s3Service, s3Buckets, imageUpload);
     }
 
     @AfterEach
@@ -592,12 +596,13 @@ class CustomerServiceTest {
         String bucketName = "customer-bucket";
         byte[] file = "test".getBytes();
         MultipartFile multipartFile = new MockMultipartFile("file", file);
+        String provider = "s3";
 
         when(customerDao.existsCustomerWithId(customerId)).thenReturn(true);
         when(s3Buckets.getCustomer()).thenReturn(bucketName);
 
         // When
-        underTest.uploadCustomerProfileImage(customerId, multipartFile);
+        underTest.uploadCustomerProfileImage(customerId, multipartFile, provider);
 
         // Then
         ArgumentCaptor<String> profileImageCaptor = ArgumentCaptor.forClass(String.class);
@@ -616,12 +621,13 @@ class CustomerServiceTest {
         Long customerId = 1L;
         byte[] file = "test".getBytes();
         MultipartFile multipartFile = new MockMultipartFile("file", file);
+        String provider = "s3";
 
         when(customerDao.existsCustomerWithId(customerId)).thenReturn(false);
 
         // When
         // Then
-        assertThatThrownBy(() -> underTest.uploadCustomerProfileImage(customerId, multipartFile))
+        assertThatThrownBy(() -> underTest.uploadCustomerProfileImage(customerId, multipartFile, provider))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining(String.format("Customer with id [%s] was not found", customerId));
 
@@ -636,6 +642,7 @@ class CustomerServiceTest {
         // Given
         Long customerId = 1L;
         String bucketName = "customer-bucket";
+        String provider = "s3";
 
         MultipartFile multipartFile = mock(MultipartFile.class);
         when(multipartFile.getBytes()).thenThrow(new IOException("Failed to upload profile image"));
@@ -645,12 +652,35 @@ class CustomerServiceTest {
 
         // When
         // Then
-        assertThatThrownBy(() -> underTest.uploadCustomerProfileImage(customerId, multipartFile))
+        assertThatThrownBy(() -> underTest.uploadCustomerProfileImage(customerId, multipartFile, provider))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Failed to upload profile image")
                 .hasRootCauseInstanceOf(IOException.class);
 
         verify(customerDao, never()).updateCustomerProfileImage(anyString(), anyLong());
+    }
+
+    @Test
+    void itShouldUploadCustomerProfileImageUsingCloudinary() throws IOException {
+        // Given
+        Long customerId = 1L;
+        String folderPath = "/profile-images/%s".formatted(customerId);
+        String profileImage = "/v1698423094/customer";
+        String provider = "cloudinary";
+        MultipartFile multipartFile = mock(MultipartFile.class);
+
+        when(customerDao.existsCustomerWithId(customerId)).thenReturn(true);
+        when(imageUpload.uploadImage(folderPath, multipartFile)).thenReturn(profileImage);
+
+        // When
+        underTest.uploadCustomerProfileImage(customerId, multipartFile, provider);
+
+        // Then
+        ArgumentCaptor<String> profileImageCaptor = ArgumentCaptor.forClass(String.class);
+        verify(customerDao).updateCustomerProfileImage(profileImageCaptor.capture(), eq(customerId));
+
+        String profileImageCaptorValue = profileImageCaptor.getValue();
+        assertThat(profileImageCaptorValue).isEqualTo(profileImage);
     }
 
     @Test

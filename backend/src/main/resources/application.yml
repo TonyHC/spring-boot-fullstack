@@ -41,3 +41,9 @@ aws:
     buckets:
       customer: fs-customer-images
     mock: true
+
+cloudinary:
+  cloud-name: tonyhchao
+  api-key: 717998691619456
+  api-secret: z-DekBnXYaxhNQeWeIdjFKwURtk
+  enabled: false

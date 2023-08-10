@@ -7,3 +7,6 @@ spring:
 aws:
   s3:
     mock: false
+
+cloudinary:
+  enabled: true

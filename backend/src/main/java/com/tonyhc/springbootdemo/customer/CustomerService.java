@@ -1,5 +1,6 @@
 package com.tonyhc.springbootdemo.customer;
 
+import com.tonyhc.springbootdemo.cloudinary.ImageUpload;
 import com.tonyhc.springbootdemo.exception.DuplicateResourceException;
 import com.tonyhc.springbootdemo.exception.RequestValidationException;
 import com.tonyhc.springbootdemo.exception.ResourceNotFoundException;
@@ -23,14 +24,18 @@ public class CustomerService {
     private final CustomerDTOMapper customerDTOMapper;
     private final S3Service s3Service;
     private final S3Buckets s3Buckets;
+    private final ImageUpload imageUpload;
+
 
     public CustomerService(@Qualifier("JDBC") CustomerDao customerDao, PasswordEncoder passwordEncoder,
-                           CustomerDTOMapper customerDTOMapper, S3Service s3Service, S3Buckets s3Buckets) {
+                           CustomerDTOMapper customerDTOMapper, S3Service s3Service, S3Buckets s3Buckets,
+                           ImageUpload imageUpload) {
         this.customerDao = customerDao;
         this.passwordEncoder = passwordEncoder;
         this.customerDTOMapper = customerDTOMapper;
         this.s3Service = s3Service;
         this.s3Buckets = s3Buckets;
+        this.imageUpload = imageUpload;
     }
 
     public List<CustomerDTO> findLatestCustomers(int size) {
@@ -131,19 +136,25 @@ public class CustomerService {
         customerDao.deleteCustomerById(id);
     }
 
-    public void uploadCustomerProfileImage(Long customerId, MultipartFile multipartFile) {
+    public void uploadCustomerProfileImage(Long customerId, MultipartFile multipartFile, String provider) {
         customerExists(customerId);
 
-        String profileImage = UUID.randomUUID().toString();
+        String profileImage = "";
 
-        try {
-            s3Service.uploadObject(
-                    s3Buckets.getCustomer(),
-                    "profile-images/%s/%s".formatted(customerId, profileImage),
-                    multipartFile.getBytes()
-            );
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (provider.equals("s3")) {
+            profileImage = UUID.randomUUID().toString();
+
+            try {
+                s3Service.uploadObject(
+                        s3Buckets.getCustomer(),
+                        "profile-images/%s/%s".formatted(customerId, profileImage),
+                        multipartFile.getBytes()
+                );
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            profileImage = imageUpload.uploadImage("/profile-images/%s".formatted(customerId), multipartFile);
         }
 
         customerDao.updateCustomerProfileImage(profileImage, customerId);

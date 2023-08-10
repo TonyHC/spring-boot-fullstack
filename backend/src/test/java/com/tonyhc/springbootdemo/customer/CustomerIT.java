@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -499,7 +500,9 @@ class CustomerIT {
 
         // Send a POST request to upload the customer profile image
         webTestClient.post()
-                .uri(CUSTOMER_PATH + "/{customerId}/profile-image", customerDTO.id())
+                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH + "/" + customerDTO.id() + "/profile-image")
+                        .queryParam("provider", "s3")
+                        .build())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
@@ -533,5 +536,86 @@ class CustomerIT {
         // Assert download customer profile image is the same image we uploaded earlier
         byte[] actual = Files.toByteArray(image.getFile());
         assertThat(actual).isEqualTo(downloadedImage);
+    }
+
+    @Transactional
+    @Test
+    void itShouldUploadAndDownloadCustomerProfileImageUsingCloudinary() throws IOException {
+        // Create customer registration request
+        Faker faker = new Faker();
+
+        String firstName = faker.name().firstName();
+        String lastName = faker.name().lastName();
+        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
+        String password = "password";
+        int age = faker.number().numberBetween(18, 80);
+        Gender gender = Gender.FEMALE;
+
+        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
+                firstName, lastName, email, password, age, gender
+        );
+
+        // Send a POST request to register customer and retrieve the JWT
+        String jwtToken = Objects.requireNonNull(webTestClient.post()
+                .uri(CUSTOMER_PATH)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(customerRegistrationRequest), CustomerRegistrationRequest.class)
+                .exchange()
+                .expectStatus().isOk()
+                .returnResult(Void.class)
+                .getResponseHeaders()
+                .get(AUTHORIZATION)).get(0);
+
+        // Send a GET request to retrieve last five customers
+        List<CustomerDTO> responseBody = webTestClient.get()
+                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
+                .accept(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(new ParameterizedTypeReference<CustomerDTO>() {
+                })
+                .returnResult()
+                .getResponseBody();
+
+        // Assert Customer profile image is blank
+        CustomerDTO customerDTO = Objects.requireNonNull(responseBody).stream()
+                .filter(customer -> customer.email().equals(email))
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(customerDTO.profileImage()).isNullOrEmpty();
+
+        // Load the profile image from test resources directory
+        Resource image = new ClassPathResource("%s.jpg".formatted(gender.name().toLowerCase()));
+
+        MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
+        multipartBodyBuilder.part("file", image);
+
+        // Send a POST request to upload the customer profile image
+        webTestClient.post()
+                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH + "/" + customerDTO.id() + "/profile-image")
+                        .queryParam("provider", "cloudinary")
+                        .build())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .body(BodyInserters.fromMultipartData(multipartBodyBuilder.build()))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Send a GET request to verify customer profile image was populated
+        String profileImage = Objects.requireNonNull(webTestClient.get()
+                .uri(CUSTOMER_PATH + "/{customerId}", customerDTO.id())
+                .accept(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(CustomerDTO.class)
+                .returnResult()
+                .getResponseBody()).profileImage();
+
+        assertThat(profileImage).matches(Pattern.compile("\\/v[0-9]{10}\\/profile-images\\/[0-9]{1,}\\/[a-z0-9\\-]*"));
     }
 }
