@@ -23,10 +23,12 @@ enum FormTitles {
     UpdateCustomer = "Update Customer"
 }
 
-const createBreadCrumbs = (formTitle: string) => {
+const createBreadCrumbs = (formTitle: string, path: string) => {
     return [
         <Link to="/dashboard" key="1">Dashboard</Link>,
-        <Link to="/customer-dashboard" key="2">Customers</Link>,
+        path.includes("/customer-form") ?
+            <Link to="/customer-dashboard" key="2">Customers</Link> :
+            <Link to="/profile" key="2">Profile</Link>,
         <Typography key="3">
             {formTitle}
         </Typography>
@@ -38,6 +40,7 @@ interface UserHomeProps {
     status: string;
     error: ServerError | undefined;
     isAuth: boolean;
+    path: string;
     actionType?: string;
     onCreateCustomer?: (customer: FormikValues) => Promise<void>;
     onUpdateCustomer?: (customer: FormikValues, customerId: string) => Promise<void>;
@@ -51,6 +54,7 @@ const CustomerForm = (
         error,
         editMode,
         isAuth,
+        path,
         actionType,
         onCreateCustomer,
         onUpdateCustomer,
@@ -137,7 +141,7 @@ const CustomerForm = (
                                     aria-label="breadcrumb"
                                     sx={{mt: 2}}>
                                     {(status === "loading" && actionType !== "customer/uploadCustomerProfileImage") ?
-                                        <Skeleton width={350}/> : createBreadCrumbs(breadCrumbTitle,)}
+                                        <Skeleton width={350}/> : createBreadCrumbs(breadCrumbTitle, path)}
                                 </Breadcrumbs>
                             </>
                         }

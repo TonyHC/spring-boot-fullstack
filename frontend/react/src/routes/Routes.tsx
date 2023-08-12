@@ -9,6 +9,7 @@ const LandingPage = React.lazy(() => import("../pages/LandingPage.tsx"));
 const CustomerDashboardPage = React.lazy(() => import("../pages/CustomerDashboardPage.tsx"));
 const CustomerFormPage = React.lazy(() => import("../pages/CustomerFormPage.tsx"));
 const NotFoundPage = React.lazy(() => import("../pages/NotFoundPage.tsx"));
+const UserProfilePage = React.lazy(() => import("../pages/UserProfilePage.tsx"));
 
 interface RouterRoutesProps {
     isAuth: boolean;
@@ -16,7 +17,7 @@ interface RouterRoutesProps {
 
 const RouterRoutes = ({isAuth}: RouterRoutesProps) => {
     return (
-        <Suspense fallback={<CircularProgress sx={{ m: 'auto' }} />}>
+        <Suspense fallback={<CircularProgress sx={{m: 'auto'}}/>}>
             <Routes>
                 <Route path="/" element={<LandingPage/>}/>
                 <Route path="/login" element={isAuth ? <DashboardHomePage/> : <LoginPage/>}/>
@@ -24,13 +25,15 @@ const RouterRoutes = ({isAuth}: RouterRoutesProps) => {
 
                 <Route element={<RequireAuth/>}>
                     <Route path="/dashboard" element={<DashboardHomePage/>}/>
+                    <Route path="/profile" element={<UserProfilePage/>} />
+                    <Route path="/profile/:customerId" element={<CustomerFormPage/>}/>
                     <Route path="/customer-dashboard" element={<CustomerDashboardPage/>}/>
                     <Route path="/customer-form" element={<CustomerFormPage/>}>
                         <Route path=":customerId" element={<CustomerFormPage/>}/>
                     </Route>
                 </Route>
 
-                <Route path="*" element={<NotFoundPage />}/>
+                <Route path="*" element={<NotFoundPage/>}/>
             </Routes>
         </Suspense>
     );

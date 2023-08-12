@@ -134,9 +134,14 @@ const NavBar = () => {
         navigate("/login");
     };
 
-    const dashboardHandler = (): void => {
+    const dashboardClickHandler = (): void => {
         setAnchorEl(null);
         navigate("/dashboard");
+    };
+
+    const userProfileClickHandler = (): void => {
+        setAnchorEl(null);
+        navigate("/profile");
     };
 
     const logoutHandler = (): void => {
@@ -268,13 +273,13 @@ const NavBar = () => {
                                 transformOrigin={{horizontal: "right", vertical: "top"}}
                                 anchorOrigin={{horizontal: "right", vertical: "bottom"}}
                             >
-                                <MenuItem onClick={dashboardHandler}>
+                                <MenuItem onClick={dashboardClickHandler}>
                                     <ListItemIcon>
                                         <PersonAdd fontSize="small"/>
                                     </ListItemIcon>
                                     Dashboard
                                 </MenuItem>
-                                <MenuItem onClick={handleClose}>
+                                <MenuItem onClick={userProfileClickHandler}>
                                     <ListItemIcon>
                                         <AccountCircle fontSize="medium"/>
                                     </ListItemIcon>

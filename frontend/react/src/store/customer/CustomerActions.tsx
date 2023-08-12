@@ -3,6 +3,7 @@ import {createAsyncThunk} from "@reduxjs/toolkit";
 import {NavigateFunction} from "react-router-dom";
 import {Customer, CustomerPage} from "./CustomerSlice.tsx";
 import {FormikValues} from "formik";
+import {customerFormRoutes} from "../../hooks/CurrentPage.tsx";
 
 interface createCustomerData {
     navigate: NavigateFunction;
@@ -12,6 +13,7 @@ interface createCustomerData {
 interface updateCustomerData {
     customer: FormikValues;
     customerId: string;
+    currentPath: string;
     navigate: NavigateFunction;
 }
 
@@ -25,6 +27,7 @@ interface uploadCustomerProfileImageData {
     customerId: string;
     formData: FormData;
     provider: string;
+    currentPath?: string;
     navigate: NavigateFunction;
 }
 
@@ -147,9 +150,14 @@ export const updateCustomerById = createAsyncThunk<void, updateCustomerData, { r
     "customer/updateCustomerById",
     async (data: updateCustomerData, {rejectWithValue}) => {
         try {
-            const {customer, navigate, customerId} = data;
+            const {customer, customerId, currentPath, navigate} = data;
             await customerAuthAPI.patch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${customerId}`, customer);
-            navigate("/customer-dashboard", {replace: true})
+
+            if (currentPath === customerFormRoutes[2].path) {
+                navigate("/customer-dashboard", {replace: true});
+            } else {
+                navigate("/profile", {replace: true});
+            }
         } catch (err) {
             const error: AxiosError<ServerError> = err as never;
 
@@ -185,7 +193,7 @@ export const uploadCustomerProfileImage = createAsyncThunk<void, uploadCustomerP
     "customer/uploadCustomerProfileImage",
     async (data: uploadCustomerProfileImageData, {rejectWithValue}) => {
         try {
-            const {customerId, formData, provider, navigate} = data;
+            const {customerId, formData, provider, currentPath, navigate} = data;
 
             await customerAuthAPI.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${customerId}/profile-image`,
                 formData,
@@ -199,7 +207,11 @@ export const uploadCustomerProfileImage = createAsyncThunk<void, uploadCustomerP
                 }
             );
 
-            navigate("/customer-dashboard", {replace: true});
+            if (currentPath === customerFormRoutes[2].path) {
+                navigate("/customer-dashboard", {replace: true});
+            } else {
+                navigate("/profile", {replace: true});
+            }
         } catch (err) {
             const error: AxiosError<ServerError> = err as never;
 

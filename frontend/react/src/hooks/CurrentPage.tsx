@@ -7,11 +7,13 @@ interface RoutePath {
 export const customerFormRoutes: RoutePath[] = [
     {path: "/sign-up"},
     {path: "/customer-form"},
-    {path: "/customer-form/:customerId"}
+    {path: "/customer-form/:customerId"},
+    {path: "/profile/:customerId"}
 ];
 export const sideMenuRoutes: RoutePath[] = [
     {path: "/dashboard"},
-    {path: "/customer-dashboard"}
+    {path: "/customer-dashboard"},
+    {path: "/profile"}
 ];
 
 const useCurrentPage = (routes: RoutePath[]): string => {

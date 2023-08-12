@@ -50,7 +50,7 @@ const drawerWidth = 256;
 const buildListData = [
     {icon: <People/>, label: "Customer", path: "/customer-dashboard"},
     {icon: <Dns/>, label: "Dashboard", path: "/dashboard"},
-    {icon: <PermMedia/>, label: "Profile", path: "/dashboard"},
+    {icon: <PermMedia/>, label: "Profile", path: "/profile"},
     {icon: <Public/>, label: "Settings", path: "/dashboard"}
 ];
 
@@ -113,7 +113,6 @@ const SideMenu = () => {
                                     <ListItemText
                                         primary="Home"
                                         primaryTypographyProps={{
-                                            color: "primary",
                                             fontWeight: "medium",
                                             variant: "body2"
                                         }}

@@ -44,20 +44,20 @@ const CustomerFormPage = () => {
     }
 
     const updateCustomerHandler = async (customerFormValues: FormikValues, customerId: string): Promise<void> => {
-        await dispatch(updateCustomerById({customer: customerFormValues, customerId, navigate}));
+        await dispatch(updateCustomerById({customer: customerFormValues, customerId, currentPath, navigate}));
     }
 
     const uploadCustomerProfileImageHandler = async (customerId: string, formData: FormData, provider: string): Promise<void> => {
-        await dispatch(uploadCustomerProfileImage({customerId, formData, provider, navigate}));
+        await dispatch(uploadCustomerProfileImage({customerId, formData, provider, currentPath, navigate}));
     }
 
     const renderPage = (): JSX.Element => {
         if (currentPath === customerFormRoutes[0].path || currentPath === customerFormRoutes[1].path) {
-            return <CustomerForm status={status} error={error} editMode={editMode} isAuth={isAuth}
+            return <CustomerForm status={status} error={error} editMode={editMode} isAuth={isAuth} path={currentPath}
                                  onCreateCustomer={createCustomerHandler}/>
-        } else if (currentPath === customerFormRoutes[2].path) {
+        } else if (currentPath === customerFormRoutes[2].path || currentPath === customerFormRoutes[3].path) {
             return <CustomerForm status={status} error={error} actionType={actionType} editMode={editMode}
-                                 isAuth={isAuth} onUpdateCustomer={updateCustomerHandler}
+                                 isAuth={isAuth} path={currentPath} onUpdateCustomer={updateCustomerHandler}
                                  onUploadCustomerProfileImage={uploadCustomerProfileImageHandler}
                                  existingCustomer={customer}/>
         } else {

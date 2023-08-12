@@ -1,4 +1,4 @@
-import {useCallback} from "react";
+import React, {useCallback} from "react";
 import {useDropzone} from "react-dropzone";
 import {Box} from "@mui/material";
 import {SxProps} from "@mui/system";
@@ -7,15 +7,20 @@ import {Theme} from "@mui/material/styles";
 interface MyDropzoneProps {
     customerId: string;
     onUploadCustomerProfileImage: (customerId: string, formData: FormData, provider: string) => Promise<void>;
+    setValue?: React.Dispatch<React.SetStateAction<number>>;
     sx?: SxProps<Theme>;
 }
 
-export const MyDropzone = ({customerId, onUploadCustomerProfileImage, sx}: MyDropzoneProps) => {
+export const MyDropzone = ({customerId, onUploadCustomerProfileImage, setValue, sx}: MyDropzoneProps) => {
     const onDrop = useCallback((acceptedFiles: File[]): void => {
         const formData: FormData = new FormData();
         formData.append("file", acceptedFiles[0]);
         void onUploadCustomerProfileImage(customerId, formData, "cloudinary");
-    }, [customerId, onUploadCustomerProfileImage])
+
+        if (setValue) {
+            setValue(0);
+        }
+    }, [customerId, onUploadCustomerProfileImage, setValue])
     const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
 
     return (
