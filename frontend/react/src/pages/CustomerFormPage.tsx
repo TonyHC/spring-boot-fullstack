@@ -2,7 +2,12 @@ import CustomerForm from "../components/shared/CustomerForm.tsx";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.tsx";
 import {Location, NavigateFunction, useLocation, useNavigate, useParams} from "react-router-dom";
-import {createCustomer, getCustomerById, updateCustomerById} from "../store/customer/CustomerActions.tsx";
+import {
+    createCustomer,
+    getCustomerById,
+    updateCustomerById,
+    uploadCustomerProfileImage
+} from "../store/customer/CustomerActions.tsx";
 import {JSX, useEffect, useState} from "react";
 import NotFoundPage from "./NotFoundPage.tsx";
 import useCurrentPage, {customerFormRoutes} from "../hooks/CurrentPage.tsx";
@@ -19,6 +24,7 @@ const CustomerFormPage = () => {
     const location: Location = useLocation();
     const navigate: NavigateFunction = useNavigate();
     const {customerId} = params;
+    const currentPath: string = useCurrentPage(customerFormRoutes);
 
     useEffect(() => {
         if (customerId) {
@@ -32,16 +38,18 @@ const CustomerFormPage = () => {
         dispatch(resetErrorState());
     }, [dispatch, location.pathname]);
 
-    const createCustomerHandler = async (customer: FormikValues): Promise<void> => {
-        await dispatch(createCustomer({navigate, customer}));
+    const createCustomerHandler = async (customerFormValues: FormikValues): Promise<void> => {
+        await dispatch(createCustomer({navigate, customer: customerFormValues}));
         dispatch(updateCustomerPageState());
     }
 
-    const updateCustomerHandler = async (customer: FormikValues, customerId: string): Promise<void> => {
-        await dispatch(updateCustomerById({navigate, customer, customerId}));
+    const updateCustomerHandler = async (customerFormValues: FormikValues, customerId: string): Promise<void> => {
+        await dispatch(updateCustomerById({customer: customerFormValues, customerId, navigate}));
     }
 
-    const currentPath: string = useCurrentPage(customerFormRoutes);
+    const uploadCustomerProfileImageHandler = async (customerId: string, formData: FormData, provider: string): Promise<void> => {
+        await dispatch(uploadCustomerProfileImage({customerId, formData, provider, navigate}));
+    }
 
     const renderPage = (): JSX.Element => {
         if (currentPath === customerFormRoutes[0].path || currentPath === customerFormRoutes[1].path) {
@@ -50,6 +58,7 @@ const CustomerFormPage = () => {
         } else if (currentPath === customerFormRoutes[2].path) {
             return <CustomerForm status={status} error={error} actionType={actionType} editMode={editMode}
                                  isAuth={isAuth} onUpdateCustomer={updateCustomerHandler}
+                                 onUploadCustomerProfileImage={uploadCustomerProfileImageHandler}
                                  existingCustomer={customer}/>
         } else {
             return <NotFoundPage/>

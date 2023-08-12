@@ -10,15 +10,22 @@ interface createCustomerData {
 }
 
 interface updateCustomerData {
-    navigate: NavigateFunction;
     customer: FormikValues;
     customerId: string;
+    navigate: NavigateFunction;
 }
 
 interface getCustomerPageData {
     page: number;
     size: number;
     sort: string;
+}
+
+interface uploadCustomerProfileImageData {
+    customerId: string;
+    formData: FormData;
+    provider: string;
+    navigate: NavigateFunction;
 }
 
 export interface ServerError {
@@ -94,10 +101,10 @@ export const findLatestCustomers = createAsyncThunk<Customer[], number, { reject
 )
 
 export const getCustomersPage = createAsyncThunk<CustomerPage, getCustomerPageData, { rejectValue: ServerError }>(
-    "customer/getCustomerPageData",
+    "customer/getCustomerPage",
     async (data: getCustomerPageData, {rejectWithValue}) => {
         try {
-            const { page, size, sort } = data;
+            const {page, size, sort} = data;
             const res = await customerAuthAPI.get<CustomerPage>(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/page`, {
                 params: {
                     page,
@@ -171,3 +178,36 @@ export const deleteCustomerById = createAsyncThunk<void, string, { rejectValue: 
         }
     }
 )
+
+export const uploadCustomerProfileImage = createAsyncThunk<void, uploadCustomerProfileImageData, {
+    rejectValue: ServerError
+}>(
+    "customer/uploadCustomerProfileImage",
+    async (data: uploadCustomerProfileImageData, {rejectWithValue}) => {
+        try {
+            const {customerId, formData, provider, navigate} = data;
+
+            await customerAuthAPI.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${customerId}/profile-image`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    },
+                    params: {
+                        provider
+                    }
+                }
+            );
+
+            navigate("/customer-dashboard", {replace: true});
+        } catch (err) {
+            const error: AxiosError<ServerError> = err as never;
+
+            if (!error.response) {
+                throw err
+            }
+
+            return rejectWithValue(error.response.data)
+        }
+    }
+);

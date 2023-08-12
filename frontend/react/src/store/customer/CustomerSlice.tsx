@@ -7,7 +7,8 @@ import {
     getCustomerById,
     getCustomersPage,
     ServerError,
-    updateCustomerById
+    updateCustomerById,
+    uploadCustomerProfileImage
 } from "./CustomerActions.tsx";
 
 export type Customer = {
@@ -17,6 +18,7 @@ export type Customer = {
     email: string;
     age: number;
     gender: string;
+    profileImage: string;
 };
 
 export type CustomerPage = {
@@ -145,7 +147,6 @@ const customerSlice = createSlice(({
                 state.actionType = deleteCustomerById.typePrefix;
             })
             .addCase(deleteCustomerById.fulfilled, (state, action) => {
-                console.log(action.meta.arg);
                 state.status = 'success';
                 state.actionType = deleteCustomerById.typePrefix;
                 state.customers = state.customers.filter(customer => customer.id !== +action.meta.arg);
@@ -154,6 +155,20 @@ const customerSlice = createSlice(({
             .addCase(deleteCustomerById.rejected, (state, action) => {
                 state.status = 'error';
                 state.actionType = deleteCustomerById.typePrefix;
+                state.error = action.payload;
+            })
+            .addCase(uploadCustomerProfileImage.pending, (state) => {
+                state.status = 'loading';
+                state.actionType = uploadCustomerProfileImage.typePrefix;
+            })
+            .addCase(uploadCustomerProfileImage.fulfilled, (state) => {
+                state.status = 'success';
+                state.actionType = uploadCustomerProfileImage.typePrefix;
+                state.error = {} as ServerError;
+            })
+            .addCase(uploadCustomerProfileImage.rejected, (state, action) => {
+                state.status = 'error';
+                state.actionType = uploadCustomerProfileImage.typePrefix;
                 state.error = action.payload;
             })
             .addCase(PURGE, () => {

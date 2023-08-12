@@ -17,6 +17,8 @@ import {
 import {ThemeProvider} from "@mui/material/styles";
 import {NavigateFunction, useNavigate} from "react-router-dom";
 import {customerItemTheme} from "../../themes/CustomThemes.tsx";
+import {buildCloudinaryImagePath} from "../../utils/ImageUtils.tsx";
+import ProfileBackground from "../../assets/profile-background.jpg";
 
 interface CustomerItemInterface {
     key: React.Key;
@@ -62,7 +64,11 @@ const CustomerItem = ({customer, status, onDeleteCustomer}: CustomerItemInterfac
                     status == "loading" ? <Skeleton height={280} sx={{mt: -7.5, mb: -6}}/> :
                         <CardMedia
                             sx={{width: 'auto', height: 175}}
-                            image="https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-980x653.jpg"
+                            image={
+                                customer.profileImage !== null ?
+                                    buildCloudinaryImagePath(customer.profileImage) :
+                                    ProfileBackground
+                            }
                             title="placeholder img"
                         />
                 }
@@ -114,8 +120,8 @@ const CustomerItem = ({customer, status, onDeleteCustomer}: CustomerItemInterfac
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleClose}>Disagree</Button>
-                        <Button onClick={deleteCustomerHandler} autoFocus>
+                        <Button color="primary" onClick={handleClose}>Disagree</Button>
+                        <Button color="error" onClick={deleteCustomerHandler} autoFocus>
                             Agree
                         </Button>
                     </DialogActions>

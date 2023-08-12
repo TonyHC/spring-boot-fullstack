@@ -13,6 +13,9 @@ import {CustomSelect} from "../ui/Select.tsx";
 import Footer from "./Footer.tsx";
 import {Link} from "react-router-dom";
 import {NavigateNext as NavigateNextIcon} from "@mui/icons-material";
+import {buildCloudinaryImagePath} from "../../utils/ImageUtils.tsx";
+import {MyDropzone} from "../ui/Dropzone.tsx";
+import ProfileBackground from "../../assets/profile-background.jpg";
 
 enum FormTitles {
     CreateAccount = "Create Account",
@@ -38,13 +41,24 @@ interface UserHomeProps {
     actionType?: string;
     onCreateCustomer?: (customer: FormikValues) => Promise<void>;
     onUpdateCustomer?: (customer: FormikValues, customerId: string) => Promise<void>;
+    onUploadCustomerProfileImage?: (customerId: string, formData: FormData, provider: string) => Promise<void>;
     existingCustomer?: Customer;
 }
 
 const CustomerForm = (
-    {status, error, editMode, isAuth, actionType, onCreateCustomer, onUpdateCustomer, existingCustomer}: UserHomeProps
+    {
+        status,
+        error,
+        editMode,
+        isAuth,
+        actionType,
+        onCreateCustomer,
+        onUpdateCustomer,
+        onUploadCustomerProfileImage,
+        existingCustomer
+    }: UserHomeProps
 ) => {
-    const breadCrumbTitle = !isAuth ? FormTitles.CreateAccount :
+    const breadCrumbTitle: FormTitles = !isAuth ? FormTitles.CreateAccount :
         onCreateCustomer ? FormTitles.CreateCustomer : FormTitles.UpdateCustomer;
 
     const initialFormValues = (editMode) ? {
@@ -122,8 +136,8 @@ const CustomerForm = (
                                     separator={<NavigateNextIcon fontSize="small"/>}
                                     aria-label="breadcrumb"
                                     sx={{mt: 2}}>
-                                    {status === "loading" ?
-                                        <Skeleton width={350}/> : createBreadCrumbs(breadCrumbTitle)}
+                                    {(status === "loading" && actionType !== "customer/uploadCustomerProfileImage") ?
+                                        <Skeleton width={350}/> : createBreadCrumbs(breadCrumbTitle,)}
                                 </Breadcrumbs>
                             </>
                         }
@@ -140,7 +154,7 @@ const CustomerForm = (
                         >
                             {
                                 (status === "loading" && actionType === "customer/getCustomerById") ?
-                                    <Skeleton height={900} width={300} sx={{ mt: -25, mb: -20 }} /> :
+                                    <Skeleton height={900} width={300} sx={{mt: -25, mb: -20}}/> :
                                     <>
                                         <Typography
                                             variant="h4"
@@ -150,13 +164,46 @@ const CustomerForm = (
                                         >
                                             {breadCrumbTitle}
                                         </Typography>
-
                                         {(error && error.message) &&
                                             <FireAlert variant="outlined" severity="error" color="error">
                                                 {error.message}
                                             </FireAlert>
                                         }
-
+                                        {
+                                            (editMode && existingCustomer && onUploadCustomerProfileImage) &&
+                                            <>
+                                                <Box
+                                                    component="img"
+                                                    sx={{
+                                                        height: 233,
+                                                        width: 350,
+                                                        maxHeight: {xs: 233, md: 167},
+                                                        maxWidth: {xs: 350, md: 250},
+                                                        mt: 2,
+                                                        mb: 3,
+                                                        mx: 'auto',
+                                                        display: 'block',
+                                                        textAlign: 'center',
+                                                        objectFit: 'contain'
+                                                    }}
+                                                    alt="Profile Image"
+                                                    src={
+                                                        existingCustomer.profileImage !== null ?
+                                                            buildCloudinaryImagePath(existingCustomer.profileImage) :
+                                                            ProfileBackground
+                                                    }
+                                                />
+                                                <MyDropzone customerId={existingCustomer.id.toString()}
+                                                            onUploadCustomerProfileImage={onUploadCustomerProfileImage}
+                                                            sx={{
+                                                                py: 0.5,
+                                                                px: 2,
+                                                                mt: 2,
+                                                                border: '1px solid #E0E3E7',
+                                                                borderRadius: 1
+                                                            }}/>
+                                            </>
+                                        }
                                         <Formik
                                             enableReinitialize={true}
                                             initialValues={initialFormValues}

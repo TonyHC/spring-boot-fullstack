@@ -10,6 +10,7 @@ export type User = {
     email: string;
     age: number;
     gender: string;
+    profileImage: string;
     roles: string[];
     username: string;
 }
