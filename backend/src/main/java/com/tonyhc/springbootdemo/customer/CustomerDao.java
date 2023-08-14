@@ -21,4 +21,5 @@ public interface CustomerDao {
 
     void deleteCustomerById(Long id);
     void updateCustomerProfileImage(String profileImage, Long id);
+    void resetCustomerPassword(String password, Long id);
 }

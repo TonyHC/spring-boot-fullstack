@@ -30,4 +30,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Customer customer SET customer.profileImage = :profileImage WHERE customer.id = :id")
     int updateProfileImage(String profileImage, Long id);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Customer customer SET customer.password = :password WHERE customer.id = :id")
+    int resetCustomerPassword(String password, Long id);
 }

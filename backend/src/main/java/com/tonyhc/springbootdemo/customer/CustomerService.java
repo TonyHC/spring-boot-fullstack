@@ -177,6 +177,18 @@ public class CustomerService {
         );
     }
 
+    public void resetCustomerPassword(CustomerResetPasswordRequest customerResetPasswordRequest, Long customerId) {
+        Customer customer = customerDao.findCustomerById(customerId).orElseThrow(
+                () -> new ResourceNotFoundException(String.format("Customer with id [%s] was not found", customerId))
+        );
+
+        if (passwordEncoder.matches(customerResetPasswordRequest.password(), customer.getPassword())) {
+            throw new RequestValidationException("Password was used previously");
+        }
+
+        customerDao.resetCustomerPassword(passwordEncoder.encode(customerResetPasswordRequest.password()), customerId);
+    }
+
     private void customerExists(Long id) {
         if (!customerDao.existsCustomerWithId(id)) {
             throw new ResourceNotFoundException(String.format("Customer with id [%s] was not found", id));

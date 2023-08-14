@@ -661,7 +661,7 @@ class CustomerServiceTest {
     }
 
     @Test
-    void itShouldUploadCustomerProfileImageUsingCloudinary() throws IOException {
+    void itShouldUploadCustomerProfileImageUsingCloudinary() {
         // Given
         Long customerId = 1L;
         String folderPath = "/profile-images/%s".formatted(customerId);
@@ -769,5 +769,98 @@ class CustomerServiceTest {
 
         verifyNoInteractions(s3Buckets);
         verifyNoInteractions(s3Service);
+    }
+
+    @Test
+    void itShouldResetCustomerPassword() {
+        // Given
+        Long customerId = 1L;
+        String firstName = "Test";
+        String lastName = "Users";
+        String email = "testusers@mail.com";
+        String password = "password";
+        String newPassword = "tester";
+        String confirmPassword = "tester";
+        String passwordHash = "2dfa$k";
+        int age = 41;
+        Gender gender = Gender.MALE;
+        String profileImage = "test";
+
+        Customer customer = new Customer(
+                customerId, firstName, lastName, email,
+                password, age, gender, profileImage
+        );
+
+        CustomerResetPasswordRequest customerResetPasswordRequest = new CustomerResetPasswordRequest(
+                newPassword, confirmPassword
+        );
+
+        when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
+        when(passwordEncoder.matches(newPassword, passwordHash)).thenReturn(true);
+        when(passwordEncoder.encode(newPassword)).thenReturn(passwordHash);
+
+        // When
+        underTest.resetCustomerPassword(customerResetPasswordRequest, customerId);
+
+        // Then
+        ArgumentCaptor<String> passwordArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(customerDao).resetCustomerPassword(passwordArgumentCaptor.capture(), eq(customerId));
+
+        String passwordArgumentCaptorValue = passwordArgumentCaptor.getValue();
+        assertThat(passwordArgumentCaptorValue).isEqualTo(passwordHash);
+    }
+
+    @Test
+    void itShouldThrowWhenCustomerDoesNotExistWhileResettingCustomerPassword() {
+        // Given
+        Long customerId = 1L;
+        String newPassword = "tester";
+        String confirmPassword = "tester";
+
+        CustomerResetPasswordRequest customerResetPasswordRequest = new CustomerResetPasswordRequest(
+                newPassword, confirmPassword
+        );
+
+        when(customerDao.findCustomerById(customerId)).thenReturn(Optional.empty());
+
+        // When
+        // Then
+        assertThatThrownBy(() -> underTest.resetCustomerPassword(customerResetPasswordRequest, customerId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining(String.format("Customer with id [%s] was not found", customerId));
+
+    }
+
+    @Test
+    void itShouldThrowWhenCustomerPasswordUsedPreviously() {
+        // Given
+        Long customerId = 1L;
+        String firstName = "Test";
+        String lastName = "Users";
+        String email = "testusers@mail.com";
+        String password = "password";
+        String newPassword = "password";
+        String confirmPassword = "password";
+        int age = 41;
+        Gender gender = Gender.MALE;
+        String profileImage = "test";
+
+        Customer customer = new Customer(
+                customerId, firstName, lastName, email,
+                password, age, gender, profileImage
+        );
+
+        CustomerResetPasswordRequest customerResetPasswordRequest = new CustomerResetPasswordRequest(
+                newPassword, confirmPassword
+        );
+
+        when(customerDao.findCustomerById(customerId)).thenReturn(Optional.of(customer));
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
+
+        // When
+        // Then
+        assertThatThrownBy(() -> underTest.resetCustomerPassword(customerResetPasswordRequest, customerId))
+                .isInstanceOf(RequestValidationException.class)
+                .hasMessageContaining("Password was used previously");
     }
 }

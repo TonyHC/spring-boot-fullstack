@@ -5,11 +5,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @ControllerAdvice
 public class DefaultExceptionHandler {
@@ -68,9 +72,20 @@ public class DefaultExceptionHandler {
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception,
                                                                           HttpServletRequest request) {
+        List<String> errorMessagesList = new ArrayList<>();
+        BindingResult bindingResult = exception.getBindingResult();
+        List<ObjectError> errors = bindingResult.getAllErrors();
+
+        for (ObjectError error : errors) {
+            String message = error.getDefaultMessage();
+            errorMessagesList.add(message);
+        }
+
+        String errorMessages = String.join(",", errorMessagesList).trim();
+
         ApiError apiError = new ApiError(
                 request.getRequestURI(),
-                exception.getMessage(),
+                errorMessages,
                 HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now()
         );

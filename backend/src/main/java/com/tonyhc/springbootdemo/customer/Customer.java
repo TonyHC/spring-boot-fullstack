@@ -120,11 +120,6 @@ public class Customer implements UserDetails {
         this.gender = gender;
     }
 
-    public Customer(String firstName, String lastName, String email, String password, Integer age, Gender gender, String profileImage) {
-        this(firstName, lastName, email, password, age, gender);
-        this.profileImage = profileImage;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -84,4 +84,10 @@ public class CustomerController {
     public byte[] getCustomerProfileImage(@PathVariable(value = "customerId") Long customerId) {
         return customerService.getCustomerProfileImage(customerId);
     }
+
+    @PatchMapping("{customerId}/reset-password")
+    public void resetCustomerPassword(@PathVariable(value = "customerId") Long customerId,
+                                   @Valid @RequestBody CustomerResetPasswordRequest customerResetPasswordRequest) {
+        customerService.resetCustomerPassword(customerResetPasswordRequest, customerId);
+    }
 }

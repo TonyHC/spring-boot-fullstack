@@ -140,12 +140,25 @@ class CustomerJPADataAccessServiceTest {
     void itShouldUpdateCustomerProfileImage() {
         // Given
         String profileImage = "test";
-        long id = 1L;
+        Long customerId = 1L;
 
         // When
-        underTest.updateCustomerProfileImage(profileImage, id);
+        underTest.updateCustomerProfileImage(profileImage, customerId);
 
         // Then
-        verify(customerRepository).updateProfileImage(profileImage, id);
+        verify(customerRepository).updateProfileImage(profileImage, customerId);
+    }
+
+    @Test
+    void itShouldResetCustomerPassword() {
+        // Given
+        String updatedPassword = "tester";
+        Long customerId = 1L;
+
+        // When
+        underTest.resetCustomerPassword(updatedPassword, customerId);
+
+        // Then
+        verify(customerRepository).resetCustomerPassword(updatedPassword, customerId);
     }
 }

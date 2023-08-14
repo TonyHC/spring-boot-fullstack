@@ -1,6 +1,7 @@
 package com.tonyhc.springbootdemo.customer;
 
 import com.tonyhc.springbootdemo.validator.GenderIdentitySubset;
+import com.tonyhc.springbootdemo.validator.ValidPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -19,6 +20,7 @@ public record CustomerRegistrationRequest(
         String email,
 
         @NotBlank(message = "Password cannot be blank")
+        @ValidPassword
         String password,
 
         @Min(

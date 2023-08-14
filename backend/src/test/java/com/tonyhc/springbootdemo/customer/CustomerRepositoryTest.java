@@ -232,4 +232,37 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
         assertThat(optionalCustomer).isPresent()
                 .hasValueSatisfying(c -> assertThat(c.getProfileImage()).isEqualTo(profileImage));
     }
+
+    @Test
+    void itShouldResetCustomerPassword() {
+        // Given
+        String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
+        String updatedPassword = "tester";
+        int affectedRows = 1;
+
+        Customer customer = new Customer(
+                FAKER.name().firstName(),
+                FAKER.name().lastName(),
+                email,
+                "password",
+                FAKER.number().numberBetween(18, 80),
+                Gender.MALE
+        );
+
+        underTest.save(customer);
+
+        Long customerId = underTest.findCustomerByEmail(email)
+                .map(Customer::getId)
+                .orElseThrow();
+
+        // When
+        int result = underTest.resetCustomerPassword(updatedPassword, customerId);
+
+        // Then
+        Optional<Customer> optionalCustomer = underTest.findById(customerId);
+
+        assertThat(result).isEqualTo(affectedRows);
+        assertThat(optionalCustomer).isPresent()
+                .hasValueSatisfying(c -> assertThat(c.getPassword()).isEqualTo(updatedPassword));
+    }
 }

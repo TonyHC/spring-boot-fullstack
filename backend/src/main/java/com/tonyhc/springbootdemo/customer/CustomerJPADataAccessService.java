@@ -62,4 +62,9 @@ public class CustomerJPADataAccessService implements CustomerDao {
     public void updateCustomerProfileImage(String profileImage, Long id) {
         customerRepository.updateProfileImage(profileImage, id);
     }
+
+    @Override
+    public void resetCustomerPassword(String password, Long id) {
+        customerRepository.resetCustomerPassword(password, id);
+    }
 }

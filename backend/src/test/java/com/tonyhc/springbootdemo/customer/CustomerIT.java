@@ -35,8 +35,8 @@ class CustomerIT {
     @Autowired
     private WebTestClient webTestClient;
 
-    @Transactional
     @Test
+    @Transactional
     void itShouldFindExistingCustomerWhenEmailExists() {
         // Create customer registration request
         Faker faker = new Faker();
@@ -101,8 +101,8 @@ class CustomerIT {
                 .isEqualTo(expectedCustomer);
     }
 
-    @Transactional
     @Test
+    @Transactional
     void itShouldFindPageOfCustomers() {
         // Create customer registration request
         Faker faker = new Faker();
@@ -184,8 +184,8 @@ class CustomerIT {
                 .isEqualTo(expected);
     }
 
-    @Transactional
     @Test
+    @Transactional
     void itShouldRegisterNewCustomer() {
         // Create customer registration request
         Faker faker = new Faker();
@@ -251,8 +251,8 @@ class CustomerIT {
                 .isEqualTo(expectedCustomer);
     }
 
-    @Transactional
     @Test
+    @Transactional
     void itShouldNotRegisterCustomerWhenInvalidEmailSent() {
         // Create customer registration request
         Faker faker = new Faker();
@@ -278,8 +278,8 @@ class CustomerIT {
                 .expectStatus().isBadRequest();
     }
 
-    @Transactional
     @Test
+    @Transactional
     void itShouldUpdateCustomer() {
         // Create customer registration request
         Faker faker = new Faker();
@@ -363,8 +363,8 @@ class CustomerIT {
         assertThat(actual).isEqualTo(expectedUpdatedCustomer);
     }
 
-    @Transactional
     @Test
+    @Transactional
     void itShouldDeleteCustomer() {
         // Create customer registration request
         Faker faker = new Faker();
@@ -443,8 +443,8 @@ class CustomerIT {
                 .expectStatus().isNotFound();
     }
 
-    @Transactional
     @Test
+    @Transactional
     void itShouldUploadAndDownloadCustomerProfileImageUsingS3() throws IOException {
         // Create customer registration request
         Faker faker = new Faker();
@@ -538,8 +538,8 @@ class CustomerIT {
         assertThat(actual).isEqualTo(downloadedImage);
     }
 
-    @Transactional
     @Test
+    @Transactional
     void itShouldUploadAndDownloadCustomerProfileImageUsingCloudinary() throws IOException {
         // Create customer registration request
         Faker faker = new Faker();
@@ -617,5 +617,127 @@ class CustomerIT {
                 .getResponseBody()).profileImage();
 
         assertThat(profileImage).matches(Pattern.compile("\\/v[0-9]{10}\\/profile-images\\/[0-9]{1,}\\/[a-z0-9\\-]*"));
+    }
+
+    @Test
+    @Transactional
+    void itShouldNotResetCustomerPasswordWhenNewPasswordUsedPreviously() {
+        // Create customer registration request
+        Faker faker = new Faker();
+
+        String firstName = faker.name().firstName();
+        String lastName = faker.name().lastName();
+        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
+        String password = "password";
+        int age = faker.number().numberBetween(18, 80);
+        Gender gender = Gender.MALE;
+
+        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
+                firstName, lastName, email, password, age, gender
+        );
+
+        // Send a POST request to register customer and retrieve the JWT
+        String jwtToken = Objects.requireNonNull(webTestClient.post()
+                .uri(CUSTOMER_PATH)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(customerRegistrationRequest), CustomerRegistrationRequest.class)
+                .exchange()
+                .expectStatus().isOk()
+                .returnResult(Void.class)
+                .getResponseHeaders()
+                .get(AUTHORIZATION)).get(0);
+
+        // Send a GET request to retrieve the registered customer
+        CustomerDTO responseBody = webTestClient.get()
+                .uri(CUSTOMER_PATH + "/email/{customerEmail}", email)
+                .accept(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(CustomerDTO.class)
+                .returnResult()
+                .getResponseBody();
+
+        Long customerId = Objects.requireNonNull(responseBody).id();
+
+        // Create customer reset password request
+        String newPassword = "password";
+        String confirmPassword = "password";
+
+        CustomerResetPasswordRequest customerResetPasswordRequest = new CustomerResetPasswordRequest(
+                newPassword, confirmPassword
+        );
+
+        // Send a PATCH request to update password
+        webTestClient.patch()
+                .uri(CUSTOMER_PATH + "/{customerId}/reset-password", customerId)
+                .accept(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(customerResetPasswordRequest), CustomerResetPasswordRequest.class)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    @Transactional
+    void itShouldNotResetCustomerPasswordWhenCustomerResetPasswordRequestIsInvalid() {
+        // Create customer registration request
+        Faker faker = new Faker();
+
+        String firstName = faker.name().firstName();
+        String lastName = faker.name().lastName();
+        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
+        String password = "password";
+        int age = faker.number().numberBetween(18, 80);
+        Gender gender = Gender.MALE;
+
+        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
+                firstName, lastName, email, password, age, gender
+        );
+
+        // Send a POST request to register customer and retrieve the JWT
+        String jwtToken = Objects.requireNonNull(webTestClient.post()
+                .uri(CUSTOMER_PATH)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(customerRegistrationRequest), CustomerRegistrationRequest.class)
+                .exchange()
+                .expectStatus().isOk()
+                .returnResult(Void.class)
+                .getResponseHeaders()
+                .get(AUTHORIZATION)).get(0);
+
+        // Send a GET request to retrieve the registered customer
+        CustomerDTO responseBody = webTestClient.get()
+                .uri(CUSTOMER_PATH + "/email/{customerEmail}", email)
+                .accept(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(CustomerDTO.class)
+                .returnResult()
+                .getResponseBody();
+
+        Long customerId = Objects.requireNonNull(responseBody).id();
+
+        // Create customer reset password request
+        String newPassword = "tests";
+        String confirmPassword = "test s";
+
+        CustomerResetPasswordRequest customerResetPasswordRequest = new CustomerResetPasswordRequest(
+                newPassword, confirmPassword
+        );
+
+        // Send a PATCH request to update password
+        webTestClient.patch()
+                .uri(CUSTOMER_PATH + "/{customerId}/reset-password", customerId)
+                .accept(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(customerResetPasswordRequest), CustomerResetPasswordRequest.class)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 }

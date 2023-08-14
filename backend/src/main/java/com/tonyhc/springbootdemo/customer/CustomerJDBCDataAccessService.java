@@ -214,6 +214,17 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
         jdbcTemplate.update(sql, profileImage, id);
     }
 
+    @Override
+    public void resetCustomerPassword(String password, Long id) {
+        String sql = """
+                UPDATE customer
+                SET password = ?
+                WHERE customer_id = ?
+                """;
+
+        jdbcTemplate.update(sql, password, id);
+    }
+
     private int getNumberOfRows() {
         String sql = """
                 SELECT COUNT(*) FROM customer;
