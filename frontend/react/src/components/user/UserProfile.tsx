@@ -28,6 +28,8 @@ import {buildCloudinaryImagePath} from "../../utils/ImageUtils.tsx";
 import {a11yProps, CustomTabPanel} from "../ui/TabPanel.tsx";
 import {MyDropzone} from "../ui/Dropzone.tsx";
 import ProfileBackground from "../../assets/profile-background.jpg";
+import ResetPassword from "./ResetPassword.tsx";
+import {ServerError} from "../../store/customer/CustomerActions.tsx";
 
 const breadcrumbs: JSX.Element[] = [
     <Link to="/dashboard" key="1">Home</Link>,
@@ -46,15 +48,18 @@ const GridPaper = styled(Paper)<{ component?: React.ElementType }>({
 interface UserProfileProps {
     user: User;
     status: string;
+    error: ServerError | undefined;
     onUploadCustomerProfileImage: (customerId: string, formData: FormData, provider: string) => Promise<void>;
+    resetPasswordError: () => void;
 }
 
-const UserProfile = ({user, status, onUploadCustomerProfileImage}: UserProfileProps) => {
+const UserProfile = ({user, status, error, onUploadCustomerProfileImage, resetPasswordError}: UserProfileProps) => {
     const [value, setValue] = React.useState(0);
     const navigate = useNavigate();
 
     const handleChange = (_event: React.SyntheticEvent, newValue: number): void => {
         setValue(newValue);
+        resetPasswordError();
     };
 
     const updateCustomerClickHandler = (): void => {
@@ -195,7 +200,8 @@ const UserProfile = ({user, status, onUploadCustomerProfileImage}: UserProfilePr
                                                 </Button>
                                             </CustomTabPanel>
                                             <CustomTabPanel value={value} index={3}>
-                                                <h2>Implement Reset Password</h2>
+                                                <ResetPassword error={error} customerId={user.id.toString()}
+                                                               setValue={setValue}/>
                                             </CustomTabPanel>
                                         </Box>
                                     </GridPaper>

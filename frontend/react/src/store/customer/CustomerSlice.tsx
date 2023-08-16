@@ -6,6 +6,7 @@ import {
     findLatestCustomers,
     getCustomerById,
     getCustomersPage,
+    resetCustomerPassword,
     ServerError,
     updateCustomerById,
     uploadCustomerProfileImage
@@ -169,6 +170,20 @@ const customerSlice = createSlice(({
             .addCase(uploadCustomerProfileImage.rejected, (state, action) => {
                 state.status = 'error';
                 state.actionType = uploadCustomerProfileImage.typePrefix;
+                state.error = action.payload;
+            })
+            .addCase(resetCustomerPassword.pending, (state) => {
+                state.status = 'loading';
+                state.actionType = resetCustomerPassword.typePrefix;
+            })
+            .addCase(resetCustomerPassword.fulfilled, (state) => {
+                state.status = 'success';
+                state.actionType = resetCustomerPassword.typePrefix;
+                state.error = {} as ServerError;
+            })
+            .addCase(resetCustomerPassword.rejected, (state, action) => {
+                state.status = 'error';
+                state.actionType = resetCustomerPassword.typePrefix;
                 state.error = action.payload;
             })
             .addCase(PURGE, () => {

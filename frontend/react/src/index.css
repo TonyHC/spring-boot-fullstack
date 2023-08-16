@@ -26,16 +26,12 @@ code {
     background-color: #B2BAC2;
 }
 
-.MuiTablePagination-menuItem {
-    color: black;
-}
-
-.MuiTabs-root .Mui-selected, .MuiTabs-indicator {
-    color: black;
+.MuiTablePagination-menuItem, .MuiTabs-root .Mui-selected, .MuiTabs-indicator {
+    color: #263238;
 }
 
 .MuiTab-root > .MuiTab-iconWrapper {
-    fill: black;
+    fill: #263238;
 }
 
 a {

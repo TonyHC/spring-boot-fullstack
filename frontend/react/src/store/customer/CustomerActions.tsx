@@ -4,6 +4,8 @@ import {NavigateFunction} from "react-router-dom";
 import {Customer, CustomerPage} from "./CustomerSlice.tsx";
 import {FormikValues} from "formik";
 import {customerFormRoutes} from "../../hooks/CurrentPage.tsx";
+import {EnqueueSnackbar} from "notistack";
+import React from "react";
 
 interface createCustomerData {
     navigate: NavigateFunction;
@@ -29,6 +31,14 @@ interface uploadCustomerProfileImageData {
     provider: string;
     currentPath?: string;
     navigate: NavigateFunction;
+}
+
+interface resetCustomerPasswordData {
+    customerId: string;
+    resetPassword: FormikValues;
+    navigate: NavigateFunction;
+    enqueueSnackbar: EnqueueSnackbar;
+    setValue: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export interface ServerError {
@@ -212,6 +222,33 @@ export const uploadCustomerProfileImage = createAsyncThunk<void, uploadCustomerP
             } else {
                 navigate("/profile", {replace: true});
             }
+        } catch (err) {
+            const error: AxiosError<ServerError> = err as never;
+
+            if (!error.response) {
+                throw err
+            }
+
+            return rejectWithValue(error.response.data)
+        }
+    }
+);
+
+export const resetCustomerPassword = createAsyncThunk<void, resetCustomerPasswordData, {
+    rejectValue: ServerError
+}>(
+    "customer/resetCustomerPassword",
+    async (data: resetCustomerPasswordData, {rejectWithValue}) => {
+        try {
+            const {customerId, resetPassword, navigate, enqueueSnackbar, setValue} = data;
+
+            await customerAuthAPI.patch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${customerId}/reset-password`,
+                resetPassword
+            );
+
+            enqueueSnackbar('Password was reset successfully', {variant: 'success'});
+            navigate("/profile", {replace: true});
+            setValue(0);
         } catch (err) {
             const error: AxiosError<ServerError> = err as never;
 

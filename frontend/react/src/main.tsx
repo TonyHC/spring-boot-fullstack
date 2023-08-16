@@ -6,6 +6,7 @@ import {StyledEngineProvider} from "@mui/material/styles";
 import "./index.css";
 import App from "./App";
 import {persistor, store} from "./store/Store.tsx";
+import {SnackbarProvider} from "notistack";
 
 const root = ReactDOM.createRoot(
     document.getElementById("root") as HTMLElement
@@ -15,7 +16,9 @@ root.render(
         <PersistGate persistor={persistor}>
             <BrowserRouter>
                 <StyledEngineProvider injectFirst>
-                    <App/>
+                    <SnackbarProvider maxSnack={3}>
+                        <App/>
+                    </SnackbarProvider>
                 </StyledEngineProvider>
             </BrowserRouter>
         </PersistGate>

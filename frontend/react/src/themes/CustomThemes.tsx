@@ -249,3 +249,56 @@ export const customerDashboardTheme: Theme = createTheme({
         }
     }
 });
+
+export const resetPasswordTheme: Theme = createTheme({
+    components: {
+        MuiTextField: {
+            styleOverrides: {
+                root: {
+                    marginBottom: "24px",
+                    "& label.Mui-focused": {
+                        color: "#263238"
+                    },
+                    "& .MuiInput-underline:after": {
+                        borderBottomColor: "#263238"
+                    },
+                    "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                            borderColor: "#263238"
+                        },
+                        "&:hover fieldset": {
+                            borderColor: "#263238"
+                        },
+                        "&.Mui-focused fieldset": {
+                            borderColor: "#263238"
+                        }
+                    },
+                    "& .MuiInputLabel-root": {
+                        color: "#263238"
+                    },
+                    "& .MuiOutlinedInput-input": {
+                        color: "#263238"
+                    }
+                }
+            }
+        },
+        MuiButton: {
+            styleOverrides: {
+                root: {
+                    fontFamily: "monospace",
+                    fontWeight: 700,
+                    color: '#263238',
+                    borderColor: '#263238',
+                    "&:hover": {
+                        borderColor: '#263238',
+                        backgroundColor: 'D8D9DA'
+                    },
+                    "&:disabled": {
+                        color: '#263238',
+                        borderColor: '#263238'
+                    }
+                }
+            }
+        }
+    }
+});
