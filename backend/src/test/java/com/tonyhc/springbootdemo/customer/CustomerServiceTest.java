@@ -127,6 +127,7 @@ class CustomerServiceTest {
 
         List<Customer> customers = List.of(customer);
 
+        String query = "mail";
         int page = 0;
         int size = 2;
         String sort = "customer_id,asc";
@@ -134,11 +135,11 @@ class CustomerServiceTest {
         Pageable pageable = paginationUtil.createPageable(page, size, sort);
         Page<Customer> customerPage = new PageImpl<>(customers, pageable, customers.size());
 
-        when(customerDao.findPageOfCustomers(page, size, sort)).thenReturn(customerPage);
+        when(customerDao.findPageOfQueriedCustomers(query, page, size, sort)).thenReturn(customerPage);
         when(customerDTOMapper.apply(customer)).thenReturn(expected);
 
         // When
-        CustomerPageDTO pageOfCustomers = underTest.findPageOfCustomers(page, size, sort);
+        CustomerPageDTO pageOfCustomers = underTest.findPageOfCustomers(page, size, sort, query);
 
         // Then
         SoftAssertions softAssertions = new SoftAssertions();

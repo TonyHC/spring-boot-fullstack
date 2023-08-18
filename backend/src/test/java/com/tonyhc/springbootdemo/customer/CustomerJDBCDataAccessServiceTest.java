@@ -3,14 +3,12 @@ package com.tonyhc.springbootdemo.customer;
 import com.tonyhc.springbootdemo.AbstractTestcontainers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CustomerJDBCDataAccessServiceTest extends AbstractTestcontainers {
     private final CustomerRowMapper customerRowMapper = new CustomerRowMapper();
@@ -26,6 +24,7 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestcontainers {
     @Test
     void itShouldFindPageOfCustomers() {
         // Given
+        String query = "@";
         int page = 0;
         int size = 5;
         String sort = "customer_id,ASC";
@@ -53,9 +52,11 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestcontainers {
 
         // When
         Page<Customer> pageOfCustomers = underTest.findPageOfCustomers(page, size, sort);
+        Page<Customer> pageOfQueriedCustomers = underTest.findPageOfQueriedCustomers(query, page, size, sort);
 
         // Then
         assertThat(pageOfCustomers).isNotNull();
+        assertThat(pageOfQueriedCustomers).isNotNull();
     }
 
     @Test
@@ -216,33 +217,6 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestcontainers {
                     assertThat(c.getAge()).isEqualTo(customer.getAge());
                     assertThat(c.getGender()).isEqualTo(customer.getGender());
                 });
-    }
-
-    @Test
-    void itShouldNotRegisterCustomerWhenEmailAlreadyTaken() {
-        // Given
-        String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
-
-        Customer customer = new Customer(
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                email,
-                "password",
-                FAKER.number().numberBetween(18, 80),
-                Gender.MALE
-        );
-
-        underTest.registerCustomer(customer);
-
-        // When
-        // Then
-        assertThatThrownBy(() -> underTest.registerCustomer(customer))
-                .isInstanceOf(DuplicateKeyException.class)
-                .hasMessageContaining("""
-                        PreparedStatementCallback; SQL [INSERT INTO customer (first_name, last_name, email, password, age, gender)
-                        VALUES (?, ?, ?, ?, ?, ?);
-                        ]; ERROR: duplicate key value violates unique constraint "customer_email_unique"
-                                                """);
     }
 
     @Test

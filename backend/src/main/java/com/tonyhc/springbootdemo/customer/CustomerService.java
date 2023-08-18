@@ -44,8 +44,8 @@ public class CustomerService {
                 .toList();
     }
 
-    public CustomerPageDTO findPageOfCustomers(int page, int size, String sort) {
-        Page<CustomerDTO> customerPage = customerDao.findPageOfCustomers(page, size, sort)
+    public CustomerPageDTO findPageOfCustomers(int page, int size, String sort, String query) {
+        Page<CustomerDTO> customerPage = customerDao.findPageOfQueriedCustomers(query, page, size, sort)
                 .map(customerDTOMapper);
 
         return new CustomerPageDTO(
@@ -54,7 +54,8 @@ public class CustomerService {
                 customerPage.getTotalElements(),
                 customerPage.getTotalPages(),
                 customerPage.getSize(),
-                sort
+                sort,
+                query
         );
     }
 
@@ -139,7 +140,7 @@ public class CustomerService {
     public void uploadCustomerProfileImage(Long customerId, MultipartFile multipartFile, String provider) {
         customerExists(customerId);
 
-        String profileImage = "";
+        String profileImage;
 
         if (provider.equals("s3")) {
             profileImage = UUID.randomUUID().toString();

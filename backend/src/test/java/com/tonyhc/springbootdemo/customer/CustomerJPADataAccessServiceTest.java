@@ -49,6 +49,22 @@ class CustomerJPADataAccessServiceTest {
     }
 
     @Test
+    void itShouldFindPageOfQueriedCustomers() {
+        // Given
+        String query = "mail";
+        int page = 0;
+        int size = 2;
+        String sort = "id,ASC";
+
+        // When
+        underTest.findPageOfQueriedCustomers(query, page, size, sort);
+
+        // Then
+        verify(paginationUtil).createPageable(anyInt(), anyInt(), anyString());
+        verify(customerRepository).findPageOfQueriedCustomers(any(), anyString());
+    }
+
+    @Test
     void itShouldFindCustomerById() {
         // Given
         Long customerId = 1L;

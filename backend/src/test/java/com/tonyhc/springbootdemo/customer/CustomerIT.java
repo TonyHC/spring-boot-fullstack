@@ -145,6 +145,7 @@ class CustomerIT {
         // Create CustomerPageDTO
         PaginationUtil paginationUtil = new PaginationUtil();
 
+        String query = "";
         int page = 0;
         int size = 5;
         String sort = "customer_id,desc";
@@ -159,12 +160,14 @@ class CustomerIT {
                 customerDTOPage.getTotalElements(),
                 customerDTOPage.getTotalPages(),
                 customerDTOPage.getSize(),
-                sort
+                sort,
+                query
         );
 
         // Send GET request to retrieve the page of customers
         CustomerPageDTO actual = webTestClient.get()
                 .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH + "/page")
+                        .queryParam("query", query)
                         .queryParam("page", page)
                         .queryParam("size", size)
                         .queryParam("sort", sort)

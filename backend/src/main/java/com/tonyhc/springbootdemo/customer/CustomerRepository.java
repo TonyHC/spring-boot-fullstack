@@ -19,6 +19,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT customer FROM Customer customer")
     Page<Customer> findPageOfCustomers(Pageable pageable);
 
+    @Query("SELECT customer FROM Customer customer WHERE customer.email LIKE CONCAT('%', :query, '%')")
+    Page<Customer> findPageOfQueriedCustomers(Pageable pageable, String query);
+
     @Query("SELECT CASE WHEN (COUNT(customer) > 0) THEN TRUE ELSE FALSE END FROM " +
             "Customer customer WHERE customer.id = :id")
     boolean existsCustomerById(Long id);

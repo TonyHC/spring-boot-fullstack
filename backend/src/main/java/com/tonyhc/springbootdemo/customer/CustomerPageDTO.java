@@ -8,6 +8,7 @@ public record CustomerPageDTO(
         Long totalItems,
         Integer totalPages,
         Integer pageSize,
-        String sort
+        String sort,
+        String query
 ) {
 }

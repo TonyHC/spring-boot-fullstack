@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository("JPA")
@@ -21,6 +20,12 @@ public class CustomerJPADataAccessService implements CustomerDao {
     public Page<Customer> findPageOfCustomers(int page, int size, String sort) {
         Pageable pageable = paginationUtil.createPageable(page, size, sort);
         return customerRepository.findPageOfCustomers(pageable);
+    }
+
+    @Override
+    public Page<Customer> findPageOfQueriedCustomers(String query, int page, int size, String sort) {
+        Pageable pageable = paginationUtil.createPageable(page, size, sort);
+        return customerRepository.findPageOfQueriedCustomers(pageable, query);
     }
 
     @Override

@@ -28,11 +28,12 @@ public class CustomerController {
 
     @GetMapping("/page")
     public CustomerPageDTO findCustomersPage(
+            @RequestParam(value = "query", defaultValue = "") String query,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "10") Integer size,
             @RequestParam(value = "sort", defaultValue = "customer_id,ASC") String sort
     ) {
-        return customerService.findPageOfCustomers(page, size, sort);
+        return customerService.findPageOfCustomers(page, size, sort, query);
     }
 
     @GetMapping("{customerId}")

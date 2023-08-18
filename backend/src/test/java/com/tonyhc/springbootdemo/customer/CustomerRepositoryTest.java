@@ -67,7 +67,9 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
                 Gender.MALE
         );
 
-        underTest.saveAll(List.of(customerOne, customerTwo, customerThree));
+        List<Customer> savedCustomers = List.of(customerOne, customerTwo, customerThree);
+
+        underTest.saveAll(savedCustomers);
 
         // When
         Page<Customer> pageOfCustomers = underTest.findPageOfCustomers(pageable);
@@ -79,6 +81,63 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
         softAssertions.assertThat(pageOfCustomers.getTotalPages()).isEqualTo(2);
         softAssertions.assertThat(pageOfCustomers.getContent().size()).isEqualTo(2);
         softAssertions.assertThat(pageOfCustomers.getNumberOfElements()).isEqualTo(2);
+
+        softAssertions.assertAll();
+    }
+
+    @Test
+    void itShouldFindPageOfQueriedCustomers() {
+        // Given
+        String query = "@";
+        int page = 0;
+        int size = 5;
+        String sort = "id,ASC";
+
+        PaginationUtil paginationUtil = new PaginationUtil();
+        Pageable pageable = paginationUtil.createPageable(page, size, sort);
+
+        Customer customerOne = new Customer(
+                FAKER.name().firstName(),
+                FAKER.name().lastName(),
+                FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID(),
+                "password",
+                FAKER.number().numberBetween(18, 80),
+                Gender.MALE
+        );
+
+        Customer customerTwo = new Customer(
+                FAKER.name().firstName(),
+                FAKER.name().lastName(),
+                FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID(),
+                "password",
+                FAKER.number().numberBetween(18, 80),
+                Gender.MALE
+        );
+
+        Customer customerThree = new Customer(
+                FAKER.name().firstName(),
+                FAKER.name().lastName(),
+                FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID(),
+                "password",
+                FAKER.number().numberBetween(18, 80),
+                Gender.MALE
+        );
+
+        List<Customer> savedCustomers = List.of(customerOne, customerTwo, customerThree);
+
+        underTest.saveAll(savedCustomers);
+
+        // When
+        Page<Customer> pageOfQueriedCustomers = underTest.findPageOfQueriedCustomers(pageable, query);
+
+        // Then
+        SoftAssertions softAssertions = new SoftAssertions();
+
+        softAssertions.assertThat(pageOfQueriedCustomers.getTotalElements()).isEqualTo(3);
+        softAssertions.assertThat(pageOfQueriedCustomers.getTotalPages()).isEqualTo(1);
+        softAssertions.assertThat(pageOfQueriedCustomers.getContent()).containsExactlyInAnyOrderElementsOf(savedCustomers);
+        softAssertions.assertThat(pageOfQueriedCustomers.getContent().size()).isEqualTo(3);
+        softAssertions.assertThat(pageOfQueriedCustomers.getTotalElements()).isEqualTo(3);
 
         softAssertions.assertAll();
     }

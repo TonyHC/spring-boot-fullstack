@@ -27,7 +27,7 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
         Pageable pageable = paginationUtil.createPageable(page, size, sort);
         String[] sortOptions = sort.split(",");
 
-        String sql = "SELECT customer_id, first_name, last_name, email, password, age, gender, profile_image FROM CUSTOMER"
+        String sql = "SELECT customer_id, first_name, last_name, email, password, age, gender, profile_image FROM customer"
                 + " ORDER BY " + sortOptions[0] + " " + sortOptions[1].toUpperCase() + " LIMIT ?" + " OFFSET ?";
 
         List<Customer> query = jdbcTemplate.query(
@@ -37,7 +37,31 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
                 pageable.getOffset()
         );
 
-        return new PageImpl<>(query, pageable, getNumberOfRows());
+        sql = "SELECT COUNT(*) FROM customer";
+
+        return new PageImpl<>(query, pageable, getNumberOfRows(sql));
+    }
+
+    @Override
+    public Page<Customer> findPageOfQueriedCustomers(String query, int page, int size, String sort) {
+        Pageable pageable = paginationUtil.createPageable(page, size, sort);
+        String[] sortOptions = sort.split(",");
+
+        String sql = "SELECT customer_id, first_name, last_name, email, password, age, gender, profile_image FROM customer"
+                + " WHERE email LIKE concat('%', ?, '%')"
+                + " ORDER BY " + sortOptions[0] + " " + sortOptions[1].toUpperCase() + " LIMIT ?" + " OFFSET ?";
+
+        List<Customer> result = jdbcTemplate.query(
+                sql,
+                customerRowMapper,
+                query,
+                size,
+                pageable.getOffset()
+        );
+
+        sql = "SELECT COUNT(*) FROM customer WHERE email LIKE CONCAT('%', ?, '%')";
+
+        return new PageImpl<>(result, pageable, getNumberOfRows(sql, query));
     }
 
     @Override
@@ -225,11 +249,8 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
         jdbcTemplate.update(sql, password, id);
     }
 
-    private int getNumberOfRows() {
-        String sql = """
-                SELECT COUNT(*) FROM customer;
-                """;
-
-        return Objects.requireNonNull(jdbcTemplate.queryForObject(sql, Integer.class));
+    private int getNumberOfRows(String sql, Object ...args) {
+        return args.length == 0 ? Objects.requireNonNull(jdbcTemplate.queryForObject(sql, Integer.class)) :
+                Objects.requireNonNull(jdbcTemplate.queryForObject(sql, Integer.class, args));
     }
 }
