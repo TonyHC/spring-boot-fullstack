@@ -5,7 +5,6 @@ import {
     Container,
     Divider,
     Grid,
-    Paper,
     Skeleton,
     Stack,
     Table,
@@ -16,29 +15,22 @@ import {
     Toolbar,
     Typography
 } from "@mui/material";
-import {AccessTime as AccessTimeIcon, NavigateNext as NavigateNextIcon} from '@mui/icons-material';
-import {User} from "../../store/auth/AuthSlice.tsx"
-import {styled, ThemeProvider} from "@mui/material/styles";
-import React, {JSX} from "react";
-import {Customer} from "../../store/customer/CustomerSlice.tsx";
+import {NavigateNext as NavigateNextIcon, Today} from '@mui/icons-material';
+import {ThemeProvider} from "@mui/material/styles";
+import {JSX} from "react";
 import {Link} from "react-router-dom";
 import Chart from "react-apexcharts";
 import {dashboardTheme} from "../../themes/CustomThemes.tsx";
 import Footer from "../shared/Footer.tsx";
 import {ageGroupCount, getGreeting} from "../../utils/DashboardUtils.tsx";
+import {Customer, User} from "../../types";
+import {GridPaper} from "../ui/GridPaper.tsx";
 
 const breadcrumbs: JSX.Element[] = [
     <Typography key="1">
         Home
     </Typography>
 ];
-
-const GridPaper = styled(Paper)<{ component?: React.ElementType }>({
-    padding: '16px',
-    display: 'flex',
-    flexDirection: 'column',
-    backgroundColor: '#B2BAC2'
-});
 
 interface DashboardProps {
     user: User;
@@ -61,10 +53,22 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
                 text: "Male / Female"
             },
             subtitle: {
-              text: 'Latest 1000 Customers'
+                text: 'Latest 1000 Customers'
             },
+            colors: ['#2196f3', '#ff4081'],
             xaxis: {
-                categories: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+']
+                categories: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'],
+                axisBorder: {
+                    show: true,
+                    color: 'rgba(0, 0, 0, 0.12)',
+                    height: 1,
+                    width: '100%',
+                    offsetX: 0,
+                    offsetY: 0
+                },
+                axisTicks: {
+                    show: false,
+                },
             },
             plotOptions: {
                 bar: {
@@ -78,12 +82,14 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
             },
             stroke: {
                 show: true,
-                width: 2,
                 colors: ['transparent']
             },
             fill: {
                 opacity: 1
             },
+            grid: {
+                borderColor: 'rgba(0, 0, 0, 0.12)',
+            }
         },
         series: [{
             name: 'Male',
@@ -134,7 +140,6 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
                             }
                         </Grid>
                         <Grid item xs={12} md={4} lg={4} xl={3}>
-
                             {/* Total customers */}
                             {
                                 customerStatus === "loading" ? <Skeleton height={200} sx={{mt: -1}}/> :
@@ -148,14 +153,13 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
                                         </Typography>
                                         <Divider sx={{my: 1}}/>
                                         <Stack direction="row">
-                                            <AccessTimeIcon sx={{fill: "black"}}/>
+                                            <Today sx={{fill: "black"}}/>
                                             <Typography color="text.secondary" sx={{flex: 1, ml: 1}}>
                                                 on {new Date().toJSON().slice(0, 10)}
                                             </Typography>
                                         </Stack>
                                     </GridPaper>
                             }
-
                             {/* Ratio of customers */}
                             {
                                 customerStatus === "loading" ? <Skeleton height={200} sx={{mt: -0.5}}/> :
@@ -169,7 +173,7 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
                                         </Typography>
                                         <Divider sx={{my: 1}}/>
                                         <Stack direction="row">
-                                            <AccessTimeIcon sx={{fill: "black"}}/>
+                                            <Today sx={{fill: "black"}}/>
                                             <Typography color="text.secondary" sx={{flex: 1, ml: 1}}>
                                                 on {new Date().toJSON().slice(0, 10)}
                                             </Typography>
@@ -177,7 +181,6 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
                                     </GridPaper>
                             }
                         </Grid>
-
                         {/* Display customers in Table component */}
                         <Grid item xs={12} xl={12}>
                             {

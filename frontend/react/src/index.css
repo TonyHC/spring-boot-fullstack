@@ -23,11 +23,15 @@ code {
 }
 
 .MuiSkeleton-root {
-    background-color: #B2BAC2;
+    background-color: #e1ebff;
 }
 
-.MuiTablePagination-menuItem, .MuiTabs-root .Mui-selected, .MuiTabs-indicator {
+.MuiTablePagination-menuItem, .MuiTabs-root .Mui-selected {
     color: #263238;
+}
+
+.MuiTabs-indicator {
+    background-color: #263238;
 }
 
 .MuiTab-root > .MuiTab-iconWrapper {
@@ -42,6 +46,10 @@ a {
     color: rgba(0, 0, 0, 0.87);
 }
 
+.table-link:hover, a:hover {
+    font-weight: bold;
+}
+
 *::-webkit-scrollbar {
     width: 8px;
 }
@@ -54,3 +62,4 @@ a {
     background-color: #E0E3E7;
     border-radius: 20px;
 }
+

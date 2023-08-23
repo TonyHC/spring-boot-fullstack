@@ -1,4 +1,3 @@
-import {Customer} from "../../store/customer/CustomerSlice.tsx";
 import React from "react";
 import {
     Button,
@@ -19,15 +18,16 @@ import {NavigateFunction, useNavigate} from "react-router-dom";
 import {customerItemTheme} from "../../themes/CustomThemes.tsx";
 import {buildCloudinaryImagePath} from "../../utils/ImageUtils.tsx";
 import ProfileBackground from "../../assets/profile-background.jpg";
+import {Customer} from "../../types";
 
-interface CustomerItemInterface {
+interface CustomerItemProps {
     key: React.Key;
     customer: Customer;
     status: string;
     onDeleteCustomer: (customerId: string) => Promise<void>;
 }
 
-const CustomerItem = ({customer, status, onDeleteCustomer}: CustomerItemInterface) => {
+const CustomerItem = ({customer, status, onDeleteCustomer}: CustomerItemProps) => {
     const navigate: NavigateFunction = useNavigate();
     const [openDialog, setOpenDialog] = React.useState(false);
 

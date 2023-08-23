@@ -1,5 +1,31 @@
 import {createTheme, Theme} from "@mui/material/styles";
 
+const styleOverridesGenericTextField = {
+    "& label.Mui-focused": {
+        color: "#A0AAB4"
+    },
+    "& .MuiInput-underline:after": {
+        borderBottomColor: "#B2BAC2"
+    },
+    "& .MuiOutlinedInput-root": {
+        "& fieldset": {
+            borderColor: "#E0E3E7"
+        },
+        "&:hover fieldset": {
+            borderColor: "#B2BAC2"
+        },
+        "&.Mui-focused fieldset": {
+            borderColor: "#6F7E8C"
+        }
+    },
+    "& .MuiInputLabel-root": {
+        color: "#E0E3E7"
+    },
+    "& .MuiOutlinedInput-input": {
+        color: "#A0AAB4"
+    }
+}
+
 const styleOverridesFormButton = {
     root: {
         "& .Mui-disabled": {
@@ -19,29 +45,7 @@ const styleOverridesFormButton = {
 const styleOverridesFormTextField = {
     root: {
         marginBottom: "24px",
-        "& label.Mui-focused": {
-            color: "#A0AAB4"
-        },
-        "& .MuiInput-underline:after": {
-            borderBottomColor: "#B2BAC2"
-        },
-        "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-                borderColor: "#E0E3E7"
-            },
-            "&:hover fieldset": {
-                borderColor: "#B2BAC2"
-            },
-            "&.Mui-focused fieldset": {
-                borderColor: "#6F7E8C"
-            }
-        },
-        "& .MuiInputLabel-root": {
-            color: "#E0E3E7"
-        },
-        "& .MuiOutlinedInput-input": {
-            color: "#A0AAB4"
-        }
+        ...styleOverridesGenericTextField
     }
 };
 
@@ -166,6 +170,42 @@ export const navbarTheme: Theme = createTheme({
                 }
             }
         },
+        MuiAutocomplete: {
+            styleOverrides: {
+                root: {
+                    width: "25%",
+                    margin: "auto",
+                    "& label.Mui-focused": {
+                        color: "#A0AAB4"
+                    },
+                    "& .MuiInput-underline:after": {
+                        borderBottomColor: "#B2BAC2"
+                    },
+                    "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                            borderColor: "#E0E3E7"
+                        },
+                        "&:hover fieldset": {
+                            borderColor: "#B2BAC2"
+                        },
+                        "&.Mui-focused fieldset": {
+                            borderColor: "#6F7E8C"
+                        },
+                    },
+                    "& .MuiInputLabel-root": {
+                        color: "#E0E3E7"
+                    },
+                    "& .MuiOutlinedInput-input": {
+                        color: "#A0AAB4"
+                    }
+                }
+            }
+        },
+        MuiTextField: {
+            styleOverrides: {
+                root: styleOverridesGenericTextField
+            }
+        }
     }
 });
 

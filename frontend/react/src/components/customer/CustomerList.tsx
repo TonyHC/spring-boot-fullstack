@@ -1,6 +1,6 @@
 import CustomerItem from "./CustomerItem..tsx";
-import {Customer} from "../../store/customer/CustomerSlice.tsx";
 import {Stack} from "@mui/material";
+import {Customer} from "../../types";
 
 interface CustomerListProps {
     customers: Customer[];

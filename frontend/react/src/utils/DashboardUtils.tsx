@@ -1,4 +1,4 @@
-import {Customer} from "../store/customer/CustomerSlice.tsx";
+import {Customer} from "../types.ts";
 
 export const ageGroupCount = (customers: Customer[], start: number, end?: number): number => {
     if (start && end) {

@@ -1,5 +1,4 @@
 import React, {useState} from "react";
-
 import {
     Box,
     Collapse,
@@ -19,22 +18,19 @@ import {
     Tooltip,
     Typography
 } from "@mui/material";
-
 import {styled, ThemeProvider} from "@mui/material/styles";
-
 import {
+    Analytics,
     ArrowRight,
-    Dns,
     Drafts as DraftsIcon,
     ExpandLess,
     ExpandMore,
     GitHub,
     Home,
     KeyboardArrowDown,
+    ManageAccounts,
     MoveToInbox as InboxIcon,
     People,
-    PermMedia,
-    Public,
     Send as SendIcon,
     Settings,
     StarBorder
@@ -49,9 +45,9 @@ const drawerWidth = 256;
 
 const buildListData = [
     {icon: <People/>, label: "Customer", path: "/customer-dashboard"},
-    {icon: <Dns/>, label: "Dashboard", path: "/dashboard"},
-    {icon: <PermMedia/>, label: "Profile", path: "/profile"},
-    {icon: <Public/>, label: "Settings", path: "/dashboard"}
+    {icon: <Analytics/>, label: "Dashboard", path: "/dashboard"},
+    {icon: <ManageAccounts/>, label: "Profile", path: "/profile"},
+    {icon: <Settings/>, label: "Settings", path: "/dashboard"}
 ];
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
@@ -175,7 +171,7 @@ const SideMenu = () => {
                                             lineHeight: "20px",
                                             mb: "2px"
                                         }}
-                                        secondary="Customers, Dashboard, Settings, Profile"
+                                        secondary="Customers, Dashboard, Profile, Settings"
                                         secondaryTypographyProps={{
                                             noWrap: true,
                                             fontSize: 12,

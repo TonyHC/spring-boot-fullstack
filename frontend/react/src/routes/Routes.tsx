@@ -25,9 +25,11 @@ const RouterRoutes = ({isAuth}: RouterRoutesProps) => {
 
                 <Route element={<RequireAuth/>}>
                     <Route path="/dashboard" element={<DashboardHomePage/>}/>
-                    <Route path="/profile" element={<UserProfilePage/>} />
+                    <Route path="/profile" element={<UserProfilePage/>}/>
                     <Route path="/profile/:customerId" element={<CustomerFormPage/>}/>
-                    <Route path="/customer-dashboard" element={<CustomerDashboardPage/>}/>
+                    <Route path="/customer-dashboard" element={<CustomerDashboardPage/>}>
+                        <Route path=":query" element={<CustomerDashboardPage/>}/>
+                    </Route>
                     <Route path="/customer-form" element={<CustomerFormPage/>}>
                         <Route path=":customerId" element={<CustomerFormPage/>}/>
                     </Route>

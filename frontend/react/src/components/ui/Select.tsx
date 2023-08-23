@@ -1,15 +1,7 @@
-import {FieldHookConfig, useField} from "formik";
-import React from "react";
+import {useField} from "formik";
 import {FormControl, InputLabel, Select} from "@mui/material";
 import {FireAlert} from "./Alert.tsx";
-
-type BaseSelectProps = FieldHookConfig<string> & {
-    labelId: string,
-    id: string,
-    label: string,
-    name: string,
-    children: React.ReactNode
-};
+import {BaseSelectProps} from "../../types.ts";
 
 export const CustomSelect = ({label, children, ...props}: BaseSelectProps) => {
     const [field, meta] = useField(props);

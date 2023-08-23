@@ -2,13 +2,13 @@ import {Location, Navigate, Outlet, useLocation} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {AppDispatch} from "../store/Store.tsx";
 import {useEffect} from "react";
-import {retrieveUser, tokenDecoded} from "../store/auth/AuthActions.tsx";
+import {retrieveUser} from "../store/auth/AuthActions.tsx";
 import jwtDecode from "jwt-decode";
 import {logout, validateToken} from "../utils/AuthUtils.tsx";
+import {TokenDecoded} from "../types.ts";
 
 export const RequireAuth = () => {
     const validToken: boolean = validateToken();
-
     const location: Location = useLocation();
     const dispatch = useDispatch<AppDispatch>();
 
@@ -16,7 +16,7 @@ export const RequireAuth = () => {
     useEffect(() => {
         if (validToken) {
             const token: string = localStorage.getItem("token")!;
-            const decodedToken: tokenDecoded = jwtDecode(token);
+            const decodedToken: TokenDecoded = jwtDecode(token);
             void dispatch(retrieveUser(decodedToken.sub));
         } else {
             void logout();

@@ -2,9 +2,10 @@ import Login from "../components/login/Login.tsx";
 import {Location, NavigateFunction, useLocation, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.tsx";
-import {loginRequest, performLogin} from "../store/auth/AuthActions.tsx";
+import {performLogin} from "../store/auth/AuthActions.tsx";
 import {resetErrorState} from "../store/auth/AuthSlice.tsx";
 import {useEffect} from "react";
+import {LoginRequest} from "../types.ts";
 
 const LoginPage = () => {
     const {error} = useSelector((state: RootState) => state.auth);
@@ -17,7 +18,7 @@ const LoginPage = () => {
         dispatch(resetErrorState());
     }, [dispatch, location.pathname]);
 
-    const loginHandler = async (user: loginRequest): Promise<void> => {
+    const loginHandler = async (user: LoginRequest): Promise<void> => {
         await dispatch(performLogin({navigate, user}));
     }
 

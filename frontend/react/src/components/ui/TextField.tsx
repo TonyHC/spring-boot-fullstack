@@ -1,13 +1,7 @@
-import {FieldHookConfig, useField} from "formik";
+import {useField} from "formik";
 import {TextField} from "@mui/material";
 import {FireAlert} from "./Alert.tsx";
-
-type BaseTextFieldProps = FieldHookConfig<string> & {
-    id: string,
-    label: string,
-    type: string,
-    placeholder?: string
-};
+import {BaseTextFieldProps} from "../../types.ts";
 
 export const CustomTextInput = (props: BaseTextFieldProps) => {
     const [field, meta] = useField(props);

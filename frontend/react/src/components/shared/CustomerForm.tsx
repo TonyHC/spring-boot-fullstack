@@ -1,13 +1,10 @@
 import {Form, Formik, FormikValues} from 'formik';
 import * as Yup from 'yup';
-
 import {Box, Breadcrumbs, Button, MenuItem, Skeleton, Stack, Toolbar, Typography} from "@mui/material";
 import {ThemeProvider} from "@mui/material/styles";
 import NavBar from "../navigation/Navbar.tsx";
-import {Customer} from "../../store/customer/CustomerSlice.tsx";
 import {customerFormTheme} from "../../themes/CustomThemes.tsx";
 import {FireAlert} from "../ui/Alert.tsx";
-import {ServerError} from "../../store/customer/CustomerActions.tsx";
 import {CustomTextInput} from "../ui/TextField.tsx";
 import {CustomSelect} from "../ui/Select.tsx";
 import Footer from "./Footer.tsx";
@@ -16,6 +13,7 @@ import {NavigateNext as NavigateNextIcon} from "@mui/icons-material";
 import {buildCloudinaryImagePath} from "../../utils/ImageUtils.tsx";
 import {MyDropzone} from "../ui/Dropzone.tsx";
 import ProfileBackground from "../../assets/profile-background.jpg";
+import {Customer, ServerError} from "../../types";
 
 enum FormTitles {
     CreateAccount = "Create Account",
@@ -35,7 +33,7 @@ const createBreadCrumbs = (formTitle: string, path: string) => {
     ];
 };
 
-interface UserHomeProps {
+interface CustomerFormProps {
     editMode: boolean;
     status: string;
     error: ServerError | undefined;
@@ -50,27 +48,19 @@ interface UserHomeProps {
 
 const CustomerForm = (
     {
-        status,
-        error,
-        editMode,
-        isAuth,
-        path,
-        actionType,
-        onCreateCustomer,
-        onUpdateCustomer,
-        onUploadCustomerProfileImage,
-        existingCustomer
-    }: UserHomeProps
+        status, error, editMode, isAuth, path, actionType, onCreateCustomer,
+        onUpdateCustomer, onUploadCustomerProfileImage, existingCustomer
+    }: CustomerFormProps
 ) => {
     const breadCrumbTitle: FormTitles = !isAuth ? FormTitles.CreateAccount :
         onCreateCustomer ? FormTitles.CreateCustomer : FormTitles.UpdateCustomer;
 
     const initialFormValues = (editMode) ? {
-        firstName: existingCustomer ? existingCustomer.firstName : "",
-        lastName: existingCustomer ? existingCustomer.lastName : "",
-        email: existingCustomer ? existingCustomer.email : "",
-        age: existingCustomer ? existingCustomer.age : 18,
-        gender: existingCustomer ? existingCustomer.gender : ""
+        firstName: existingCustomer && !(error && error.message) ? existingCustomer.firstName : "",
+        lastName: existingCustomer && !(error && error.message) ? existingCustomer.lastName : "",
+        email: existingCustomer && !(error && error.message) ? existingCustomer.email : "",
+        age: existingCustomer && !(error && error.message) ? existingCustomer.age : 18,
+        gender: existingCustomer && !(error && error.message) ? existingCustomer.gender : ""
     } : {
         firstName: "",
         lastName: "",
@@ -79,6 +69,9 @@ const CustomerForm = (
         age: 18,
         gender: ""
     };
+
+    console.log(actionType)
+    console.log(error)
 
     const validationSchema = (editMode) ? Yup.object({
         firstName: Yup.string()
@@ -115,7 +108,7 @@ const CustomerForm = (
             .max(30, "Password cannot be more than 30 characters")
             .required("Password is required"),
         age: Yup.number()
-            .min(16, 'Must be at least 16 years old')
+            .min(18, 'Must be at least 18 years old')
             .max(100, 'Must be less than 100 years old')
             .required("Age is required"),
         gender: Yup.string()
@@ -174,7 +167,7 @@ const CustomerForm = (
                                             </FireAlert>
                                         }
                                         {
-                                            (editMode && existingCustomer && onUploadCustomerProfileImage) &&
+                                            (editMode && existingCustomer && onUploadCustomerProfileImage && !(error && error.message)) &&
                                             <>
                                                 <Box
                                                     component="img"
@@ -283,7 +276,7 @@ const CustomerForm = (
                                                                 <MenuItem value="FEMALE">Female</MenuItem>
                                                             </CustomSelect>
                                                             <Button
-                                                                disabled={!(isValid && dirty) || isSubmitting}
+                                                                disabled={!(isValid && dirty) || isSubmitting || !!(error && error.message)}
                                                                 color="inherit"
                                                                 variant="outlined"
                                                                 type="submit"

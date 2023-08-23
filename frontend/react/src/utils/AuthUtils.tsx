@@ -1,12 +1,12 @@
 import {persistor} from "../store/Store.tsx";
-import {tokenDecoded} from "../store/auth/AuthActions.tsx";
 import jwtDecode from "jwt-decode";
+import {TokenDecoded} from "../types.ts";
 
 export const validateToken = (): boolean => {
     const token: string | null = localStorage.getItem("token");
 
     if (token) {
-        const decodedToken: tokenDecoded = jwtDecode(token);
+        const decodedToken: TokenDecoded = jwtDecode(token);
         return Date.now() <= decodedToken.exp * 1000;
     } else {
         return false;

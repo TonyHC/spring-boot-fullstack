@@ -1,129 +1,55 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {useSelector} from "react-redux";
-
 import {
     AppBar,
     Autocomplete,
     Avatar,
+    Box,
     Button,
     Divider,
     IconButton,
     ListItemIcon,
     Menu,
     MenuItem,
+    Skeleton,
     Stack,
     TextField,
     Toolbar,
     Tooltip,
     Typography
 } from "@mui/material";
-
-import {styled, ThemeProvider} from "@mui/material/styles";
-
+import {ThemeProvider} from "@mui/material/styles";
 import {AccountCircle, Adb as AdbIcon, Logout, PersonAdd, Settings} from "@mui/icons-material/";
 import {RootState} from "../../store/Store.tsx";
 import {navbarTheme} from "../../themes/CustomThemes.tsx";
 import {logout} from "../../utils/AuthUtils.tsx";
 
-const searchResults = [
-    {title: "The Shawshank Redemption", year: 1994},
-    {title: "The Godfather", year: 1972},
-    {title: "The Godfather: Part II", year: 1974},
-    {title: "The Dark Knight", year: 2008},
-    {title: "12 Angry Men", year: 1957},
-    {title: "Schindler's List", year: 1993},
-    {title: "Pulp Fiction", year: 1994}
-];
+interface NavBarProps {
+    showAutocomplete?: boolean;
+    status?: string;
+}
 
-const SearchTextField = styled(TextField)({
-    "& label.Mui-focused": {
-        color: "#A0AAB4"
-    },
-    "& .MuiInput-underline:after": {
-        borderBottomColor: "#B2BAC2"
-    },
-    "& .MuiOutlinedInput-root": {
-        "& fieldset": {
-            borderColor: "#E0E3E7"
-        },
-        "&:hover fieldset": {
-            borderColor: "#B2BAC2"
-        },
-        "&.Mui-focused fieldset": {
-            borderColor: "#6F7E8C"
-        }
-    },
-    "& .MuiInputLabel-root": {
-        color: "#E0E3E7"
-    },
-    "& .MuiOutlinedInput-input": {
-        color: "#A0AAB4"
-    }
-});
-
-const StyledAutocomplete = styled(Autocomplete)({
-    flexGrow: 0.5,
-    margin: "0px 16px",
-    "& label.Mui-focused": {
-        color: "#A0AAB4"
-    },
-    "& .MuiInput-underline:after": {
-        borderBottomColor: "#B2BAC2"
-    },
-    "& .MuiOutlinedInput-root": {
-        "& fieldset": {
-            borderColor: "#E0E3E7"
-        },
-        "&:hover fieldset": {
-            borderColor: "#B2BAC2"
-        },
-        "&.Mui-focused fieldset": {
-            borderColor: "#6F7E8C"
-        },
-    },
-    "& .MuiInputLabel-root": {
-        color: "#E0E3E7"
-    },
-    "& .MuiOutlinedInput-input": {
-        color: "#A0AAB4"
-    }
-});
-
-const NavBar = () => {
-    const [searchKeyword, setSearchKeyword] = useState<string>("");
+const NavBar = ({showAutocomplete, status}: NavBarProps) => {
     const {isAuth, user} = useSelector((state: RootState) => state.auth);
+    const {customers, customerPage} = useSelector((state: RootState) => state.customer);
     const navigate = useNavigate();
 
+    const [value, setValue] = React.useState<string | null>(customerPage.query);
+    const [inputValue, setInputValue] = React.useState('');
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
+
+    useEffect(() => {
+        setValue(customerPage.query);
+    }, [customerPage.query]);
+
     const handleClick = (event: React.MouseEvent<HTMLElement>): void => {
         setAnchorEl(event.currentTarget);
     };
+
     const handleClose = (): void => {
         setAnchorEl(null);
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        const input: string = (e.target as HTMLInputElement).value;
-        setSearchKeyword(input);
-    };
-
-    const handleSearchTextFieldKeyDown = (
-        e: React.KeyboardEvent<HTMLInputElement>
-    ): void => {
-        if (e.key == "Enter") {
-            console.log((e.target as HTMLInputElement).value);
-            setSearchKeyword("");
-        }
-    };
-
-    const handleAutocompleteKeyDown = (
-        e: React.KeyboardEvent<HTMLInputElement>
-    ): void => {
-        if (e.key == "Enter") {
-            console.log((e.target as HTMLInputElement).value);
-        }
     };
 
     const homeClickHandler = (): void => {
@@ -154,7 +80,7 @@ const NavBar = () => {
         <ThemeProvider theme={navbarTheme}>
             <AppBar color="inherit" position="fixed" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
                 <Toolbar disableGutters>
-                    <Stack direction="row" flexGrow={1}>
+                    <Stack direction="row">
                         <Button
                             color="inherit"
                             variant="text"
@@ -182,7 +108,8 @@ const NavBar = () => {
                             color="inherit"
                             variant="outlined"
                             sx={{
-                                marginRight: 5,
+                                marginLeft: "auto",
+                                marginRight: 4,
                                 fontFamily: "monospace",
                                 fontWeight: 700,
                                 "&:hover": {
@@ -195,33 +122,38 @@ const NavBar = () => {
                             Login
                         </Button> :
                         <>
-                            <SearchTextField
-                                id="outlined-basic"
-                                label="Keyword"
-                                variant="outlined"
-                                size="small"
-                                value={searchKeyword}
-                                onChange={handleChange}
-                                onKeyDown={handleSearchTextFieldKeyDown}
-                            />
-                            <StyledAutocomplete
-                                id="free-solo-2-demo"
-                                disableClearable
-                                options={searchResults.map((option) => option.title)}
-                                color="white"
-                                size="small"
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Search input"
-                                        InputProps={{
-                                            ...params.InputProps,
-                                            type: "search"
-                                        }}
-                                    />
-                                )}
-                                onKeyDown={handleAutocompleteKeyDown}
-                            />
+                            {
+                                showAutocomplete ?
+                                    <>
+                                        {
+                                            status === "loading" ?
+                                                <Skeleton width={400} height={65} sx={{mx: "auto"}}/> :
+                                                <Autocomplete
+                                                    freeSolo
+                                                    clearOnEscape={true}
+                                                    disablePortal={true}
+                                                    size="small"
+                                                    value={value}
+                                                    onChange={(_event: any, newValue: string | null) => {
+                                                        if (newValue !== null) {
+                                                            setValue(newValue);
+                                                            navigate(`/customer-dashboard/${newValue}`);
+                                                        }
+                                                    }}
+                                                    inputValue={inputValue}
+                                                    onInputChange={(_event, newInputValue) => {
+                                                        setInputValue(newInputValue);
+                                                    }}
+                                                    id="controllable-customers-demo"
+                                                    options={customers.map((customer) => customer.email)}
+                                                    renderInput={(params) => <TextField {...params}
+                                                                                        label="Search Customers"/>}
+                                                />
+                                        }
+                                    </> :
+                                    <Box sx={{flexGrow: 1}}/>
+                            }
+
                             <Tooltip title="Account settings">
                                 <IconButton
                                     onClick={handleClick}

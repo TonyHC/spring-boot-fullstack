@@ -6,19 +6,21 @@ import {retrieveUser} from "../store/auth/AuthActions.tsx";
 import {NavigateFunction, useNavigate} from "react-router-dom";
 import {useEffect} from "react";
 import {resetErrorState} from "../store/customer/CustomerSlice.tsx";
+import {useSnackbar} from "notistack";
 
 const UserProfilePage = () => {
     const {user, status} = useSelector((state: RootState) => state.auth);
     const {error} = useSelector((state: RootState) => state.customer);
     const dispatch = useDispatch<AppDispatch>();
     const navigate: NavigateFunction = useNavigate();
+    const {enqueueSnackbar} = useSnackbar();
 
     useEffect(() => {
         void dispatch(retrieveUser(user.username));
     }, [dispatch, user.username]);
 
     const uploadCustomerProfileImageHandler = async (customerId: string, formData: FormData, provider: string): Promise<void> => {
-        await dispatch(uploadCustomerProfileImage({customerId, formData, provider, navigate}));
+        await dispatch(uploadCustomerProfileImage({customerId, formData, provider, navigate, enqueueSnackbar}));
         await dispatch(retrieveUser(user.username));
     }
 

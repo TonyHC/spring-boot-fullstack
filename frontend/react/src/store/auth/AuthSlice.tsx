@@ -1,27 +1,8 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {PURGE} from "redux-persist";
 import {performLogin, retrieveUser} from "./AuthActions.tsx";
-import {createCustomer, ServerError} from "../customer/CustomerActions.tsx";
-
-export type User = {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    age: number;
-    gender: string;
-    profileImage: string;
-    roles: string[];
-    username: string;
-}
-
-type AuthSlice = {
-    user: User;
-    isAuth: boolean;
-    error: ServerError | undefined;
-    status: string;
-    openActionsList: boolean;
-}
+import {createCustomer} from "../customer/CustomerActions.tsx";
+import {AuthSlice, ServerError, User} from "../../types";
 
 const initialState: AuthSlice = {
     user: {} as User,

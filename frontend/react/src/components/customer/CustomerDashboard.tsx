@@ -1,5 +1,4 @@
 import {
-    Alert,
     Box,
     Breadcrumbs,
     Button,
@@ -17,13 +16,14 @@ import {
 import NavBar from "../navigation/Navbar.tsx";
 import SideMenu from "../navigation/SideMenu.tsx";
 import CustomerList from "./CustomerList.tsx";
-import {CustomerPage} from "../../store/customer/CustomerSlice.tsx";
 import {Link, NavigateFunction, useNavigate} from "react-router-dom";
 import Footer from "../shared/Footer.tsx";
 import React, {JSX} from "react";
 import {NavigateNext as NavigateNextIcon} from "@mui/icons-material";
 import {ThemeProvider} from "@mui/material/styles";
 import {customerDashboardTheme} from "../../themes/CustomThemes.tsx";
+import {FireAlert} from "../ui/Alert.tsx";
+import {CustomerPage} from "../../types";
 
 const breadcrumbs: JSX.Element[] = [
     <Link to="/dashboard" key="1">Dashboard</Link>,
@@ -43,7 +43,7 @@ interface CustomerDashboardProps {
 const CustomerDashboard = ({
                                customerPage, status, onDeleteCustomer, handleChange, handlePageSize
                            }: CustomerDashboardProps) => {
-    const {customers, totalItems: count, currentPage: page, totalPages, pageSize} = customerPage;
+    const {customers, totalItems: count, currentPage: page, totalPages, pageSize, query} = customerPage;
     const navigate: NavigateFunction = useNavigate();
 
     const createClickHandler = (): void => {
@@ -52,7 +52,7 @@ const CustomerDashboard = ({
 
     return (
         <>
-            <NavBar/>
+            <NavBar showAutocomplete={true} status={status}/>
             <SideMenu/>
             <Stack direction="column" flexGrow={1}>
                 {
@@ -73,6 +73,7 @@ const CustomerDashboard = ({
                                             border: "1px solid white",
                                             backgroundColor: "inherit",
                                             my: 2,
+                                            p: query ? 0.5 : 0,
                                             "@media (min-width: 600px)": {
                                                 minHeight: "auto"
                                             }
@@ -94,18 +95,22 @@ const CustomerDashboard = ({
                                                         width={275}/> : `Result: ${count} customers were found`}
                                             </Typography>
                                         </Stack>
-                                        <Button
-                                            color="inherit"
-                                            variant="text"
-                                            sx={{
-                                                fontFamily: "monospace",
-                                                fontWeight: 700,
-                                                mr: 2
-                                            }}
-                                            onClick={createClickHandler}
-                                        >
-                                            {status === "loading" ? <Skeleton width={50}/> : 'Create'}
-                                        </Button>
+
+                                        {
+                                            !query && <Button
+                                                color="inherit"
+                                                variant="text"
+                                                sx={{
+                                                    fontFamily: "monospace",
+                                                    fontWeight: 700,
+                                                    mr: 2
+                                                }}
+                                                onClick={createClickHandler}
+                                            >
+                                                {status === "loading" ? <Skeleton width={50}/> : 'Create'}
+                                            </Button>
+                                        }
+
                                     </Toolbar>
                                     <CustomerList customers={customers} status={status}
                                                   onDeleteCustomer={onDeleteCustomer}/>
@@ -136,10 +141,9 @@ const CustomerDashboard = ({
                                             </Stack>
                                     }
                                 </> :
-                                <Alert variant="outlined" severity="error" color="error"
-                                       sx={{width: "100%", mt: -1, mb: 2}}>
+                                <FireAlert variant="outlined" severity="error" color="error">
                                     No customers available
-                                </Alert>
+                                </FireAlert>
                         }
                     </Box>
                 }

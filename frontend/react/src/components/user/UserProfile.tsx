@@ -7,9 +7,7 @@ import {
     Card,
     CardContent,
     Container,
-    Divider,
     Grid,
-    Paper,
     Skeleton,
     Stack,
     Tab,
@@ -17,11 +15,16 @@ import {
     Toolbar,
     Typography
 } from "@mui/material";
-import {AddPhotoAlternate, ManageAccounts, NavigateNext as NavigateNextIcon, RestartAlt} from '@mui/icons-material';
+import {
+    AddPhotoAlternate,
+    ManageAccounts,
+    NavigateNext as NavigateNextIcon,
+    Notes,
+    RestartAlt,
+    Security
+} from '@mui/icons-material';
 import SideMenu from "../navigation/SideMenu.tsx";
-import {Link, useNavigate} from "react-router-dom";
-import {User} from "../../store/auth/AuthSlice.tsx";
-import {styled} from "@mui/material/styles";
+import {Link, NavigateFunction, useNavigate} from "react-router-dom";
 import React, {JSX} from "react";
 import {AccountCircle} from "@mui/icons-material/";
 import {buildCloudinaryImagePath} from "../../utils/ImageUtils.tsx";
@@ -29,7 +32,9 @@ import {a11yProps, CustomTabPanel} from "../ui/TabPanel.tsx";
 import {MyDropzone} from "../ui/Dropzone.tsx";
 import ProfileBackground from "../../assets/profile-background.jpg";
 import ResetPassword from "./ResetPassword.tsx";
-import {ServerError} from "../../store/customer/CustomerActions.tsx";
+import {Accordion, AccordionDetails, AccordionSummary} from "../ui/Accordion.tsx";
+import {ServerError, User} from "../../types";
+import {GridPaper} from "../ui/GridPaper.tsx";
 
 const breadcrumbs: JSX.Element[] = [
     <Link to="/dashboard" key="1">Home</Link>,
@@ -37,13 +42,6 @@ const breadcrumbs: JSX.Element[] = [
         User Profile
     </Typography>,
 ];
-
-const GridPaper = styled(Paper)<{ component?: React.ElementType }>({
-    padding: '16px',
-    display: 'flex',
-    flexDirection: 'column',
-    backgroundColor: '#B2BAC2'
-});
 
 interface UserProfileProps {
     user: User;
@@ -55,11 +53,16 @@ interface UserProfileProps {
 
 const UserProfile = ({user, status, error, onUploadCustomerProfileImage, resetPasswordError}: UserProfileProps) => {
     const [value, setValue] = React.useState(0);
-    const navigate = useNavigate();
+    const [expanded, setExpanded] = React.useState<string | false>('panel1');
+    const navigate: NavigateFunction = useNavigate();
 
-    const handleChange = (_event: React.SyntheticEvent, newValue: number): void => {
+    const changeTabHandler = (_event: React.SyntheticEvent, newValue: number): void => {
         setValue(newValue);
         resetPasswordError();
+    };
+
+    const changePanelHandler = (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
+        setExpanded(newExpanded ? panel : false);
     };
 
     const updateCustomerClickHandler = (): void => {
@@ -78,39 +81,62 @@ const UserProfile = ({user, status, error, onUploadCustomerProfileImage, resetPa
                         {status === "loading" ? <Skeleton width={150}/> : breadcrumbs}
                     </Breadcrumbs>
                     <Grid container spacing={3} mt={2}>
-                        <Grid item xs={12} md={8} lg={5} xl={5}>
+                        <Grid item xs={12} md={12} lg={5} xl={5}>
                             {
-                                status === "loading" ? <Skeleton height={375} sx={{mt: -11}}/> :
-                                    <GridPaper>
-                                        <Typography component="h6" variant="h6" color="text.primary">
-                                            Profile
-                                        </Typography>
-                                        <Divider/>
-                                        <Typography component="p" variant="body2" mt={2}>
-                                            Name: {user.firstName} {user.lastName}
-                                        </Typography>
-                                        <Typography component="p" variant="body2" mt={1}>
-                                            Email: {user.email}
-                                        </Typography>
-                                        <Typography component="p" variant="body2" mt={1}>
-                                            Age: {user.age}
-                                        </Typography>
-                                        <Typography component="p" variant="body2" mt={1}>
-                                            Gender: {user.gender}
-                                        </Typography>
-                                        <Typography variant="body2" mt={3} color="text.primary">
-                                            Roles: {user.roles}
-                                        </Typography>
-                                    </GridPaper>
+                                status === "loading" ? <Skeleton height={400} sx={{mt: -11}}/> :
+                                    <>
+                                        <Accordion expanded={expanded === 'panel1'}
+                                                   onChange={changePanelHandler('panel1')}>
+                                            <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
+                                                <Stack direction="row" display="flex" alignItems="center"
+                                                       justifyContent="center">
+                                                    <Notes/>
+                                                    <Typography ml={1}>User Details</Typography>
+                                                </Stack>
+                                            </AccordionSummary>
+                                            <AccordionDetails>
+                                                <Typography component="p" variant="body2">
+                                                    Name: {user.firstName} {user.lastName}
+                                                </Typography>
+                                                <Typography component="p" variant="body2" mt={1}>
+                                                    Email: {user.email}
+                                                </Typography>
+                                                <Typography component="p" variant="body2" mt={1}>
+                                                    Age: {user.age}
+                                                </Typography>
+                                                <Typography component="p" variant="body2" mt={1}>
+                                                    Gender: {user.gender}
+                                                </Typography>
+                                            </AccordionDetails>
+                                        </Accordion>
+                                        <Accordion expanded={expanded === 'panel2'}
+                                                   onChange={changePanelHandler('panel2')}>
+                                            <AccordionSummary aria-controls="panel2d-content" id="panel2d-header">
+                                                <Stack direction="row" display="flex" alignItems="center"
+                                                       justifyContent="center">
+                                                    <Security fontSize="small"/>
+                                                    <Typography ml={1}>Security Details</Typography>
+                                                </Stack>
+                                            </AccordionSummary>
+                                            <AccordionDetails>
+                                                <Typography variant="body2">
+                                                    Roles: {user.username}
+                                                </Typography>
+                                                <Typography variant="body2" mt={1}>
+                                                    Roles: {user.roles}
+                                                </Typography>
+                                            </AccordionDetails>
+                                        </Accordion>
+                                    </>
                             }
                         </Grid>
-                        <Grid item xs={12} md={4} lg={7} xl={7}>
+                        <Grid item xs={12} md={12} lg={7} xl={7}>
                             {
-                                status === "loading" ? <Skeleton height={550} sx={{mt: -16}}/> :
+                                status === "loading" ? <Skeleton height={625} sx={{mt: -16}}/> :
                                     <GridPaper>
                                         <Box sx={{width: '100%'}}>
                                             <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                                                <Tabs value={value} onChange={handleChange}
+                                                <Tabs value={value} onChange={changeTabHandler} scrollButtons="auto"
                                                       aria-label=" basic tabs example" centered>
                                                     <Tab icon={<AccountCircle/>}
                                                          label=" Profile Image" {...a11yProps(0)} />
@@ -169,7 +195,7 @@ const UserProfile = ({user, status, error, onUploadCustomerProfileImage, resetPa
                                                                 border: '1px solid grey'
                                                             }}>
                                                             <Typography variant="body2" color="text.secondary">
-                                                                Update Information
+                                                                Upload Image
                                                             </Typography>
                                                         </Button>
                                                     </Stack>
@@ -183,7 +209,7 @@ const UserProfile = ({user, status, error, onUploadCustomerProfileImage, resetPa
                                                                 py: 0.5,
                                                                 px: 3,
                                                                 mt: 2,
-                                                                border: '1px solid #000',
+                                                                border: '1px solid #263238',
                                                                 color: 'black',
                                                                 borderRadius: 1,
                                                                 textAlign: 'center'
@@ -191,6 +217,7 @@ const UserProfile = ({user, status, error, onUploadCustomerProfileImage, resetPa
                                             </CustomTabPanel>
                                             <CustomTabPanel value={value} index={2}>
                                                 <Button
+                                                    color="primary"
                                                     variant="contained"
                                                     type="submit"
                                                     fullWidth

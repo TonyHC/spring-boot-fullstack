@@ -7,38 +7,10 @@ import {
     getCustomerById,
     getCustomersPage,
     resetCustomerPassword,
-    ServerError,
     updateCustomerById,
     uploadCustomerProfileImage
 } from "./CustomerActions.tsx";
-
-export type Customer = {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    age: number;
-    gender: string;
-    profileImage: string;
-};
-
-export type CustomerPage = {
-    customers: Customer[];
-    currentPage: number;
-    totalItems: number;
-    totalPages: number;
-    pageSize: number;
-    sort: string;
-};
-
-type CustomerSlice = {
-    customerPage: CustomerPage;
-    customers: Customer[];
-    customer: Customer;
-    status: string;
-    error: ServerError | undefined;
-    actionType: string;
-};
+import {Customer, CustomerPage, CustomerSlice, ServerError} from "../../types";
 
 const initialCustomerPageState: CustomerPage = {
     customers: [],
@@ -46,7 +18,8 @@ const initialCustomerPageState: CustomerPage = {
     totalItems: 0,
     totalPages: 0,
     pageSize: 10,
-    sort: 'customer_id,asc'
+    sort: 'customer_id,ASC',
+    query: ''
 };
 
 const initialState: CustomerSlice = {
@@ -93,7 +66,22 @@ const customerSlice = createSlice(({
                 state.status = 'success';
                 state.actionType = getCustomersPage.typePrefix;
                 state.error = {} as ServerError;
-                state.customerPage = action.payload;
+
+                const {customers, query, totalItems, totalPages, sort} = action.payload;
+
+                if (state.customerPage.query !== query) {
+                    state.customerPage = {
+                        customers: customers,
+                        currentPage: 0,
+                        totalItems: totalItems,
+                        totalPages: totalPages,
+                        pageSize: 10,
+                        sort: sort,
+                        query: query
+                    };
+                } else {
+                    state.customerPage = action.payload;
+                }
             })
             .addCase(getCustomersPage.rejected, (state, action) => {
                 state.status = 'error';

@@ -1,37 +1,11 @@
 import axios, {AxiosError, AxiosHeaders, AxiosHeaderValue} from "axios";
 import {createAsyncThunk} from "@reduxjs/toolkit";
-import {NavigateFunction} from "react-router-dom";
 import {customerAuthAPI} from "../customer/CustomerActions.tsx";
-import {User} from "./AuthSlice.tsx";
+import {PerformLoginData, ServerError, User} from "../../types";
 
-export type loginRequest = {
-    username: string,
-    password: string
-}
-
-interface performLoginData {
-    navigate: NavigateFunction;
-    user: loginRequest;
-}
-
-export interface tokenDecoded {
-    exp: number;
-    iat: number;
-    iss: string;
-    scopes: string[];
-    sub: string;
-}
-
-interface ServerError {
-    timestamp: string;
-    statusCode: number;
-    message: string;
-    path: string;
-}
-
-export const performLogin = createAsyncThunk<void, performLoginData, { rejectValue: ServerError }>(
+export const performLogin = createAsyncThunk<void, PerformLoginData, { rejectValue: ServerError }>(
     "auth/performLogin",
-    async (data: performLoginData, {rejectWithValue}) => {
+    async (data: PerformLoginData, {rejectWithValue}) => {
         try {
             const {user, navigate} = data;
             const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/login`, user);

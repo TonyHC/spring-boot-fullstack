@@ -1,19 +1,17 @@
 import {Form, Formik} from 'formik';
 import * as Yup from 'yup';
 import {Link} from "react-router-dom";
-
 import {Box, Button, Stack, Typography} from "@mui/material";
 import {ThemeProvider} from "@mui/material/styles";
 import NavBar from "../navigation/Navbar.tsx";
 import {loginTheme} from "../../themes/CustomThemes.tsx";
-import {loginRequest} from "../../store/auth/AuthActions.tsx";
 import {FireAlert} from "../ui/Alert.tsx";
-import {ServerError} from "../../store/customer/CustomerActions.tsx";
 import {CustomTextInput} from "../ui/TextField.tsx";
 import Footer from "../shared/Footer.tsx";
+import {LoginRequest, ServerError} from "../../types";
 
 interface LoginProps {
-    onLogin: (user: loginRequest) => Promise<void>;
+    onLogin: (user: LoginRequest) => Promise<void>;
     error: ServerError | undefined;
 }
 
@@ -89,7 +87,6 @@ const Login = ({onLogin, error}: LoginProps) => {
                                             label="Password"
                                             name="password"
                                             type="password"
-                                            placeholder="example"
                                         />
                                         <Button
                                             disabled={!(isValid && dirty)}
@@ -104,7 +101,7 @@ const Login = ({onLogin, error}: LoginProps) => {
                                             Sign in
                                         </Button>
                                         <Typography variant="caption" display="block" mt={3} mb={-3}>
-                                            New to DEMO? <Link to="/sign-up">Join Now</Link>
+                                            New to DEMO? <Link  to="/sign-up">Join Now</Link>
                                         </Typography>
                                     </ThemeProvider>
                                 </Stack>

@@ -1,4 +1,4 @@
-import {resetCustomerPassword, ServerError} from "../../store/customer/CustomerActions.tsx";
+import {resetCustomerPassword} from "../../store/customer/CustomerActions.tsx";
 import {Box, Button, Stack, Typography} from "@mui/material";
 import {FireAlert} from "../ui/Alert.tsx";
 import {Form, Formik} from "formik";
@@ -11,6 +11,7 @@ import {NavigateFunction, useNavigate} from "react-router-dom";
 import {useSnackbar} from "notistack";
 import React from "react";
 import {resetPasswordTheme} from "../../themes/CustomThemes.tsx";
+import {ServerError} from "../../types";
 
 interface ResetPasswordProps {
     error: ServerError | undefined;
@@ -26,7 +27,6 @@ const ResetPassword = ({error, customerId, setValue}: ResetPasswordProps) => {
     return (
         <Stack direction="column" flexGrow={1}>
             <Box
-                id="login"
                 sx={{
                     width: "auto",
                     height: "auto",
@@ -35,6 +35,7 @@ const ResetPassword = ({error, customerId, setValue}: ResetPasswordProps) => {
                     boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;",
                     p: 5
                 }}
+                key={customerId}
             >
                 <Typography
                     variant="h3"

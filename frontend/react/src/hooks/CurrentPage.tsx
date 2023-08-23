@@ -1,4 +1,4 @@
-import {matchRoutes, useLocation} from "react-router-dom";
+import {Location, matchRoutes, useLocation} from "react-router-dom";
 
 interface RoutePath {
     path: string
@@ -13,11 +13,12 @@ export const customerFormRoutes: RoutePath[] = [
 export const sideMenuRoutes: RoutePath[] = [
     {path: "/dashboard"},
     {path: "/customer-dashboard"},
+    {path: "/customer-dashboard/:query"},
     {path: "/profile"}
 ];
 
 const useCurrentPage = (routes: RoutePath[]): string => {
-    const location = useLocation();
+    const location: Location = useLocation();
     const result = matchRoutes(routes, location)?.find(m => m.pathname === location.pathname);
 
     let currentPath = "*";

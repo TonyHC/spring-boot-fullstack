@@ -1,4 +1,4 @@
-import Dashboard from "../components/dashboard/Dashboard.tsx";
+import Dashboard from "../components/user/Dashboard.tsx";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.tsx";
 import {useEffect} from "react";
