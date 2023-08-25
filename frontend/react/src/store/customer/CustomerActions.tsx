@@ -2,10 +2,11 @@ import axios, {AxiosError, AxiosHeaders, AxiosHeaderValue, AxiosInstance} from "
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {customerFormRoutes} from "../../hooks/CurrentPage.tsx";
 import {
+    CreateCustomerData,
     Customer,
     CustomerPage,
-    CreateCustomerData,
     DeleteCustomerByIdData,
+    GetCustomerByIdData,
     GetCustomerPageData,
     ResetCustomerPasswordData,
     ServerError,
@@ -45,13 +46,7 @@ export const createCustomer = createAsyncThunk<void, CreateCustomerData, { rejec
 
             navigate("/customer-dashboard", {replace: true});
         } catch (err) {
-            const error: AxiosError<ServerError> = err as never;
-
-            if (!error.response) {
-                throw err
-            }
-
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(handleError(err));
         }
     }
 )
@@ -65,15 +60,10 @@ export const findLatestCustomers = createAsyncThunk<Customer[], number, { reject
                     size
                 }
             });
+
             return res.data;
         } catch (err) {
-            const error: AxiosError<ServerError> = err as never;
-
-            if (!error.response) {
-                throw err
-            }
-
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(handleError(err));
         }
     }
 )
@@ -92,33 +82,25 @@ export const getCustomersPage = createAsyncThunk<CustomerPage, GetCustomerPageDa
                     sort
                 }
             });
+
             return res.data;
         } catch (err) {
-            const error: AxiosError<ServerError> = err as never;
-
-            if (!error.response) {
-                throw err
-            }
-
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(handleError(err));
         }
     }
 )
 
-export const getCustomerById = createAsyncThunk<Customer, string, { rejectValue: ServerError }>(
+export const getCustomerById = createAsyncThunk<Customer, GetCustomerByIdData, { rejectValue: ServerError }>(
     "customer/getCustomerById",
-    async (customerId: string, {rejectWithValue}) => {
+    async (data: GetCustomerByIdData, {rejectWithValue}) => {
+        const {customerId, navigate} = data;
+
         try {
             const res = await customerAuthAPI.get<Customer>(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${customerId}`);
             return res.data;
         } catch (err) {
-            const error: AxiosError<ServerError> = err as never;
-
-            if (!error.response) {
-                throw err
-            }
-
-            return rejectWithValue(error.response.data)
+            navigate("/not-found", {replace: true});
+            return rejectWithValue(handleError(err));
         }
     }
 )
@@ -140,13 +122,7 @@ export const updateCustomerById = createAsyncThunk<void, UpdateCustomerData, { r
                 navigate("/profile", {replace: true});
             }
         } catch (err) {
-            const error: AxiosError<ServerError> = err as never;
-
-            if (!error.response) {
-                throw err
-            }
-
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(handleError(err));
         }
     }
 )
@@ -159,13 +135,7 @@ export const deleteCustomerById = createAsyncThunk<void, DeleteCustomerByIdData,
             await customerAuthAPI.delete(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${customerId}`);
             enqueueSnackbar('Customer was deleted successfully', {variant: 'success'});
         } catch (err) {
-            const error: AxiosError<ServerError> = err as never;
-
-            if (!error.response) {
-                throw err
-            }
-
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(handleError(err));
         }
     }
 )
@@ -198,13 +168,7 @@ export const uploadCustomerProfileImage = createAsyncThunk<void, UploadCustomerP
 
             enqueueSnackbar('Upload profile image was successfully', {variant: 'success'});
         } catch (err) {
-            const error: AxiosError<ServerError> = err as never;
-
-            if (!error.response) {
-                throw err
-            }
-
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(handleError(err));
         }
     }
 );
@@ -225,13 +189,17 @@ export const resetCustomerPassword = createAsyncThunk<void, ResetCustomerPasswor
             navigate("/profile", {replace: true});
             setValue(0);
         } catch (err) {
-            const error: AxiosError<ServerError> = err as never;
-
-            if (!error.response) {
-                throw err
-            }
-
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(handleError(err));
         }
     }
 );
+
+const handleError = (err: unknown): ServerError => {
+    const error: AxiosError<ServerError> = err as never;
+
+    if (!error.response) {
+        throw error;
+    }
+
+    return error.response.data;
+};

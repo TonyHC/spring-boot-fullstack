@@ -40,7 +40,8 @@ const Login = ({onLogin, error}: LoginProps) => {
                         Sign in
                     </Typography>
 
-                    {(error && error.message) &&
+                    {
+                        (error && error.message) &&
                         <FireAlert variant="outlined" severity="error" color="error">
                             {error.message}
                         </FireAlert>
@@ -101,7 +102,7 @@ const Login = ({onLogin, error}: LoginProps) => {
                                             Sign in
                                         </Button>
                                         <Typography variant="caption" display="block" mt={3} mb={-3}>
-                                            New to DEMO? <Link  to="/sign-up">Join Now</Link>
+                                            New to DEMO? <Link to="/sign-up">Join Now</Link>
                                         </Typography>
                                     </ThemeProvider>
                                 </Stack>
@@ -109,7 +110,7 @@ const Login = ({onLogin, error}: LoginProps) => {
                         )}
                     </Formik>
                 </Box>
-                <Footer />
+                <Footer/>
             </Stack>
         </>
     );

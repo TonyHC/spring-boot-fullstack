@@ -25,7 +25,7 @@ const ResetPassword = ({error, customerId, setValue}: ResetPasswordProps) => {
     const {enqueueSnackbar} = useSnackbar();
 
     return (
-        <Stack direction="column" flexGrow={1}>
+        <Stack direction="column" flexGrow={1} key={customerId}>
             <Box
                 sx={{
                     width: "auto",
@@ -35,7 +35,6 @@ const ResetPassword = ({error, customerId, setValue}: ResetPasswordProps) => {
                     boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;",
                     p: 5
                 }}
-                key={customerId}
             >
                 <Typography
                     variant="h3"
@@ -46,15 +45,13 @@ const ResetPassword = ({error, customerId, setValue}: ResetPasswordProps) => {
                 >
                     Reset Password
                 </Typography>
-
                 {
                     error && error.message && error.message.split(",").map(errorMessage => (
-                        < FireAlert variant="outlined" severity="error" color="error">
+                        < FireAlert variant="outlined" severity="error" color="error" key={errorMessage}>
                             {errorMessage}
                         </FireAlert>
                     ))
                 }
-
                 <Formik
                     initialValues={{
                         password: "",
@@ -79,7 +76,7 @@ const ResetPassword = ({error, customerId, setValue}: ResetPasswordProps) => {
                             navigate,
                             enqueueSnackbar,
                             setValue
-                        }))
+                        }));
                     }}>
                     {({isValid, dirty}) => (
                         <Form>

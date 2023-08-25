@@ -56,11 +56,11 @@ const CustomerForm = (
         onCreateCustomer ? FormTitles.CreateCustomer : FormTitles.UpdateCustomer;
 
     const initialFormValues = (editMode) ? {
-        firstName: existingCustomer && !(error && error.message) ? existingCustomer.firstName : "",
-        lastName: existingCustomer && !(error && error.message) ? existingCustomer.lastName : "",
-        email: existingCustomer && !(error && error.message) ? existingCustomer.email : "",
-        age: existingCustomer && !(error && error.message) ? existingCustomer.age : 18,
-        gender: existingCustomer && !(error && error.message) ? existingCustomer.gender : ""
+        firstName: existingCustomer ? existingCustomer.firstName : "",
+        lastName: existingCustomer ? existingCustomer.lastName : "",
+        email: existingCustomer ? existingCustomer.email : "",
+        age: existingCustomer ? existingCustomer.age : 18,
+        gender: existingCustomer ? existingCustomer.gender : ""
     } : {
         firstName: "",
         lastName: "",
@@ -69,9 +69,6 @@ const CustomerForm = (
         age: 18,
         gender: ""
     };
-
-    console.log(actionType)
-    console.log(error)
 
     const validationSchema = (editMode) ? Yup.object({
         firstName: Yup.string()
@@ -133,8 +130,10 @@ const CustomerForm = (
                                     separator={<NavigateNextIcon fontSize="small"/>}
                                     aria-label="breadcrumb"
                                     sx={{mt: 2}}>
-                                    {(status === "loading" && actionType !== "customer/uploadCustomerProfileImage") ?
-                                        <Skeleton width={350}/> : createBreadCrumbs(breadCrumbTitle, path)}
+                                    {
+                                        ((status === "loading" || status === "error") && actionType !== "customer/uploadCustomerProfileImage" && actionType === "customer/getCustomerById") ?
+                                        <Skeleton width={350}/> : createBreadCrumbs(breadCrumbTitle, path)
+                                    }
                                 </Breadcrumbs>
                             </>
                         }
@@ -150,7 +149,7 @@ const CustomerForm = (
                             }}
                         >
                             {
-                                (status === "loading" && actionType === "customer/getCustomerById") ?
+                                ((status === "loading" || status === "error") && actionType === "customer/getCustomerById") ?
                                     <Skeleton height={900} width={300} sx={{mt: -25, mb: -20}}/> :
                                     <>
                                         <Typography
@@ -161,13 +160,14 @@ const CustomerForm = (
                                         >
                                             {breadCrumbTitle}
                                         </Typography>
-                                        {(error && error.message) &&
+                                        {
+                                            (error && error.message) &&
                                             <FireAlert variant="outlined" severity="error" color="error">
                                                 {error.message}
                                             </FireAlert>
                                         }
                                         {
-                                            (editMode && existingCustomer && onUploadCustomerProfileImage && !(error && error.message)) &&
+                                            (editMode && existingCustomer && onUploadCustomerProfileImage) &&
                                             <>
                                                 <Box
                                                     component="img"
@@ -185,20 +185,23 @@ const CustomerForm = (
                                                     }}
                                                     alt="Profile Image"
                                                     src={
-                                                        existingCustomer.profileImage !== null ?
+                                                        existingCustomer.profileImage ?
                                                             buildCloudinaryImagePath(existingCustomer.profileImage) :
                                                             ProfileBackground
                                                     }
                                                 />
-                                                <MyDropzone customerId={existingCustomer.id.toString()}
-                                                            onUploadCustomerProfileImage={onUploadCustomerProfileImage}
-                                                            sx={{
-                                                                py: 0.5,
-                                                                px: 2,
-                                                                mt: 2,
-                                                                border: '1px solid #E0E3E7',
-                                                                borderRadius: 1
-                                                            }}/>
+                                                {
+                                                    existingCustomer.id &&
+                                                    <MyDropzone customerId={existingCustomer.id.toString()}
+                                                                onUploadCustomerProfileImage={onUploadCustomerProfileImage}
+                                                                sx={{
+                                                                    py: 0.5,
+                                                                    px: 2,
+                                                                    mt: 2,
+                                                                    border: '1px solid #E0E3E7',
+                                                                    borderRadius: 1
+                                                                }}/>
+                                                }
                                             </>
                                         }
                                         <Formik
@@ -276,7 +279,7 @@ const CustomerForm = (
                                                                 <MenuItem value="FEMALE">Female</MenuItem>
                                                             </CustomSelect>
                                                             <Button
-                                                                disabled={!(isValid && dirty) || isSubmitting || !!(error && error.message)}
+                                                                disabled={!(isValid && dirty) && isSubmitting}
                                                                 color="inherit"
                                                                 variant="outlined"
                                                                 type="submit"

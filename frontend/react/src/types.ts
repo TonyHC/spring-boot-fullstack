@@ -71,6 +71,11 @@ export interface GetCustomerPageData {
     sort: string;
 }
 
+export interface GetCustomerByIdData {
+    customerId: string;
+    navigate: NavigateFunction;
+}
+
 export interface DeleteCustomerByIdData {
     customerId: string;
     enqueueSnackbar: EnqueueSnackbar;
@@ -100,7 +105,7 @@ export type Customer = {
     email: string;
     age: number;
     gender: string;
-    profileImage: string;
+    profileImage: string | null;
 };
 
 export type CustomerPage = {

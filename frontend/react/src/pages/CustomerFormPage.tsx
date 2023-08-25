@@ -29,10 +29,12 @@ const CustomerFormPage = () => {
 
     useEffect(() => {
         if (customerId) {
-            void dispatch(getCustomerById(customerId));
+            void dispatch(getCustomerById({customerId, navigate}));
             setEditMode(true);
         }
-    }, [dispatch, customerId]);
+
+        window.scroll({top: 0, left: 0});
+    }, [dispatch, customerId, navigate]);
 
     useEffect(() => {
         // Reset the Customer Slice state error field when leaving this page
@@ -72,8 +74,8 @@ const CustomerFormPage = () => {
         <>
             {
                 currentPath === customerFormRoutes[0].path || currentPath === customerFormRoutes[1].path ?
-                    <CustomerForm status={status} error={error} editMode={editMode} isAuth={isAuth} path={currentPath}
-                                  onCreateCustomer={createCustomerHandler}/> :
+                    <CustomerForm status={status} error={error} editMode={editMode} isAuth={isAuth}
+                                  path={currentPath} onCreateCustomer={createCustomerHandler}/> :
                     <CustomerForm status={status} error={error} actionType={actionType} editMode={editMode}
                                   isAuth={isAuth} path={currentPath} onUpdateCustomer={updateCustomerHandler}
                                   onUploadCustomerProfileImage={uploadCustomerProfileImageHandler}
