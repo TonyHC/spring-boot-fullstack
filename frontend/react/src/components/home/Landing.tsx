@@ -67,7 +67,7 @@ const Landing = ({isAuth}: LandingProps) => {
                                         variant="outlined"
                                         onClick={loginClickHandler}
                                     >
-                                        Login
+                                        Sign in
                                     </Button>
                                     <Button
                                         color="inherit"

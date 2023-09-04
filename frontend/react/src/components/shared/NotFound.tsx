@@ -33,7 +33,7 @@ const NotFound = ({isAuth}: NotFoundProps) => {
                                         Return back to the dashboard {greaterThanSymbol}
                                     </Typography>
                                 </Link> :
-                                <Link to="/dashboard">
+                                <Link to="/">
                                     <Typography variant="subtitle2">
                                         Return back to the home page {greaterThanSymbol}
                                     </Typography>

@@ -120,7 +120,7 @@ const UserProfile = ({user, status, error, onUploadCustomerProfileImage, resetPa
                                             </AccordionSummary>
                                             <AccordionDetails>
                                                 <Typography variant="body2">
-                                                    Roles: {user.username}
+                                                    Username: {user.username}
                                                 </Typography>
                                                 <Typography variant="body2" mt={1}>
                                                     Roles: {user.roles}

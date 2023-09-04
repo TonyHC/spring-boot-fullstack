@@ -43,7 +43,7 @@ interface CustomerDashboardProps {
 const CustomerDashboard = ({
                                customerPage, status, onDeleteCustomer, handleChange, handlePageSize
                            }: CustomerDashboardProps) => {
-    const {customers, totalItems: count, currentPage: page, totalPages, pageSize, query} = customerPage;
+    const {customers, totalItems: count, currentPage: page, totalPages, pageSize} = customerPage;
     const navigate: NavigateFunction = useNavigate();
 
     const createClickHandler = (): void => {
@@ -73,7 +73,7 @@ const CustomerDashboard = ({
                                             border: "1px solid white",
                                             backgroundColor: "inherit",
                                             my: 2,
-                                            p: query ? 0.5 : 0,
+                                            p: 0,
                                             "@media (min-width: 600px)": {
                                                 minHeight: "auto"
                                             }
@@ -96,20 +96,18 @@ const CustomerDashboard = ({
                                             </Typography>
                                         </Stack>
 
-                                        {
-                                            !query && <Button
-                                                color="inherit"
-                                                variant="text"
-                                                sx={{
-                                                    fontFamily: "monospace",
-                                                    fontWeight: 700,
-                                                    mr: 2
-                                                }}
-                                                onClick={createClickHandler}
-                                            >
-                                                {status === "loading" ? <Skeleton width={50}/> : 'Create'}
-                                            </Button>
-                                        }
+                                        <Button
+                                            color="inherit"
+                                            variant="text"
+                                            sx={{
+                                                fontFamily: "monospace",
+                                                fontWeight: 700,
+                                                mr: 2
+                                            }}
+                                            onClick={createClickHandler}
+                                        >
+                                            {status === "loading" ? <Skeleton width={50}/> : 'Create'}
+                                        </Button>
 
                                     </Toolbar>
                                     <CustomerList customers={customers} status={status}

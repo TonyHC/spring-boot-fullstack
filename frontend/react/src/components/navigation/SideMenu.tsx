@@ -74,11 +74,6 @@ const SideMenu = () => {
     const handleClick = (): void => {
         setOpenInboxList(!openInboxList);
     };
-
-    const dashboardClickHandler = (): void => {
-        navigate("/dashboard");
-    };
-
     const navigateClickHandler = (path: string): void => {
         navigate(path);
     };
@@ -102,7 +97,7 @@ const SideMenu = () => {
                         <FireNav component="nav" disablePadding>
                             <Divider/>
                             <ListItem component="div" disablePadding>
-                                <ListItemButton sx={{height: 64}} onClick={dashboardClickHandler}>
+                                <ListItemButton sx={{height: 64}} onClick={() => navigateClickHandler('/dashboard')}>
                                     <ListItemIcon>
                                         <Home color="primary"/>
                                     </ListItemIcon>
@@ -287,7 +282,8 @@ const SideMenu = () => {
                 <Box display="flex" sx={{bgcolor: "background.paper"}}>
                     <Stack direction="row" display="flex" alignItems="center" justifyContent="center" px={3} py={2}>
                         <GitHub fontSize="medium" color="primary"/>
-                        <Link underline="none" color="inherit" ml={2} href="https://github.com/TonyHC">
+                        <Link underline="none" color="inherit" ml={2}
+                              href="https://github.com/TonyHC/spring-boot-fullstack">
                             <Typography variant="body2">
                                 GitHub
                             </Typography>
