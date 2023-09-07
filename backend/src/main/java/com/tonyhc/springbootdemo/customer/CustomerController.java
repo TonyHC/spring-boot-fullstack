@@ -27,7 +27,7 @@ public class CustomerController {
     }
 
     @GetMapping("/page")
-    public CustomerPageDTO findCustomersPage(
+    public CustomerPageDTO findPageOfCustomers(
             @RequestParam(value = "query", defaultValue = "") String query,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "10") Integer size,
