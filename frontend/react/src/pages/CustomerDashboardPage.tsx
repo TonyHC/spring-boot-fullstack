@@ -26,21 +26,17 @@ const CustomerDashboardPage = () => {
         window.scroll({top: 0, left: 0});
     };
 
-    const handlePageSize = (event: SelectChangeEvent<unknown>): void => {
-        const value: number | undefined = typeof event.target.value === "number" ? event.target.value : undefined;
-
-        if (value) {
-            handleCustomerPagination(dispatch, query, 0, value, customerPage.sort);
-            window.scroll({top: 0, left: 0});
-        }
-    }
+    const handlePageSize = (event: SelectChangeEvent<number>): void => {
+        handleCustomerPagination(dispatch, query, 0, +event.target.value, customerPage.sort);
+        window.scroll({top: 0, left: 0});
+    };
 
     const deleteCustomerHandler = async (customerId: string): Promise<void> => {
         window.scroll({top: 0, left: 0});
         await dispatch(deleteCustomerById({customerId, enqueueSnackbar}));
         handleCustomerPagination(dispatch, query, customerPage.currentPage, customerPage.pageSize, customerPage.sort);
         await dispatch(findLatestCustomers(1000));
-    }
+    };
 
     return (
         <CustomerDashboard status={status}

@@ -37,7 +37,7 @@ export type User = {
     email: string;
     age: number;
     gender: string;
-    profileImage: string;
+    profileImage: string | null;
     roles: string[];
     username: string;
 }
@@ -62,6 +62,7 @@ export interface UpdateCustomerData {
     currentPath: string;
     navigate: NavigateFunction;
     query: string;
+    enqueueSnackbar: EnqueueSnackbar;
 }
 
 export interface GetCustomerPageData {

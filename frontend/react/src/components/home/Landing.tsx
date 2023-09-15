@@ -12,16 +12,8 @@ interface LandingProps {
 const Landing = ({isAuth}: LandingProps) => {
     const navigate: NavigateFunction = useNavigate();
 
-    const loginClickHandler = (): void => {
-        navigate("/login");
-    };
-
-    const signUpClickHandler = (): void => {
-        navigate("/sign-up");
-    };
-
-    const dashboardClickHandler = (): void => {
-        navigate("/dashboard");
+    const navigateClickHandler = (route: string): void => {
+        navigate(route);
     };
 
     return (
@@ -56,7 +48,7 @@ const Landing = ({isAuth}: LandingProps) => {
                                     <Button
                                         color="inherit"
                                         variant="outlined"
-                                        onClick={dashboardClickHandler}
+                                        onClick={() => navigateClickHandler('/dashboard')}
                                     >
                                         Dashboard
                                     </Button>
@@ -65,14 +57,14 @@ const Landing = ({isAuth}: LandingProps) => {
                                     <Button
                                         color="inherit"
                                         variant="outlined"
-                                        onClick={loginClickHandler}
+                                        onClick={() => navigateClickHandler('/login')}
                                     >
                                         Sign in
                                     </Button>
                                     <Button
                                         color="inherit"
                                         variant="outlined"
-                                        onClick={signUpClickHandler}
+                                        onClick={() => navigateClickHandler('/sign-up')}
                                     >
                                         Sign up
                                     </Button>

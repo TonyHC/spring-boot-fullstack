@@ -11,7 +11,7 @@ export const validateToken = (): boolean => {
     } else {
         return false;
     }
-}
+};
 
 export const logout = async (): Promise<void> => {
     await persistor.purge();

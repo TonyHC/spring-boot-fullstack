@@ -132,7 +132,7 @@ const CustomerForm = (
                                     sx={{mt: 2}}>
                                     {
                                         ((status === "loading" || status === "error") && actionType !== "customer/uploadCustomerProfileImage" && actionType === "customer/getCustomerById") ?
-                                        <Skeleton width={350}/> : createBreadCrumbs(breadCrumbTitle, path)
+                                            <Skeleton width={350}/> : createBreadCrumbs(breadCrumbTitle, path)
                                     }
                                 </Breadcrumbs>
                             </>
@@ -141,7 +141,8 @@ const CustomerForm = (
                             sx={{
                                 width: "auto",
                                 height: "auto",
-                                my: 5,
+                                mt: isAuth ? 5 : 15,
+                                mb: 5,
                                 mx: "auto",
                                 outline: "1px solid #E0E3E7",
                                 boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;",
@@ -185,7 +186,7 @@ const CustomerForm = (
                                                     }}
                                                     alt="Profile Image"
                                                     src={
-                                                        existingCustomer.profileImage ?
+                                                        existingCustomer.profileImage !== null ?
                                                             buildCloudinaryImagePath(existingCustomer.profileImage) :
                                                             ProfileBackground
                                                     }

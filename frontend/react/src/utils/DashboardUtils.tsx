@@ -22,4 +22,4 @@ export const getGreeting = (hour: number): string => {
     }
 
     return greeting;
-}
+};

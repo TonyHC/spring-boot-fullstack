@@ -1,6 +1,7 @@
-import axios, {AxiosError, AxiosHeaders, AxiosHeaderValue, AxiosInstance} from "axios";
+import axios, {AxiosHeaders, AxiosHeaderValue, AxiosInstance} from "axios";
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {customerFormRoutes} from "../../hooks/CurrentPage.tsx";
+import {handleError} from "../../utils/ErrorHandlingUtils.tsx";
 import {
     CreateCustomerData,
     Customer,
@@ -49,7 +50,7 @@ export const createCustomer = createAsyncThunk<void, CreateCustomerData, { rejec
             return rejectWithValue(handleError(err));
         }
     }
-)
+);
 
 export const findLatestCustomers = createAsyncThunk<Customer[], number, { rejectValue: ServerError }>(
     "customer/findLatestCustomers",
@@ -66,7 +67,7 @@ export const findLatestCustomers = createAsyncThunk<Customer[], number, { reject
             return rejectWithValue(handleError(err));
         }
     }
-)
+);
 
 export const getCustomersPage = createAsyncThunk<CustomerPage, GetCustomerPageData, { rejectValue: ServerError }>(
     "customer/getCustomerPage",
@@ -88,7 +89,7 @@ export const getCustomersPage = createAsyncThunk<CustomerPage, GetCustomerPageDa
             return rejectWithValue(handleError(err));
         }
     }
-)
+);
 
 export const getCustomerById = createAsyncThunk<Customer, GetCustomerByIdData, { rejectValue: ServerError }>(
     "customer/getCustomerById",
@@ -103,13 +104,13 @@ export const getCustomerById = createAsyncThunk<Customer, GetCustomerByIdData, {
             return rejectWithValue(handleError(err));
         }
     }
-)
+);
 
 export const updateCustomerById = createAsyncThunk<void, UpdateCustomerData, { rejectValue: ServerError }>(
     "customer/updateCustomerById",
     async (data: UpdateCustomerData, {rejectWithValue}) => {
         try {
-            const {customer, customerId, currentPath, navigate, query} = data;
+            const {customer, customerId, currentPath, navigate, query, enqueueSnackbar} = data;
             await customerAuthAPI.patch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${customerId}`, customer);
 
             if (currentPath === customerFormRoutes[2].path) {
@@ -121,11 +122,13 @@ export const updateCustomerById = createAsyncThunk<void, UpdateCustomerData, { r
             } else {
                 navigate("/profile", {replace: true});
             }
+
+            enqueueSnackbar('Customer was updated successfully', {variant: 'success'});
         } catch (err) {
             return rejectWithValue(handleError(err));
         }
     }
-)
+);
 
 export const deleteCustomerById = createAsyncThunk<void, DeleteCustomerByIdData, { rejectValue: ServerError }>(
     "customer/deleteCustomerById",
@@ -138,7 +141,7 @@ export const deleteCustomerById = createAsyncThunk<void, DeleteCustomerByIdData,
             return rejectWithValue(handleError(err));
         }
     }
-)
+);
 
 export const uploadCustomerProfileImage = createAsyncThunk<void, UploadCustomerProfileImageData, {
     rejectValue: ServerError
@@ -193,13 +196,3 @@ export const resetCustomerPassword = createAsyncThunk<void, ResetCustomerPasswor
         }
     }
 );
-
-const handleError = (err: unknown): ServerError => {
-    const error: AxiosError<ServerError> = err as never;
-
-    if (!error.response) {
-        throw error;
-    }
-
-    return error.response.data;
-};

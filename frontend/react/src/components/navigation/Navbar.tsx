@@ -52,29 +52,19 @@ const NavBar = ({showAutocomplete, status}: NavBarProps) => {
         setAnchorEl(null);
     };
 
-    const homeClickHandler = (): void => {
-        navigate("/");
+    const navigateClickHandler = (path: string, replace: boolean): void => {
+        navigate(path, {replace});
     };
 
-    const loginClickHandler = (): void => {
-        navigate("/login");
-    };
-
-    const dashboardClickHandler = (): void => {
+    const dropdownNavigateHandler = (isLogout: boolean, replace: boolean, path: string) => {
         setAnchorEl(null);
-        navigate("/dashboard");
-    };
 
-    const userProfileClickHandler = (): void => {
-        setAnchorEl(null);
-        navigate("/profile");
-    };
+        if (isLogout) {
+            void logout();
+        }
 
-    const logoutHandler = (): void => {
-        setAnchorEl(null);
-        void logout();
-        navigate("/login", {replace: true});
-    }
+        navigateClickHandler(path, replace);
+    };
 
     return (
         <ThemeProvider theme={navbarTheme}>
@@ -88,7 +78,7 @@ const NavBar = ({showAutocomplete, status}: NavBarProps) => {
                             sx={{
                                 mx: 3
                             }}
-                            onClick={homeClickHandler}
+                            onClick={() => navigateClickHandler('/', false)}
                         >
                             <Typography
                                 variant="button"
@@ -117,7 +107,7 @@ const NavBar = ({showAutocomplete, status}: NavBarProps) => {
                                     boxShadow: "none"
                                 }
                             }}
-                            onClick={loginClickHandler}
+                            onClick={() => navigateClickHandler('/login', false)}
                         >
                             Login
                         </Button> :
@@ -205,13 +195,13 @@ const NavBar = ({showAutocomplete, status}: NavBarProps) => {
                                 transformOrigin={{horizontal: "right", vertical: "top"}}
                                 anchorOrigin={{horizontal: "right", vertical: "bottom"}}
                             >
-                                <MenuItem onClick={dashboardClickHandler}>
+                                <MenuItem onClick={() => dropdownNavigateHandler(false, false,'/dashboard')}>
                                     <ListItemIcon>
                                         <PersonAdd fontSize="small"/>
                                     </ListItemIcon>
                                     Dashboard
                                 </MenuItem>
-                                <MenuItem onClick={userProfileClickHandler}>
+                                <MenuItem onClick={() => dropdownNavigateHandler(false, false, '/profile')}>
                                     <ListItemIcon>
                                         <AccountCircle fontSize="medium"/>
                                     </ListItemIcon>
@@ -224,7 +214,7 @@ const NavBar = ({showAutocomplete, status}: NavBarProps) => {
                                     Settings
                                 </MenuItem>
                                 <Divider sx={{borderColor: "#90a4ae"}}/>
-                                <MenuItem onClick={logoutHandler}>
+                                <MenuItem onClick={() =>  dropdownNavigateHandler(true, true, '/login')}>
                                     <ListItemIcon>
                                         <Logout fontSize="small"/>
                                     </ListItemIcon>

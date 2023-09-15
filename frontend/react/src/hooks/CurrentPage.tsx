@@ -28,6 +28,6 @@ const useCurrentPage = (routes: RoutePath[]): string => {
     }
 
     return currentPath
-}
+};
 
 export default useCurrentPage;

@@ -1,7 +1,8 @@
-import axios, {AxiosError, AxiosHeaders, AxiosHeaderValue} from "axios";
+import axios, {AxiosHeaders, AxiosHeaderValue} from "axios";
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {customerAuthAPI} from "../customer/CustomerActions.tsx";
 import {PerformLoginData, ServerError, User} from "../../types";
+import {handleError} from "../../utils/ErrorHandlingUtils.tsx";
 
 export const performLogin = createAsyncThunk<void, PerformLoginData, { rejectValue: ServerError }>(
     "auth/performLogin",
@@ -21,16 +22,10 @@ export const performLogin = createAsyncThunk<void, PerformLoginData, { rejectVal
 
             navigate("/dashboard", {replace: true});
         } catch (err) {
-            const error: AxiosError<ServerError> = err as never;
-
-            if (!error.response) {
-                throw err
-            }
-
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(handleError(err));
         }
     }
-)
+);
 
 export const retrieveUser = createAsyncThunk<User, string, { rejectValue: ServerError }>(
     "auth/retrieveUser",
@@ -40,13 +35,7 @@ export const retrieveUser = createAsyncThunk<User, string, { rejectValue: Server
                 await customerAuthAPI.get<User>(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/email/${email}`);
             return res.data;
         } catch (err) {
-            const error: AxiosError<ServerError> = err as never;
-
-            if (!error.response) {
-                throw err
-            }
-
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(handleError(err));
         }
     }
-)
+);

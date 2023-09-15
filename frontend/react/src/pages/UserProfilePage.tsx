@@ -22,11 +22,11 @@ const UserProfilePage = () => {
     const uploadCustomerProfileImageHandler = async (customerId: string, formData: FormData, provider: string): Promise<void> => {
         await dispatch(uploadCustomerProfileImage({customerId, formData, provider, navigate, enqueueSnackbar}));
         await dispatch(retrieveUser(user.username));
-    }
+    };
 
     const resetPasswordErrorHandler = (): void => {
         dispatch(resetErrorState());
-    }
+    };
 
     return (
         <UserProfile user={user} status={status} error={error}

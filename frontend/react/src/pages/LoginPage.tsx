@@ -20,7 +20,7 @@ const LoginPage = () => {
 
     const loginHandler = async (user: LoginRequest): Promise<void> => {
         await dispatch(performLogin({navigate, user}));
-    }
+    };
 
     return (
         <Login onLogin={loginHandler} error={error} />

@@ -37,7 +37,7 @@ interface CustomerDashboardProps {
     status: string;
     onDeleteCustomer: (customerId: string) => Promise<void>;
     handleChange: (event: React.ChangeEvent<unknown>, value: number) => void;
-    handlePageSize: (event: SelectChangeEvent<unknown>) => void;
+    handlePageSize: (event: SelectChangeEvent<number>) => void;
 }
 
 const CustomerDashboard = ({

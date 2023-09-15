@@ -40,9 +40,6 @@ const customerSlice = createSlice(({
         },
         updateCustomerPageState: (state): void => {
             state.customerPage = initialCustomerPageState;
-        },
-        resetCustomerState: (state, action: { payload: Customer }): void => {
-            state.customer = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -183,5 +180,5 @@ const customerSlice = createSlice(({
     }
 }));
 
-export const {resetErrorState, updateCustomerPageState, resetCustomerState} = customerSlice.actions;
+export const {resetErrorState, updateCustomerPageState} = customerSlice.actions;
 export default customerSlice.reducer;

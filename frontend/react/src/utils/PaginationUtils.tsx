@@ -12,7 +12,7 @@ export const handleCustomerPagination = (dispatch: AppDispatch, query: string | 
             "", page, size, sort
         )));
     }
-}
+};
 
 const buildGetCustomerPageObject = (query: string, page: number, size: number, sort: string): GetCustomerPageData => {
     return {

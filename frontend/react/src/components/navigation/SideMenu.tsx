@@ -74,6 +74,7 @@ const SideMenu = () => {
     const handleClick = (): void => {
         setOpenInboxList(!openInboxList);
     };
+
     const navigateClickHandler = (path: string): void => {
         navigate(path);
     };

@@ -47,7 +47,7 @@ const CustomerFormPage = () => {
         if (currentPath !== customerFormRoutes[0].path) {
             dispatch(updateCustomerPageState());
         }
-    }
+    };
 
     const updateCustomerHandler = async (customerFormValues: FormikValues, customerId: string): Promise<void> => {
         await dispatch(updateCustomerById({
@@ -55,9 +55,10 @@ const CustomerFormPage = () => {
             customerId,
             currentPath,
             navigate,
-            query: customerPage.query
+            query: customerPage.query,
+            enqueueSnackbar
         }));
-    }
+    };
 
     const uploadCustomerProfileImageHandler = async (customerId: string, formData: FormData, provider: string): Promise<void> => {
         await dispatch(uploadCustomerProfileImage({
@@ -68,7 +69,7 @@ const CustomerFormPage = () => {
             navigate,
             enqueueSnackbar
         }));
-    }
+    };
 
     return (
         <>
