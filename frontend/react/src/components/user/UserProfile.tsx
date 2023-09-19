@@ -40,7 +40,7 @@ const breadcrumbs: JSX.Element[] = [
     <Link to="/dashboard" key="1">Home</Link>,
     <Typography key="2">
         User Profile
-    </Typography>,
+    </Typography>
 ];
 
 interface UserProfileProps {
@@ -77,7 +77,9 @@ const UserProfile = ({user, status, error, onUploadCustomerProfileImage, resetPa
                 <Toolbar/>
                 <Container maxWidth="xl" sx={{my: 2}}>
                     <Breadcrumbs
-                        separator={<NavigateNextIcon fontSize="small"/>}>
+                        separator={<NavigateNextIcon fontSize="small"/>}
+                        aria-label="breadcrumb"
+                    >
                         {status === "loading" ? <Skeleton width={150}/> : breadcrumbs}
                     </Breadcrumbs>
                     <Grid container spacing={3} mt={2}>
