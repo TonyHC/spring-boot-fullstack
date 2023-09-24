@@ -136,11 +136,16 @@ export type BaseTextFieldProps = FieldHookConfig<string> & {
     placeholder?: string
 };
 
-
 export type BaseSelectProps = FieldHookConfig<string> & {
     labelId: string,
     id: string,
     label: string,
     name: string,
     children: React.ReactNode
+}
+
+// Testing
+export interface IPreloadedState {
+    auth: AuthSlice,
+    customer: CustomerSlice
 }

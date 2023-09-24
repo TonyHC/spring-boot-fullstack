@@ -67,15 +67,15 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
                     offsetY: 0
                 },
                 axisTicks: {
-                    show: false,
-                },
+                    show: false
+                }
             },
             plotOptions: {
                 bar: {
                     horizontal: false,
                     columnWidth: '25%',
                     endingShape: 'rounded'
-                },
+                }
             },
             dataLabels: {
                 enabled: false
@@ -143,7 +143,7 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
                             {/* Total customers */}
                             {
                                 customerStatus === "loading" ? <Skeleton height={200} sx={{mt: -1}}/> :
-                                    <GridPaper sx={{minHeight: 150, mb: 5}}>
+                                    <GridPaper sx={{minHeight: 150, mb: 5}} data-testid="total-customers">
                                         <Typography component="h2" variant="h6" gutterBottom
                                                     sx={{color: "rgba(0, 0, 0, 0.87)"}}>
                                             Total Customers
@@ -163,7 +163,7 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
                             {/* Ratio of customers */}
                             {
                                 customerStatus === "loading" ? <Skeleton height={200} sx={{mt: -0.5}}/> :
-                                    <GridPaper sx={{minHeight: 150}}>
+                                    <GridPaper sx={{minHeight: 150}} data-testid="customer-gender-ratio">
                                         <Typography component="h2" variant="h6" gutterBottom
                                                     sx={{color: "rgba(0, 0, 0, 0.87)"}}>
                                             Ratio (M/ F)
@@ -204,7 +204,7 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
                                                             <TableCell align="right">Gender</TableCell>
                                                         </TableRow>
                                                     </TableHead>
-                                                    <TableBody>
+                                                    <TableBody data-testid="customers">
                                                         {latestCustomers.slice(0, 5).map((customer) => (
                                                             <TableRow key={customer.id}>
                                                                 <TableCell>{customer.id}</TableCell>
