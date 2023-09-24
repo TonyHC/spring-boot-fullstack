@@ -42,7 +42,7 @@ const CustomerItem = ({customer, status, onDeleteCustomer}: CustomerItemProps) =
     const deleteCustomerHandler = (): void => {
         setOpenDialog(false);
         void onDeleteCustomer(customer.id.toString());
-    }
+    };
 
     const updateCustomerClickHandler = (): void => {
         navigate(`/customer-form/${customer.id}`);
@@ -59,6 +59,7 @@ const CustomerItem = ({customer, status, onDeleteCustomer}: CustomerItemProps) =
                     width: '260px',
                     boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;"
                 }}
+                data-testid="customer-card"
             >
                 {
                     status == "loading" ? <Skeleton height={280} sx={{mt: -7.5, mb: -6}}/> :

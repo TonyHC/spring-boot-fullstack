@@ -20,12 +20,12 @@ export const MyDropzone = ({customerId, onUploadCustomerProfileImage, setValue, 
         if (setValue) {
             setValue(0);
         }
-    }, [customerId, onUploadCustomerProfileImage, setValue])
-    const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
+    }, [customerId, onUploadCustomerProfileImage, setValue]);
+    const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop});
 
     return (
         <Box {...getRootProps()} sx={sx}>
-            <input {...getInputProps()} />
+            <input data-testid="dropzone" {...getInputProps()} />
             {
                 isDragActive ?
                     <p>Drop the picture here...</p> :

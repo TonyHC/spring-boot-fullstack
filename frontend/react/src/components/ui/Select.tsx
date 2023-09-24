@@ -14,6 +14,7 @@ export const CustomSelect = ({label, children, ...props}: BaseSelectProps) => {
                     id={props.id}
                     labelId={props.labelId}
                     label={label}
+                    data-testid="select-multiple"
                     defaultValue=""
                     {...field}
                 >
