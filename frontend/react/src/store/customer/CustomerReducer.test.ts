@@ -1,4 +1,3 @@
-
 import {expect, test} from "vitest";
 import reducer, {resetErrorState, updateCustomerPageState} from "./CustomerSlice.tsx";
 import {Customer, ServerError} from "../../types.ts";
@@ -18,7 +17,8 @@ describe('CustomerReducer tests', () => {
             customers: [],
             customer: {} as Customer,
             error: {} as ServerError,
-            status: 'idle'
+            status: 'idle',
+            actionType: ''
         });
     });
 
