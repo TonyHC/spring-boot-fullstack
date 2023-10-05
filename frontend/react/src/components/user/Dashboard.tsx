@@ -20,9 +20,9 @@ import {ThemeProvider} from "@mui/material/styles";
 import {JSX} from "react";
 import {Link} from "react-router-dom";
 import Chart from "react-apexcharts";
-import {dashboardTheme} from "../../themes/CustomThemes.tsx";
+import {dashboardTheme} from "../../themes/CustomThemes.ts";
 import Footer from "../shared/Footer.tsx";
-import {ageGroupCount, getGreeting} from "../../utils/DashboardUtils.tsx";
+import {ageGroupCount, getGreeting} from "../../utils/DashboardUtils.ts";
 import {Customer, User} from "../../types";
 import {GridPaper} from "../ui/GridPaper.tsx";
 
@@ -36,10 +36,10 @@ interface DashboardProps {
     user: User;
     authStatus: string;
     latestCustomers: Customer[];
-    customerStatus: string;
+    isLoadingCustomerData: boolean;
 }
 
-const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: DashboardProps) => {
+const Dashboard = ({user, authStatus, latestCustomers, isLoadingCustomerData}: DashboardProps) => {
     const male: Customer[] = latestCustomers.filter(customer => customer.gender === "MALE");
     const female: Customer[] = latestCustomers.filter(customer => customer.gender === "FEMALE");
     const greetingMessage: string = getGreeting(new Date().getHours());
@@ -128,7 +128,7 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
                         {/* Display some User information */}
                         <Grid item xs={12} md={8} lg={8} xl={9}>
                             {
-                                customerStatus === "loading" ? <Skeleton height={525} sx={{mt: -10}}/> :
+                                isLoadingCustomerData ? <Skeleton height={525} sx={{mt: -10}}/> :
                                     <GridPaper>
                                         <Chart
                                             options={state.options}
@@ -142,7 +142,7 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
                         <Grid item xs={12} md={4} lg={4} xl={3}>
                             {/* Total customers */}
                             {
-                                customerStatus === "loading" ? <Skeleton height={200} sx={{mt: -1}}/> :
+                                isLoadingCustomerData ? <Skeleton height={200} sx={{mt: -1}}/> :
                                     <GridPaper sx={{minHeight: 150, mb: 5}} data-testid="total-customers">
                                         <Typography component="h2" variant="h6" gutterBottom
                                                     sx={{color: "rgba(0, 0, 0, 0.87)"}}>
@@ -162,7 +162,7 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
                             }
                             {/* Ratio of customers */}
                             {
-                                customerStatus === "loading" ? <Skeleton height={200} sx={{mt: -0.5}}/> :
+                                isLoadingCustomerData ? <Skeleton height={200} sx={{mt: -0.5}}/> :
                                     <GridPaper sx={{minHeight: 150}} data-testid="customer-gender-ratio">
                                         <Typography component="h2" variant="h6" gutterBottom
                                                     sx={{color: "rgba(0, 0, 0, 0.87)"}}>
@@ -184,7 +184,7 @@ const Dashboard = ({user, authStatus, latestCustomers, customerStatus}: Dashboar
                         {/* Display customers in Table component */}
                         <Grid item xs={12} xl={12}>
                             {
-                                customerStatus === "loading" ?
+                                isLoadingCustomerData ?
                                     <Skeleton height={475} sx={{mt: -25, mb: -10}}/> :
                                     <>
                                         <GridPaper>

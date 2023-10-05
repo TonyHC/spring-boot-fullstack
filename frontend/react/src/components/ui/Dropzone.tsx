@@ -6,7 +6,7 @@ import {Theme} from "@mui/material/styles";
 
 interface MyDropzoneProps {
     customerId: string;
-    onUploadCustomerProfileImage: (customerId: string, formData: FormData, provider: string) => Promise<void>;
+    onUploadCustomerProfileImage: (customerId: string, formData: FormData, provider: string) => void;
     setValue?: React.Dispatch<React.SetStateAction<number>>;
     sx?: SxProps<Theme>;
 }

@@ -4,14 +4,14 @@ import {Link} from "react-router-dom";
 import {Box, Button, Stack, Typography} from "@mui/material";
 import {ThemeProvider} from "@mui/material/styles";
 import NavBar from "../navigation/Navbar.tsx";
-import {loginTheme} from "../../themes/CustomThemes.tsx";
+import {loginTheme} from "../../themes/CustomThemes.ts";
 import {FireAlert} from "../ui/Alert.tsx";
 import {CustomTextInput} from "../ui/TextField.tsx";
 import Footer from "../shared/Footer.tsx";
 import {LoginRequest, ServerError} from "../../types";
 
 interface LoginProps {
-    onLogin: (user: LoginRequest) => Promise<void>;
+    onLogin: (user: LoginRequest) => void;
     error: ServerError | undefined;
 }
 

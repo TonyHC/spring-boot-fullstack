@@ -15,16 +15,16 @@ import {
 } from "@mui/material";
 import {ThemeProvider} from "@mui/material/styles";
 import {NavigateFunction, useNavigate} from "react-router-dom";
-import {customerItemTheme} from "../../themes/CustomThemes.tsx";
-import {buildCloudinaryImagePath} from "../../utils/ImageUtils.tsx";
+import {customerItemTheme} from "../../themes/CustomThemes.ts";
+import {buildCloudinaryImagePath} from "../../utils/ImageUtils.ts";
 import ProfileBackground from "../../assets/profile-background.jpg";
 import {Customer} from "../../types";
 
 interface CustomerItemProps {
     key: React.Key;
     customer: Customer;
-    status: string;
-    onDeleteCustomer: (customerId: string) => Promise<void>;
+    status: boolean;
+    onDeleteCustomer: (customerId: string) => void;
 }
 
 const CustomerItem = ({customer, status, onDeleteCustomer}: CustomerItemProps) => {
@@ -62,7 +62,7 @@ const CustomerItem = ({customer, status, onDeleteCustomer}: CustomerItemProps) =
                 data-testid="customer-card"
             >
                 {
-                    status == "loading" ? <Skeleton height={280} sx={{mt: -7.5, mb: -6}}/> :
+                    status ? <Skeleton height={280} sx={{mt: -7.5, mb: -6}}/> :
                         <CardMedia
                             sx={{width: 'auto', height: 175}}
                             image={
@@ -84,22 +84,22 @@ const CustomerItem = ({customer, status, onDeleteCustomer}: CustomerItemProps) =
                             color: "inherit",
                             textDecoration: "none"
                         }}>
-                        {status == "loading" ? <Skeleton/> : `${customer.firstName} ${customer.lastName}`}
+                        {status ? <Skeleton/> : `${customer.firstName} ${customer.lastName}`}
                     </Typography>
                     <Typography color="text.secondary" component={"div"} sx={{fontSize: "0.9rem", color: "inherit"}}>
-                        {status == "loading" ? <Skeleton/> : `${customer.email}`}
+                        {status ? <Skeleton/> : `${customer.email}`}
                     </Typography>
                     <Typography color="text.secondary" component={"div"} sx={{fontSize: "0.9rem", color: "inherit"}}>
-                        {status == "loading" ?
+                        {status ?
                             <Skeleton/> : `Age ${customer.age} |  ${customer.gender.substring(0, 1) + customer.gender.substring(1).toLowerCase()}`}
                     </Typography>
                 </CardContent>
                 <CardActions sx={{mt: -2}}>
                     <Button size="small" onClick={updateCustomerClickHandler}>
-                        {status === "loading" ? <Skeleton width={50}/> : 'Update Info'}
+                        {status ? <Skeleton width={50}/> : 'Update Info'}
                     </Button>
                     <Button size="small" color="error" onClick={handleClickOpen}>
-                        {status === "loading" ? <Skeleton width={50}/> : 'Delete'}
+                        {status ? <Skeleton width={50}/> : 'Delete'}
                     </Button>
                 </CardActions>
             </Card>

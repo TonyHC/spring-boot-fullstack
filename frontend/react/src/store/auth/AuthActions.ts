@@ -1,8 +1,8 @@
 import axios, {AxiosHeaders, AxiosHeaderValue} from "axios";
 import {createAsyncThunk} from "@reduxjs/toolkit";
-import {customerAuthAPI} from "../customer/CustomerActions.tsx";
+import {customerAuthAPI} from "../customer/CustomerActions.ts";
 import {PerformLoginData, ServerError, User} from "../../types";
-import {handleError} from "../../utils/ErrorHandlingUtils.tsx";
+import {handleError} from "../../utils/ErrorHandlingUtils.ts";
 
 export const performLogin = createAsyncThunk<void, PerformLoginData, { rejectValue: ServerError }>(
     "auth/performLogin",

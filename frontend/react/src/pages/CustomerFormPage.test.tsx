@@ -38,7 +38,6 @@ const renderComponentWithProviderWhenNotAuthenticated = (initialRoute: string) =
                 query: ''
             },
             customer: {} as Customer,
-            actionType: '',
             status: 'idle',
             error: {} as ServerError
         }
@@ -58,7 +57,7 @@ const renderComponentWithProviderWhenNotAuthenticated = (initialRoute: string) =
     };
 };
 
-const renderComponentWithProviderWhenAuthenticated = async (initialRoute: string) => {
+const renderComponentWithProviderWhenAuthenticated = async (initialRoute: string, invalidAccess: boolean) => {
     const history: MemoryHistory = createMemoryHistory({initialEntries: [initialRoute]});
 
     const preloadedState: IPreloadedState = {
@@ -129,7 +128,6 @@ const renderComponentWithProviderWhenAuthenticated = async (initialRoute: string
                 query: ''
             },
             customer: {} as Customer,
-            actionType: '',
             status: 'success',
             error: {} as ServerError
         }
@@ -144,10 +142,14 @@ const renderComponentWithProviderWhenAuthenticated = async (initialRoute: string
         }
     );
 
-    // Handle the 'act' warning
-    await screen.findByRole('button', {
-        name: /account settings/i
-    });
+    if (invalidAccess) {
+        await screen.findByTestId('not-found-page');
+    } else {
+        // Handle the 'act' warning
+        await screen.findByRole('button', {
+            name: /account settings/i
+        });
+    }
 
     return {
         preloadedState,
@@ -184,7 +186,7 @@ describe('User loads the CustomerFormPage from the /customer-form-route', () => 
     ]);
 
     test('it should contain the create customer form', async () => {
-        await renderComponentWithProviderWhenAuthenticated('/customer-form');
+        await renderComponentWithProviderWhenAuthenticated('/customer-form', false);
 
         const customerFormTitle = screen.getByRole('heading', {
             name: /create customer/i
@@ -227,7 +229,7 @@ describe('User loads the CustomerFormPage from the /customer-form-route', () => 
     });
 
     test('it should select the FEMALE option from the gender select', async () => {
-        await renderComponentWithProviderWhenAuthenticated('/customer-form');
+        await renderComponentWithProviderWhenAuthenticated('/customer-form', false);
 
         const genderSelectButton = screen.getByRole('button', {
             name: /gender/i
@@ -249,7 +251,7 @@ describe('User loads the CustomerFormPage from the /customer-form-route', () => 
     });
 
     test('it should create new customer successfully', async () => {
-        const {history} = await renderComponentWithProviderWhenAuthenticated('/customer-form');
+        const {history} = await renderComponentWithProviderWhenAuthenticated('/customer-form', false);
 
         const firstNameInput = screen.getByRole('textbox', {
             name: /first name/i
@@ -314,7 +316,7 @@ describe('User loads the CustomerFormPage from the /customer-form-route', () => 
             'Gender'
         ];
 
-        await renderComponentWithProviderWhenAuthenticated('/customer-form');
+        await renderComponentWithProviderWhenAuthenticated('/customer-form', false);
 
         const submitButton = screen.getByRole('button', {
             name: /submit/i
@@ -348,7 +350,7 @@ describe('User submits the create customer form with an already used email', () 
     ]);
 
     test('it should show correct error message alert', async () => {
-        await renderComponentWithProviderWhenAuthenticated('/customer-form');
+        await renderComponentWithProviderWhenAuthenticated('/customer-form', false);
 
         const firstNameInput = screen.getByRole('textbox', {
             name: /first name/i
@@ -377,20 +379,20 @@ describe('User submits the create customer form with an already used email', () 
         });
 
         await user.click(firstNameInput);
-        await user.keyboard('Dummy');
+        await user.keyboard('Beta');
 
         await user.click(lastNameInput);
-        await user.keyboard('Users');
+        await user.keyboard('User');
 
         await user.click(emailInput);
-        await user.keyboard('dummyusers@mail.com');
+        await user.keyboard('betauser@gmail.com');
 
         await user.click(passwordInput);
         await user.keyboard('password');
 
         await user.click(ageInput);
         await user.clear(ageInput);
-        await user.keyboard('29');
+        await user.keyboard('34');
 
         await user.click(genderSelectButton);
 
@@ -452,7 +454,7 @@ describe('User loads the CustomerFormPage containing the update customer form', 
     test('it should show the update customer form populated with the correct customer information', async () => {
         vi.spyOn(routeData, 'useParams').mockReturnValue({customerId: customer.id.toString()});
 
-        await renderComponentWithProviderWhenAuthenticated(`/customer-form/${customer.id}`);
+        await renderComponentWithProviderWhenAuthenticated(`/customer-form/${customer.id}`, false);
 
         const customerProfileImage = screen.getByRole('img', {
             name: /profile image/i
@@ -478,7 +480,7 @@ describe('User loads the CustomerFormPage containing the update customer form', 
     test('it should the update customer successfully and display a success toast', async () => {
         vi.spyOn(routeData, 'useParams').mockReturnValue({customerId: customer.id.toString()});
 
-        const {history} = await renderComponentWithProviderWhenAuthenticated(`/customer-form/${customer.id}`);
+        const {history} = await renderComponentWithProviderWhenAuthenticated(`/customer-form/${customer.id}`, false);
 
         const ageInput = screen.getByDisplayValue(customer.age);
 
@@ -500,7 +502,7 @@ describe('User loads the CustomerFormPage containing the update customer form', 
         vi.spyOn(routeData, 'useParams').mockReturnValue({customerId: customer.id.toString()});
         const file: File = new File(["image"], "profile.png", {type: "image/png"});
 
-        const {history} = await renderComponentWithProviderWhenAuthenticated(`/customer-form/${customer.id}`);
+        const {history} = await renderComponentWithProviderWhenAuthenticated(`/customer-form/${customer.id}`, false);
 
         const uploadImageDropZone = screen.getByTestId('dropzone');
 
@@ -544,7 +546,7 @@ describe('User loads the CustomerFormPage from the /profile/:customerId route', 
     test('it should load the update customer form with the correct authenticated user information', async () => {
         vi.spyOn(routeData, 'useParams').mockReturnValue({customerId: customer.id.toString()});
 
-        const {preloadedState: {auth}} = await renderComponentWithProviderWhenAuthenticated(`/profile/${customer.id}`);
+        const {preloadedState: {auth}} = await renderComponentWithProviderWhenAuthenticated(`/profile/${customer.id}`, false);
 
         const customerProfileImage = screen.getByRole('img', {
             name: /profile image/i
@@ -569,7 +571,7 @@ describe('User loads the CustomerFormPage from the /profile/:customerId route', 
         const {
             preloadedState: {auth},
             history
-        } = await renderComponentWithProviderWhenAuthenticated(`/profile/${customer.id}`);
+        } = await renderComponentWithProviderWhenAuthenticated(`/profile/${customer.id}`, false);
 
         const lastNameInput = screen.getByDisplayValue(auth.user.lastName);
 
@@ -626,7 +628,7 @@ describe('User submits the update customer form with already used email', () => 
     test('it should show correct error message alert', async () => {
         vi.spyOn(routeData, 'useParams').mockReturnValue({customerId: customer.id.toString()});
 
-        await renderComponentWithProviderWhenAuthenticated(`/customer-form/${customer.id}`);
+        await renderComponentWithProviderWhenAuthenticated(`/customer-form/${customer.id}`, false);
 
         const emailInput = screen.getByDisplayValue(customer.email);
 
@@ -687,7 +689,7 @@ describe('User submits the update customer form with no changes made', () => {
     test('it should show correct error message alert', async () => {
         vi.spyOn(routeData, 'useParams').mockReturnValue({customerId: customer.id.toString()});
 
-        await renderComponentWithProviderWhenAuthenticated(`/customer-form/${customer.id}`);
+        await renderComponentWithProviderWhenAuthenticated(`/customer-form/${customer.id}`, false);
 
         const submitButton = screen.getByRole('button', {
             name: /submit/i
@@ -724,7 +726,7 @@ describe('User tries to access update customer form with an invalid id', () => {
     test('it should the change location to the not found page', async () => {
         vi.spyOn(routeData, 'useParams').mockReturnValue({customerId: '141'});
 
-        const {history} = await renderComponentWithProviderWhenAuthenticated('/customer-form/141');
+        const {history} = await renderComponentWithProviderWhenAuthenticated('/customer-form/141', true);
 
         expect(history.location.pathname).toBe('/not-found')
     });

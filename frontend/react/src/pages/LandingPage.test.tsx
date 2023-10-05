@@ -40,7 +40,6 @@ describe('User is not logged in', () => {
                 status: '',
                 error: {} as ServerError,
                 customer: {} as Customer,
-                actionType: ''
             }
         };
 
@@ -73,7 +72,6 @@ describe('User is not logged in', () => {
                 status: '',
                 error: {} as ServerError,
                 customer: {} as Customer,
-                actionType: ''
             }
         };
 
@@ -103,7 +101,6 @@ describe('User is not logged in', () => {
                 status: '',
                 error: {} as ServerError,
                 customer: {} as Customer,
-                actionType: ''
             }
         };
 
@@ -145,7 +142,6 @@ describe('User is logged in', () => {
                 status: '',
                 error: {} as ServerError,
                 customer: {} as Customer,
-                actionType: ''
             }
         };
 
@@ -183,7 +179,6 @@ describe('User is logged in', () => {
                 status: '',
                 error: {} as ServerError,
                 customer: {} as Customer,
-                actionType: ''
             }
         };
 

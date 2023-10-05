@@ -2,8 +2,8 @@ import {combineReducers, configureStore, PreloadedState} from "@reduxjs/toolkit"
 import storage from "redux-persist/lib/storage";
 import {persistReducer, persistStore} from "redux-persist";
 
-import customerReducer from "./customer/CustomerSlice.tsx";
-import authReducer from "./auth/AuthSlice.tsx";
+import customerReducer from "./customer/CustomerSlice.ts";
+import authReducer from "./auth/AuthSlice.ts";
 import {Persistor} from "redux-persist/es/types";
 
 const reducers = combineReducers({

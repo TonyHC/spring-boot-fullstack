@@ -1,49 +1,52 @@
 import CustomerDashboard from "../components/customer/CustomerDashboard.tsx";
-import {deleteCustomerById, findLatestCustomers} from "../store/customer/CustomerActions.tsx";
-import {useDispatch, useSelector} from "react-redux";
-import {AppDispatch, RootState} from "../store/Store.tsx";
+import {deleteCustomerById, findLatestCustomers, getCustomersPage} from "../store/customer/CustomerActions.ts";
+import {useSelector} from "react-redux";
+import {RootState} from "../store/Store.tsx";
 import React, {useEffect} from "react";
 import {SelectChangeEvent} from "@mui/material";
 import {Params, useParams} from "react-router-dom";
-import {handleCustomerPagination} from "../utils/PaginationUtils.tsx";
+import {handleCustomerPagination} from "../utils/PaginationUtils.ts";
 import {useSnackbar} from "notistack";
+import {useThunk} from "../hooks/useThunk.ts";
 
 const CustomerDashboardPage = () => {
-    const {customerPage, status} = useSelector((state: RootState) => state.customer);
-    const dispatch = useDispatch<AppDispatch>();
+    const {customerPage} = useSelector((state: RootState) => state.customer);
     const {enqueueSnackbar} = useSnackbar();
     const params: Readonly<Params> = useParams();
     const {query} = params;
 
+    const {runThunk: runFindLatestCustomers, isLoading: isFindingLatestCustomers} = useThunk(findLatestCustomers);
+    const {runThunk: runGetCustomerPage, isLoading: isGettingCustomersPage} = useThunk(getCustomersPage);
+    const {runThunk: runDeleteCustomerById, isLoading: isDeletingCustomer} = useThunk(deleteCustomerById);
+
+    const loadingStatus = isFindingLatestCustomers || isGettingCustomersPage || isDeletingCustomer;
+
     useEffect(() => {
-        handleCustomerPagination(dispatch, query, customerPage.currentPage, customerPage.pageSize, customerPage.sort);
-        void dispatch(findLatestCustomers(1000));
+        handleCustomerPagination(runGetCustomerPage, query, customerPage.currentPage, customerPage.pageSize, customerPage.sort);
+        runFindLatestCustomers(1000);
         window.scroll({top: 0, left: 0});
-    }, [customerPage.currentPage, customerPage.pageSize, customerPage.sort, dispatch, query]);
+    }, [customerPage.currentPage, customerPage.pageSize, customerPage.sort, query, runFindLatestCustomers, runGetCustomerPage]);
 
     const handleChange = (_event: React.ChangeEvent<unknown>, value: number): void => {
-        handleCustomerPagination(dispatch, query, value - 1, customerPage.pageSize, customerPage.sort);
+        handleCustomerPagination(runGetCustomerPage, query, value - 1, customerPage.pageSize, customerPage.sort);
         window.scroll({top: 0, left: 0});
     };
 
     const handlePageSize = (event: SelectChangeEvent<number>): void => {
-        handleCustomerPagination(dispatch, query, 0, +event.target.value, customerPage.sort);
+        handleCustomerPagination(runGetCustomerPage, query, 0, +event.target.value, customerPage.sort);
         window.scroll({top: 0, left: 0});
     };
 
-    const deleteCustomerHandler = async (customerId: string): Promise<void> => {
+    const deleteCustomerHandler = (customerId: string): void => {
         window.scroll({top: 0, left: 0});
-        await dispatch(deleteCustomerById({customerId, enqueueSnackbar}));
-        handleCustomerPagination(dispatch, query, customerPage.currentPage, customerPage.pageSize, customerPage.sort);
-        await dispatch(findLatestCustomers(1000));
+        runDeleteCustomerById({customerId, enqueueSnackbar});
+        handleCustomerPagination(runGetCustomerPage, query, customerPage.currentPage, customerPage.pageSize, customerPage.sort);
+        runFindLatestCustomers(1000);
     };
 
     return (
-        <CustomerDashboard status={status}
-                           customerPage={customerPage}
-                           onDeleteCustomer={deleteCustomerHandler}
-                           handleChange={handleChange}
-                           handlePageSize={handlePageSize}/>
+        <CustomerDashboard status={loadingStatus} customerPage={customerPage} onDeleteCustomer={deleteCustomerHandler}
+                           handleChange={handleChange} handlePageSize={handlePageSize}/>
     );
 };
 

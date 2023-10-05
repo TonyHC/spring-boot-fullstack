@@ -27,13 +27,13 @@ import SideMenu from "../navigation/SideMenu.tsx";
 import {Link, NavigateFunction, useNavigate} from "react-router-dom";
 import React, {JSX} from "react";
 import {AccountCircle} from "@mui/icons-material/";
-import {buildCloudinaryImagePath} from "../../utils/ImageUtils.tsx";
+import {buildCloudinaryImagePath} from "../../utils/ImageUtils.ts";
 import {a11yProps, CustomTabPanel} from "../ui/TabPanel.tsx";
 import {MyDropzone} from "../ui/Dropzone.tsx";
 import ProfileBackground from "../../assets/profile-background.jpg";
 import ResetPassword from "./ResetPassword.tsx";
 import {Accordion, AccordionDetails, AccordionSummary} from "../ui/Accordion.tsx";
-import {ServerError, User} from "../../types";
+import {User} from "../../types";
 import {GridPaper} from "../ui/GridPaper.tsx";
 
 const breadcrumbs: JSX.Element[] = [
@@ -45,20 +45,17 @@ const breadcrumbs: JSX.Element[] = [
 
 interface UserProfileProps {
     user: User;
-    status: string;
-    error: ServerError | undefined;
-    onUploadCustomerProfileImage: (customerId: string, formData: FormData, provider: string) => Promise<void>;
-    resetPasswordError: () => void;
+    status: boolean;
+    onUploadCustomerProfileImage: (customerId: string, formData: FormData, provider: string) => void;
 }
 
-const UserProfile = ({user, status, error, onUploadCustomerProfileImage, resetPasswordError}: UserProfileProps) => {
+const UserProfile = ({user, status, onUploadCustomerProfileImage}: UserProfileProps) => {
     const [value, setValue] = React.useState(0);
     const [expanded, setExpanded] = React.useState<string | false>('panel1');
     const navigate: NavigateFunction = useNavigate();
 
     const changeTabHandler = (_event: React.SyntheticEvent, newValue: number): void => {
         setValue(newValue);
-        resetPasswordError();
     };
 
     const changePanelHandler = (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
@@ -80,12 +77,12 @@ const UserProfile = ({user, status, error, onUploadCustomerProfileImage, resetPa
                         separator={<NavigateNextIcon fontSize="small"/>}
                         aria-label="breadcrumb"
                     >
-                        {status === "loading" ? <Skeleton width={150}/> : breadcrumbs}
+                        {status ? <Skeleton width={150}/> : breadcrumbs}
                     </Breadcrumbs>
                     <Grid container spacing={3} mt={2}>
                         <Grid item xs={12} md={12} lg={5} xl={5}>
                             {
-                                status === "loading" ? <Skeleton height={400} sx={{mt: -11}}/> :
+                                status ? <Skeleton height={400} sx={{mt: -11}}/> :
                                     <>
                                         <Accordion expanded={expanded === 'panel1'}
                                                    onChange={changePanelHandler('panel1')}>
@@ -134,7 +131,7 @@ const UserProfile = ({user, status, error, onUploadCustomerProfileImage, resetPa
                         </Grid>
                         <Grid item xs={12} md={12} lg={7} xl={7}>
                             {
-                                status === "loading" ? <Skeleton height={625} sx={{mt: -16}}/> :
+                                status ? <Skeleton height={625} sx={{mt: -16}}/> :
                                     <GridPaper>
                                         <Box sx={{width: '100%'}}>
                                             <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
@@ -229,8 +226,7 @@ const UserProfile = ({user, status, error, onUploadCustomerProfileImage, resetPa
                                                 </Button>
                                             </CustomTabPanel>
                                             <CustomTabPanel value={value} index={3}>
-                                                <ResetPassword error={error} customerId={user.id.toString()}
-                                                               setValue={setValue}/>
+                                                <ResetPassword customerId={user.id.toString()} setValue={setValue}/>
                                             </CustomTabPanel>
                                         </Box>
                                     </GridPaper>

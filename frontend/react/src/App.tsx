@@ -3,8 +3,8 @@ import RouterRoutes from "./routes/Routes.tsx";
 import Layout from "./components/shared/Layout.tsx";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "./store/Store.tsx";
-import useCurrentPage, {sideMenuRoutes} from "./hooks/CurrentPage.tsx";
-import {resetOpenActionsListState} from "./store/auth/AuthSlice.tsx";
+import useCurrentPage, {sideMenuRoutes} from "./hooks/useCurrentPage.ts";
+import {resetOpenActionsListState} from "./store/auth/AuthSlice.ts";
 import {useEffect} from "react";
 
 const App = () => {

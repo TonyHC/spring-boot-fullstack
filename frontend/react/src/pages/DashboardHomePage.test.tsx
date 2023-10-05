@@ -61,7 +61,6 @@ const renderComponentWithProvider = async () => {
                 query: ''
             },
             customer: {} as Customer,
-            actionType: '',
             status: 'success',
             error: {} as ServerError
         }

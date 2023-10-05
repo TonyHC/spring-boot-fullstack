@@ -2,7 +2,7 @@ import {NavigateFunction, useNavigate} from "react-router-dom";
 import {Button, Container, Stack, Toolbar, Typography} from "@mui/material";
 import NavBar from "../navigation/Navbar";
 import {ThemeProvider} from "@mui/material/styles";
-import {landingTheme} from "../../themes/CustomThemes.tsx";
+import {landingTheme} from "../../themes/CustomThemes.ts";
 import Footer from "../shared/Footer.tsx";
 
 interface LandingProps {

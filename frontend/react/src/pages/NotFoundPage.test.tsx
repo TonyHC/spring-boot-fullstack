@@ -30,7 +30,6 @@ describe('User is not logged in', () => {
                 customers: [],
                 customerPage: {} as CustomerPage,
                 customer: {} as Customer,
-                actionType: '',
                 status: 'idle',
                 error: {} as ServerError
             }
@@ -71,7 +70,6 @@ describe('User is logged in', () => {
                 customers: [],
                 customerPage: {} as CustomerPage,
                 customer: {} as Customer,
-                actionType: '',
                 status: 'idle',
                 error: {} as ServerError
             }

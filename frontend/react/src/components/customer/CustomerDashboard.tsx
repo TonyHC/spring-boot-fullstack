@@ -21,7 +21,7 @@ import Footer from "../shared/Footer.tsx";
 import React, {JSX} from "react";
 import {NavigateNext as NavigateNextIcon} from "@mui/icons-material";
 import {ThemeProvider} from "@mui/material/styles";
-import {customerDashboardTheme} from "../../themes/CustomThemes.tsx";
+import {customerDashboardTheme} from "../../themes/CustomThemes.ts";
 import {FireAlert} from "../ui/Alert.tsx";
 import {CustomerPage} from "../../types";
 
@@ -34,8 +34,8 @@ const breadcrumbs: JSX.Element[] = [
 
 interface CustomerDashboardProps {
     customerPage: CustomerPage;
-    status: string;
-    onDeleteCustomer: (customerId: string) => Promise<void>;
+    status: boolean;
+    onDeleteCustomer: (customerId: string) => void;
     handleChange: (event: React.ChangeEvent<unknown>, value: number) => void;
     handlePageSize: (event: SelectChangeEvent<number>) => void;
 }
@@ -65,7 +65,7 @@ const CustomerDashboard = ({
                                         separator={<NavigateNextIcon fontSize="small"/>}
                                         aria-label="breadcrumb"
                                     >
-                                        {status === "loading" ? <Skeleton width={150}/> : breadcrumbs}
+                                        {status  ? <Skeleton width={150}/> : breadcrumbs}
                                     </Breadcrumbs>
                                     <Toolbar
                                         disableGutters
@@ -90,7 +90,7 @@ const CustomerDashboard = ({
                                                     ml: 3
                                                 }}
                                             >
-                                                {status === "loading" ?
+                                                {status  ?
                                                     <Skeleton
                                                         width={275}/> : `Result: ${count} customers were found`}
                                             </Typography>
@@ -106,14 +106,14 @@ const CustomerDashboard = ({
                                             }}
                                             onClick={createClickHandler}
                                         >
-                                            {status === "loading" ? <Skeleton width={50}/> : 'Create'}
+                                            {status ? <Skeleton width={50}/> : 'Create'}
                                         </Button>
 
                                     </Toolbar>
                                     <CustomerList customers={customers} status={status}
                                                   onDeleteCustomer={onDeleteCustomer}/>
                                     {
-                                        status === "loading" ? <Skeleton width={350} sx={{ml: 'auto', mt: 2}}/> :
+                                        status  ? <Skeleton width={350} sx={{ml: 'auto', mt: 2}}/> :
                                             <Stack direction="row" display="flex" justifyContent="end"
                                                    alignItems="baseline" mt={2}>
                                                 <ThemeProvider theme={customerDashboardTheme}>

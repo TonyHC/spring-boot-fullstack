@@ -4,8 +4,8 @@ import {Customer} from "../../types";
 
 interface CustomerListProps {
     customers: Customer[];
-    status: string;
-    onDeleteCustomer: (customerId: string) => Promise<void>;
+    status: boolean;
+    onDeleteCustomer: (customerId: string) => void;
 }
 
 const CustomerList = ({customers, status, onDeleteCustomer}: CustomerListProps) => {

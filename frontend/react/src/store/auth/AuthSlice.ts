@@ -1,7 +1,7 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {PURGE} from "redux-persist";
-import {performLogin, retrieveUser} from "./AuthActions.tsx";
-import {createCustomer} from "../customer/CustomerActions.tsx";
+import {performLogin, retrieveUser} from "./AuthActions.ts";
+import {createCustomer} from "../customer/CustomerActions.ts";
 import {AuthSlice, ServerError, User} from "../../types";
 
 const initialState: AuthSlice = {
@@ -16,9 +16,6 @@ const authSlice = createSlice(({
     name: "auth",
     initialState,
     reducers: {
-        resetErrorState: (state) => {
-            state.error = {} as ServerError;
-        },
         toggleOpenActionListState: (state) => {
             state.openActionsList = !state.openActionsList;
         },
@@ -69,5 +66,5 @@ const authSlice = createSlice(({
     }
 }))
 
-export const {resetErrorState, toggleOpenActionListState, resetOpenActionsListState} = authSlice.actions;
+export const {toggleOpenActionListState, resetOpenActionsListState} = authSlice.actions;
 export default authSlice.reducer;
