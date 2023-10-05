@@ -1,28 +1,25 @@
-import {resetCustomerPassword} from "../../store/customer/CustomerActions.tsx";
+import {resetCustomerPassword} from "../../store/customer/CustomerActions.ts";
 import {Box, Button, Stack, Typography} from "@mui/material";
 import {FireAlert} from "../ui/Alert.tsx";
 import {Form, Formik} from "formik";
 import * as Yup from "yup";
 import {ThemeProvider} from "@mui/material/styles";
 import {CustomTextInput} from "../ui/TextField.tsx";
-import {useDispatch} from "react-redux";
-import {AppDispatch} from "../../store/Store.tsx";
 import {NavigateFunction, useNavigate} from "react-router-dom";
 import {useSnackbar} from "notistack";
 import React from "react";
-import {resetPasswordTheme} from "../../themes/CustomThemes.tsx";
-import {ServerError} from "../../types";
+import {resetPasswordTheme} from "../../themes/CustomThemes.ts";
+import {useThunk} from "../../hooks/useThunk.ts";
 
 interface ResetPasswordProps {
-    error: ServerError | undefined;
     customerId: string;
     setValue: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const ResetPassword = ({error, customerId, setValue}: ResetPasswordProps) => {
-    const dispatch = useDispatch<AppDispatch>();
+const ResetPassword = ({customerId, setValue}: ResetPasswordProps) => {
     const navigate: NavigateFunction = useNavigate();
     const {enqueueSnackbar} = useSnackbar();
+    const {runThunk: runResetCustomerPassword, error} = useThunk(resetCustomerPassword);
 
     return (
         <Stack direction="column" flexGrow={1} key={customerId}>
@@ -70,13 +67,13 @@ const ResetPassword = ({error, customerId, setValue}: ResetPasswordProps) => {
                     })}
                     onSubmit={(resetPassword, {setSubmitting}) => {
                         setSubmitting(true);
-                        void dispatch(resetCustomerPassword({
+                        runResetCustomerPassword({
                             customerId,
                             resetPassword,
                             navigate,
                             enqueueSnackbar,
                             setValue
-                        }));
+                        });
                     }}>
                     {({isValid, dirty}) => (
                         <Form>

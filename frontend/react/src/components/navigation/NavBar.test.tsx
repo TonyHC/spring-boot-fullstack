@@ -22,7 +22,6 @@ const renderComponentWithProviderWhenNotAuthenticated = (initialRoute: string) =
             customers: [],
             customerPage: {} as CustomerPage,
             customer: {} as Customer,
-            actionType: '',
             status: 'idle',
             error: {} as ServerError
         }
@@ -42,7 +41,7 @@ const renderComponentWithProviderWhenNotAuthenticated = (initialRoute: string) =
     }
 };
 
-const renderComponentWithProviderWhenAuthenticated = (showAutocomplete: boolean, status: string, initialRoute: string) => {
+const renderComponentWithProviderWhenAuthenticated = (showAutocomplete: boolean, status: boolean, initialRoute: string) => {
     const history: MemoryHistory = createMemoryHistory({initialEntries: [initialRoute]});
 
     const preloadedState: IPreloadedState = {
@@ -94,7 +93,6 @@ const renderComponentWithProviderWhenAuthenticated = (showAutocomplete: boolean,
                 query: ''
             },
             customer: {} as Customer,
-            actionType: '',
             status: 'success',
             error: {} as ServerError
         }
@@ -152,7 +150,7 @@ describe('User is not logged in', () => {
 
 describe('User is logged in', () => {
     test('it should show the correct first letter for the Avatar when user is logged in', async () => {
-        const {preloadedState: {auth}} = renderComponentWithProviderWhenAuthenticated(true, 'success', '/dashboard');
+        const {preloadedState: {auth}} = renderComponentWithProviderWhenAuthenticated(true, false, '/dashboard');
 
         const avatar = await screen.findByText(auth.user.firstName.charAt(0));
 
@@ -161,7 +159,7 @@ describe('User is logged in', () => {
     });
 
     test('it should show the correct options after searching the Autocomplete', async () => {
-        const {preloadedState: {customer}} = renderComponentWithProviderWhenAuthenticated(true, 'success', '/customer-dashboard');
+        const {preloadedState: {customer}} = renderComponentWithProviderWhenAuthenticated(true, false, '/customer-dashboard');
 
         const searchInput = screen.getByRole('combobox', {
             name: /search customers/i
@@ -182,7 +180,7 @@ describe('User is logged in', () => {
     });
 
     test('it should show change location to the customer-dashboard page when clicks select an option from Autocomplete after performing a search', async () => {
-        const {history, preloadedState: {customer}} = renderComponentWithProviderWhenAuthenticated(true, 'success', '/customer-dashboard');
+        const {history, preloadedState: {customer}} = renderComponentWithProviderWhenAuthenticated(true, false, '/customer-dashboard');
 
         const searchInput = screen.getByRole('combobox', {
             name: /search customers/i
@@ -201,7 +199,7 @@ describe('User is logged in', () => {
     });
 
     test('it should show the dropdown menu along with its items when user clicks the IconButton', async () => {
-        renderComponentWithProviderWhenAuthenticated(true, 'success', '/dashboard');
+        renderComponentWithProviderWhenAuthenticated(true, false, '/dashboard');
 
         const menuIconButton = screen.getByRole('button', {
             name: /account settings/i
@@ -217,7 +215,7 @@ describe('User is logged in', () => {
     });
 
     test('it should change the location to the user profile page when user clicks on Profile menu item', async () => {
-        const {history} = renderComponentWithProviderWhenAuthenticated(true, 'success', '/');
+        const {history} = renderComponentWithProviderWhenAuthenticated(true, false, '/');
 
         const menuIconButton = screen.getByRole('button', {
             name: /account settings/i
@@ -235,7 +233,7 @@ describe('User is logged in', () => {
     });
 
     test('it should log the user out when the user clicks the Logout menu item button', async () => {
-        const {history} = renderComponentWithProviderWhenAuthenticated(true, 'success', '/dashboard');
+        const {history} = renderComponentWithProviderWhenAuthenticated(true, false, '/dashboard');
 
         const menuIconButton = screen.getByRole('button', {
             name: /account settings/i

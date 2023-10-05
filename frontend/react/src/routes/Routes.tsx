@@ -1,5 +1,5 @@
 import {Route, Routes} from "react-router-dom";
-import {RequireAuth} from "./RequireAuth.tsx";
+import RequireAuth from "./RequireAuth.tsx";
 import React, {Suspense} from "react";
 import {CircularProgress} from "@mui/material";
 

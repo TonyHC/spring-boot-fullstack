@@ -22,12 +22,12 @@ import {
 import {ThemeProvider} from "@mui/material/styles";
 import {AccountCircle, Adb as AdbIcon, Logout, PersonAdd, Settings} from "@mui/icons-material/";
 import {RootState} from "../../store/Store.tsx";
-import {navbarTheme} from "../../themes/CustomThemes.tsx";
-import {logout} from "../../utils/AuthUtils.tsx";
+import {navbarTheme} from "../../themes/CustomThemes.ts";
+import {logout} from "../../utils/AuthUtils.ts";
 
 interface NavBarProps {
     showAutocomplete?: boolean;
-    status?: string;
+    status?: boolean;
 }
 
 const NavBar = ({showAutocomplete, status}: NavBarProps) => {
@@ -116,7 +116,7 @@ const NavBar = ({showAutocomplete, status}: NavBarProps) => {
                                 showAutocomplete ?
                                     <>
                                         {
-                                            status === "loading" ?
+                                            status ?
                                                 <Skeleton width={400} height={65} sx={{mx: "auto"}}/> :
                                                 <Autocomplete
                                                     freeSolo
@@ -195,7 +195,7 @@ const NavBar = ({showAutocomplete, status}: NavBarProps) => {
                                 transformOrigin={{horizontal: "right", vertical: "top"}}
                                 anchorOrigin={{horizontal: "right", vertical: "bottom"}}
                             >
-                                <MenuItem onClick={() => dropdownNavigateHandler(false, false,'/dashboard')}>
+                                <MenuItem onClick={() => dropdownNavigateHandler(false, false, '/dashboard')}>
                                     <ListItemIcon>
                                         <PersonAdd fontSize="small"/>
                                     </ListItemIcon>
@@ -214,7 +214,7 @@ const NavBar = ({showAutocomplete, status}: NavBarProps) => {
                                     Settings
                                 </MenuItem>
                                 <Divider sx={{borderColor: "#90a4ae"}}/>
-                                <MenuItem onClick={() =>  dropdownNavigateHandler(true, true, '/login')}>
+                                <MenuItem onClick={() => dropdownNavigateHandler(true, true, '/login')}>
                                     <ListItemIcon>
                                         <Logout fontSize="small"/>
                                     </ListItemIcon>

@@ -74,7 +74,6 @@ export interface GetCustomerPageData {
 
 export interface GetCustomerByIdData {
     customerId: string;
-    navigate: NavigateFunction;
 }
 
 export interface DeleteCustomerByIdData {
@@ -125,7 +124,6 @@ export type CustomerSlice = {
     customer: Customer;
     status: string;
     error: ServerError | undefined;
-    actionType: string;
 };
 
 // Reusable UI

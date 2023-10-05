@@ -2,7 +2,7 @@ import {describe, test, vi} from "vitest";
 import {createServer} from "../test/server.ts";
 import {renderWithProviders} from "../test/mockedStoreWrapper.tsx";
 import {Router} from "react-router-dom";
-import {RequireAuth} from "./RequireAuth.tsx";
+import RequireAuth from "./RequireAuth.tsx";
 import {createMemoryHistory, MemoryHistory} from "history";
 
 const renderComponentWithProvider = (history: MemoryHistory) => {

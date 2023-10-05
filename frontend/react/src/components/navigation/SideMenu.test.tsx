@@ -32,7 +32,6 @@ const renderComponentWithProvider = (initialRoute: string) => {
             customers: [],
             customerPage: {} as CustomerPage,
             customer: {} as Customer,
-            actionType: '',
             status: 'success',
             error: {} as ServerError
         }

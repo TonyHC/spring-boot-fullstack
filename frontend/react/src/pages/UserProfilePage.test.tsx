@@ -47,7 +47,6 @@ const renderComponentWithProvider = async (hasProfileImage: boolean) => {
                 query: ''
             },
             customer: {} as Customer,
-            actionType: '',
             status: 'success',
             error: {} as ServerError
         }

@@ -7,6 +7,7 @@ import CustomerDashboardPage from "./CustomerDashboardPage.tsx";
 import {screen, within} from "@testing-library/react";
 import {createMemoryHistory, MemoryHistory} from "history";
 import user from "@testing-library/user-event";
+import routeData from "react-router";
 
 const mockEnqueue = vi.fn();
 
@@ -14,8 +15,8 @@ vi.mock('notistack', () => ({
     useSnackbar: vi.fn().mockImplementation(() => ({enqueueSnackbar: mockEnqueue}))
 }));
 
-const renderComponentWithProvider = async (query: string) => {
-    const history: MemoryHistory = createMemoryHistory({initialEntries: ['/customer-dashboard']});
+const renderComponentWithProvider = async (initialRoute: string) => {
+    const history: MemoryHistory = createMemoryHistory({initialEntries: [initialRoute]});
 
     const preloadedState: IPreloadedState = {
         auth: {
@@ -63,10 +64,9 @@ const renderComponentWithProvider = async (query: string) => {
                 totalPages: 0,
                 pageSize: 10,
                 sort: 'customer_id,ASC',
-                query
+                query: ''
             },
             customer: {} as Customer,
-            actionType: '',
             status: 'success',
             error: {} as ServerError
         }
@@ -141,7 +141,7 @@ describe('User loads the CustomerDashboardPage', () => {
     ]);
 
     test('it should show the correct breadcrumbs', async () => {
-        await renderComponentWithProvider('');
+        await renderComponentWithProvider('/customer-dashboard');
 
         const breadcrumbTitles: string[] = [
             'Dashboard',
@@ -157,7 +157,7 @@ describe('User loads the CustomerDashboardPage', () => {
     });
 
     test('it should change location to the dashboard page when user clicks on the dashboard breadcrumb link', async () => {
-        const {history} = await renderComponentWithProvider('');
+        const {history} = await renderComponentWithProvider('/customer-dashboard');
 
         const homeBreadcrumbLink = within(screen.getByLabelText('breadcrumb')).getByRole('link', {
             name: /dashboard/i
@@ -169,7 +169,9 @@ describe('User loads the CustomerDashboardPage', () => {
     });
 
     test('it should display the correct number of customer cards', async () => {
-        await renderComponentWithProvider('users');
+        const query = 'users';
+        vi.spyOn(routeData, 'useParams').mockReturnValue({query});
+        await renderComponentWithProvider(`/customer-dashboard/${query}`);
 
         const customerCards = screen.getAllByTestId('customer-card');
         const customersResult = screen.getByText(`Result: ${customerCards.length} customers were found`);
@@ -187,7 +189,9 @@ describe('User loads the CustomerDashboardPage', () => {
     });
 
     test('it should contain the correct customer info for each customer-card', async () => {
-        await renderComponentWithProvider('users');
+        const query = 'users';
+        vi.spyOn(routeData, 'useParams').mockReturnValue({query});
+        await renderComponentWithProvider(`/customer-dashboard/${query}`);
 
         const customerCards = screen.getAllByTestId('customer-card');
 
@@ -211,7 +215,7 @@ describe('User loads the CustomerDashboardPage', () => {
     });
 
     test('it should update the page size', async () => {
-        await renderComponentWithProvider('users');
+        await renderComponentWithProvider('/customer-dashboard');
 
         const pageSizeButton = screen.getByRole('button', {
             name: /size 10/i
@@ -227,7 +231,7 @@ describe('User loads the CustomerDashboardPage', () => {
     });
 
     test('it should change the page', async () => {
-        await renderComponentWithProvider('users');
+        await renderComponentWithProvider('/customer-dashboard');
 
         const pageOneButton = screen.getByRole('button', {
             name: /page 1/i
@@ -237,7 +241,7 @@ describe('User loads the CustomerDashboardPage', () => {
     });
 
     test('it should change location to the customer-form page when the create button is clicked', async () => {
-        const {history} = await renderComponentWithProvider('users');
+        const {history} = await renderComponentWithProvider('/customer-dashboard');
 
         const createCustomerButton = screen.getByRole('button', {
             name: /create/i
@@ -249,7 +253,7 @@ describe('User loads the CustomerDashboardPage', () => {
     });
 
     test('it should change location to customer-form page with correct id when correct customer update button is clicked', async () => {
-        const {history} = await renderComponentWithProvider('users');
+        const {history} = await renderComponentWithProvider('/customer-dashboard');
 
         const firstCustomerCard = screen.getAllByTestId('customer-card')[0];
         const updateCustomerButton = within(firstCustomerCard).getByRole('button', {name: /update info/i});
@@ -318,7 +322,7 @@ describe('User clicks on a customer delete button', () => {
     ]);
 
     test('it should show the delete dialog with correct information', async () => {
-        await renderComponentWithProvider('');
+        await renderComponentWithProvider('/customer-dashboard');
 
         const firstCustomerCard = screen.getAllByTestId('customer-card')[0];
         const deleteCustomerButton = within(firstCustomerCard).getByRole('button', {name: /delete/i});
@@ -353,7 +357,7 @@ describe('User clicks on a customer delete button', () => {
     });
 
     test('it should not delete the specified customer when user clicks on the Disagree button', async () => {
-        await renderComponentWithProvider('');
+        await renderComponentWithProvider('/customer-dashboard');
 
         const firstCustomerCard = screen.getAllByTestId('customer-card')[0];
         const deleteCustomerButton = within(firstCustomerCard).getByRole('button', {name: /delete/i});
@@ -379,7 +383,7 @@ describe('User clicks on a customer delete button', () => {
     });
 
     test('it should delete the specified customer when user clicks on the Agree button', async () => {
-        await renderComponentWithProvider('');
+        await renderComponentWithProvider('/customer-dashboard');
 
         const firstCustomerCard = screen.getAllByTestId('customer-card')[0];
         const deleteCustomerButton = within(firstCustomerCard).getByRole('button', {name: /delete/i});

@@ -1,21 +1,22 @@
 import Dashboard from "../components/user/Dashboard.tsx";
-import {useDispatch, useSelector} from "react-redux";
-import {AppDispatch, RootState} from "../store/Store.tsx";
+import {useSelector} from "react-redux";
+import {RootState} from "../store/Store.tsx";
 import {useEffect} from "react";
-import {findLatestCustomers} from "../store/customer/CustomerActions.tsx";
+import {findLatestCustomers} from "../store/customer/CustomerActions.ts";
+import {useThunk} from "../hooks/useThunk.ts";
 
 const DashboardHomePage = () => {
-    const {user, status: authStatus} = useSelector((state: RootState) => state.auth);
-    const {customers, status: customerStatus} = useSelector((state: RootState) => state.customer);
-    const dispatch = useDispatch<AppDispatch>();
+    const {user, status} = useSelector((state: RootState) => state.auth);
+    const {customers} = useSelector((state: RootState) => state.customer);
+    const {runThunk: runFindLatestCustomers, isLoading} = useThunk(findLatestCustomers);
 
     useEffect(() => {
-        void dispatch(findLatestCustomers(1000));
-    }, [dispatch]);
+        runFindLatestCustomers(1000);
+    }, [runFindLatestCustomers]);
 
     return (
-        <Dashboard user={user} authStatus={authStatus} latestCustomers={customers}
-                   customerStatus={customerStatus}/>
+        <Dashboard user={user} authStatus={status} latestCustomers={customers}
+                   isLoadingCustomerData={isLoading}/>
     );
 };
 

@@ -35,11 +35,11 @@ import {
     Settings,
     StarBorder
 } from "@mui/icons-material/";
-import {sideMenuTheme} from "../../themes/CustomThemes.tsx";
+import {sideMenuTheme} from "../../themes/CustomThemes.ts";
 import {NavigateFunction, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../../store/Store.tsx";
-import {toggleOpenActionListState} from "../../store/auth/AuthSlice.tsx";
+import {toggleOpenActionListState} from "../../store/auth/AuthSlice.ts";
 
 const drawerWidth = 256;
 

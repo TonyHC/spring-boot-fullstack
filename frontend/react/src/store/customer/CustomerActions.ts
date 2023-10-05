@@ -1,7 +1,7 @@
 import axios, {AxiosHeaders, AxiosHeaderValue, AxiosInstance} from "axios";
 import {createAsyncThunk} from "@reduxjs/toolkit";
-import {customerFormRoutes} from "../../hooks/CurrentPage.tsx";
-import {handleError} from "../../utils/ErrorHandlingUtils.tsx";
+import {customerFormRoutes} from "../../hooks/useCurrentPage.ts";
+import {handleError} from "../../utils/ErrorHandlingUtils.ts";
 import {
     CreateCustomerData,
     Customer,
@@ -94,13 +94,12 @@ export const getCustomersPage = createAsyncThunk<CustomerPage, GetCustomerPageDa
 export const getCustomerById = createAsyncThunk<Customer, GetCustomerByIdData, { rejectValue: ServerError }>(
     "customer/getCustomerById",
     async (data: GetCustomerByIdData, {rejectWithValue}) => {
-        const {customerId, navigate} = data;
+        const {customerId} = data;
 
         try {
             const res = await customerAuthAPI.get<Customer>(`${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${customerId}`);
             return res.data;
         } catch (err) {
-            navigate("/not-found", {replace: true});
             return rejectWithValue(handleError(err));
         }
     }
