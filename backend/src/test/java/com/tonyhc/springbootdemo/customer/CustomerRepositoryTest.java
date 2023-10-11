@@ -40,33 +40,9 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
         PaginationUtil paginationUtil = new PaginationUtil();
         Pageable pageable = paginationUtil.createPageable(page, size, sort);
 
-        Customer customerOne = new Customer(
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID(),
-                "password",
-                FAKER.number().numberBetween(18, 80),
-                Gender.MALE
-        );
-
-        Customer customerTwo = new Customer(
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID(),
-                "password",
-                FAKER.number().numberBetween(18, 80),
-                Gender.MALE
-        );
-
-        Customer customerThree = new Customer(
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID(),
-                "password",
-                FAKER.number().numberBetween(18, 80),
-                Gender.MALE
-        );
-
+        Customer customerOne = buildCustomerWithoutEmailProvided();
+        Customer customerTwo = buildCustomerWithoutEmailProvided();
+        Customer customerThree = buildCustomerWithoutEmailProvided();
         List<Customer> savedCustomers = List.of(customerOne, customerTwo, customerThree);
 
         underTest.saveAll(savedCustomers);
@@ -96,33 +72,9 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
         PaginationUtil paginationUtil = new PaginationUtil();
         Pageable pageable = paginationUtil.createPageable(page, size, sort);
 
-        Customer customerOne = new Customer(
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID(),
-                "password",
-                FAKER.number().numberBetween(18, 80),
-                Gender.MALE
-        );
-
-        Customer customerTwo = new Customer(
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID(),
-                "password",
-                FAKER.number().numberBetween(18, 80),
-                Gender.MALE
-        );
-
-        Customer customerThree = new Customer(
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID(),
-                "password",
-                FAKER.number().numberBetween(18, 80),
-                Gender.MALE
-        );
-
+        Customer customerOne = buildCustomerWithoutEmailProvided();
+        Customer customerTwo = buildCustomerWithoutEmailProvided();
+        Customer customerThree = buildCustomerWithoutEmailProvided();
         List<Customer> savedCustomers = List.of(customerOne, customerTwo, customerThree);
 
         underTest.saveAll(savedCustomers);
@@ -146,15 +98,7 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
     void itShouldFindCustomerByEmail() {
         // Given
         String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
-
-        Customer customer = new Customer(
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                email,
-                "password",
-                FAKER.number().numberBetween(18, 80),
-                Gender.MALE
-        );
+        Customer customer = buildCustomerWithEmailProvided(email);
 
         underTest.save(customer);
 
@@ -189,15 +133,7 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
     void itShouldExistsCustomerWhenIdExists() {
         // Given
         String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
-
-        Customer customer = new Customer(
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                email,
-                "password",
-                FAKER.number().numberBetween(18, 80),
-                Gender.MALE
-        );
+        Customer customer = buildCustomerWithEmailProvided(email);
 
         underTest.save(customer);
 
@@ -228,15 +164,7 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
     void itShouldExistsCustomerWhenEmailExists() {
         // Given
         String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
-
-        Customer customer = new Customer(
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                email,
-                "password",
-                FAKER.number().numberBetween(18, 80),
-                Gender.MALE
-        );
+        Customer customer = buildCustomerWithEmailProvided(email);
 
         underTest.save(customer);
 
@@ -265,15 +193,7 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
         String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
         String profileImage = "test";
         int affectedRows = 1;
-
-        Customer customer = new Customer(
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                email,
-                "password",
-                FAKER.number().numberBetween(18, 80),
-                Gender.MALE
-        );
+        Customer customer = buildCustomerWithEmailProvided(email);
 
         underTest.save(customer);
 
@@ -298,15 +218,7 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
         String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
         String updatedPassword = "tester";
         int affectedRows = 1;
-
-        Customer customer = new Customer(
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                email,
-                "password",
-                FAKER.number().numberBetween(18, 80),
-                Gender.MALE
-        );
+        Customer customer = buildCustomerWithEmailProvided(email);
 
         underTest.save(customer);
 
@@ -323,5 +235,27 @@ class CustomerRepositoryTest extends AbstractTestcontainers {
         assertThat(result).isEqualTo(affectedRows);
         assertThat(optionalCustomer).isPresent()
                 .hasValueSatisfying(c -> assertThat(c.getPassword()).isEqualTo(updatedPassword));
+    }
+
+    private Customer buildCustomerWithEmailProvided(String email) {
+        return new Customer(
+                FAKER.name().firstName(),
+                FAKER.name().lastName(),
+                email,
+                "password",
+                FAKER.number().numberBetween(18, 80),
+                Gender.MALE
+        );
+    }
+
+    private Customer buildCustomerWithoutEmailProvided() {
+        return new Customer(
+                FAKER.name().firstName(),
+                FAKER.name().lastName(),
+                FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID(),
+                "password",
+                FAKER.number().numberBetween(18, 80),
+                Gender.MALE
+        );
     }
 }

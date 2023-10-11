@@ -21,9 +21,7 @@ import java.util.Objects;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AuthenticationIT {
     private static final String AUTH_PATH = "/api/v1/auth";
     private static final String CUSTOMER_PATH = "/api/v1/customers";
@@ -38,18 +36,7 @@ class AuthenticationIT {
     @Transactional
     void itShouldLoginUser() {
         // Create customer registration request
-        Faker faker = new Faker();
-
-        String firstName = faker.name().firstName();
-        String lastName = faker.name().lastName();
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
-        String password = "password";
-        int age = faker.number().numberBetween(18, 80);
-        Gender gender = Gender.MALE;
-
-        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                firstName, lastName, email, password, age, gender
-        );
+        CustomerRegistrationRequest customerRegistrationRequest = buildCustomerRegistrationRequest();
 
         // Send a POST request to register customer
         webTestClient.post()
@@ -62,7 +49,7 @@ class AuthenticationIT {
 
         // Create authentication request
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                email, password
+                customerRegistrationRequest.email(), customerRegistrationRequest.password()
         );
 
         // Send a POST request to login for the above customer
@@ -86,7 +73,7 @@ class AuthenticationIT {
         SoftAssertions softAssertions = new SoftAssertions();
 
         softAssertions.assertThat(responseToken).isEqualTo(token);
-        softAssertions.assertThat(jwtUtil.isTokenValid(token, email)).isTrue();
+        softAssertions.assertThat(jwtUtil.isTokenValid(token, customerRegistrationRequest.email())).isTrue();
 
         softAssertions.assertAll();
     }
@@ -95,15 +82,8 @@ class AuthenticationIT {
     @Transactional
     void itShouldNotLoginUser() {
         // Create authentication request
-        Faker faker = new Faker();
-
-        String firstName = faker.name().firstName();
-        String lastName = faker.name().lastName();
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
-        String password = "password";
-
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                email, password
+                "somerandomemail@gmail.com", "passwords"
         );
 
         // Send a POST request to login
@@ -121,18 +101,7 @@ class AuthenticationIT {
     @Transactional
     void itShouldLoginAfterResettingCustomerPassword() {
         // Create customer registration request
-        Faker faker = new Faker();
-
-        String firstName = faker.name().firstName();
-        String lastName = faker.name().lastName();
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
-        String password = "password";
-        int age = faker.number().numberBetween(18, 80);
-        Gender gender = Gender.MALE;
-
-        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                firstName, lastName, email, password, age, gender
-        );
+        CustomerRegistrationRequest customerRegistrationRequest = buildCustomerRegistrationRequest();
 
         // Send a POST request to register customer and retrieve the JWT
         String jwtToken = Objects.requireNonNull(webTestClient.post()
@@ -148,7 +117,7 @@ class AuthenticationIT {
 
         // Send a GET request to retrieve the registered customer
         CustomerDTO responseBody = webTestClient.get()
-                .uri(CUSTOMER_PATH + "/email/{customerEmail}", email)
+                .uri(CUSTOMER_PATH + "/email/{customerEmail}", customerRegistrationRequest.email())
                 .accept(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .exchange()
@@ -179,7 +148,7 @@ class AuthenticationIT {
 
         // Create authentication request
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                email, newPassword
+                customerRegistrationRequest.email(), newPassword
         );
 
         // Send a POST request to verify the user can login after resetting their password
@@ -191,5 +160,20 @@ class AuthenticationIT {
                 .exchange()
                 .expectStatus()
                 .isOk();
+    }
+
+    private CustomerRegistrationRequest buildCustomerRegistrationRequest() {
+        Faker faker = new Faker();
+
+        String firstName = faker.name().firstName();
+        String lastName = faker.name().lastName();
+        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
+        String password = "password";
+        int age = faker.number().numberBetween(18, 80);
+        Gender gender = Gender.MALE;
+
+        return new CustomerRegistrationRequest(
+                firstName, lastName, email, password, age, gender
+        );
     }
 }

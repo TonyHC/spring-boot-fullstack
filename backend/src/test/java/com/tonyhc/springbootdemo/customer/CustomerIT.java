@@ -1,6 +1,7 @@
 package com.tonyhc.springbootdemo.customer;
 
 import com.github.javafaker.Faker;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,59 +40,24 @@ class CustomerIT {
     @Transactional
     void itShouldFindExistingCustomerWhenEmailExists() {
         // Create customer registration request
-        Faker faker = new Faker();
-
-        String firstName = faker.name().firstName();
-        String lastName = faker.name().lastName();
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
-        String password = "password";
-        int age = faker.number().numberBetween(18, 80);
-        Gender gender = Gender.MALE;
-
-        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                firstName, lastName, email, password, age, gender
-        );
+        CustomerRegistrationRequest customerRegistrationRequest = buildCustomerRegistrationRequest(true);
 
         // Send a POST request to register customer and retrieve the JWT
-        String jwtToken = Objects.requireNonNull(webTestClient.post()
-                .uri(CUSTOMER_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(customerRegistrationRequest), CustomerRegistrationRequest.class)
-                .exchange()
-                .expectStatus().isOk()
-                .returnResult(Void.class)
-                .getResponseHeaders()
-                .get(AUTHORIZATION)).get(0);
+        String jwtToken = findToken(customerRegistrationRequest);
 
         // Send a GET request to retrieve last five customers
-        List<CustomerDTO> responseBody = webTestClient.get()
-                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
-                .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(new ParameterizedTypeReference<CustomerDTO>() {
-                })
-                .returnResult()
-                .getResponseBody();
+        List<CustomerDTO> responseBody = findPageOfCustomers(jwtToken);
 
         // Assert Customer was inserted into DB
-        Long customerId = Objects.requireNonNull(responseBody).stream()
-                .filter(customer -> customer.email().equals(email))
-                .map(CustomerDTO::id)
-                .findFirst()
-                .orElseThrow();
+        Long customerId = findCustomerId(customerRegistrationRequest, responseBody);
 
-        CustomerDTO expectedCustomer = new CustomerDTO(
-                customerId, firstName, lastName, email, age, gender, null, List.of("ROLE_USER"),
-                email);
+        CustomerDTO expectedCustomer = buildCustomerDTO(customerId, customerRegistrationRequest, customerRegistrationRequest.age());
 
         assertThat(responseBody).contains(expectedCustomer);
 
         // Send GET request to verify customer was registered
         webTestClient.get()
-                .uri(CUSTOMER_PATH + "/email/{customerEmail}", email)
+                .uri(CUSTOMER_PATH + "/email/{customerEmail}", customerRegistrationRequest.email())
                 .accept(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .exchange()
@@ -105,42 +71,13 @@ class CustomerIT {
     @Transactional
     void itShouldFindPageOfCustomers() {
         // Create customer registration request
-        Faker faker = new Faker();
-
-        String firstName = faker.name().firstName();
-        String lastName = faker.name().lastName();
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
-        String password = "password";
-        int age = faker.number().numberBetween(18, 80);
-        Gender gender = Gender.MALE;
-
-        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                firstName, lastName, email, password, age, gender
-        );
+        CustomerRegistrationRequest customerRegistrationRequest = buildCustomerRegistrationRequest(true);
 
         // Send a POST request to register customer and retrieve the JWT
-        String jwtToken = Objects.requireNonNull(webTestClient.post()
-                .uri(CUSTOMER_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(customerRegistrationRequest), CustomerRegistrationRequest.class)
-                .exchange()
-                .expectStatus().isOk()
-                .returnResult(Void.class)
-                .getResponseHeaders()
-                .get(AUTHORIZATION)).get(0);
+        String jwtToken = findToken(customerRegistrationRequest);
 
         // Send a GET request to retrieve last five customers
-        List<CustomerDTO> responseBody = webTestClient.get()
-                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
-                .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(new ParameterizedTypeReference<CustomerDTO>() {
-                })
-                .returnResult()
-                .getResponseBody();
+        List<CustomerDTO> responseBody = findPageOfCustomers(jwtToken);
 
         // Create CustomerPageDTO
         PaginationUtil paginationUtil = new PaginationUtil();
@@ -191,54 +128,18 @@ class CustomerIT {
     @Transactional
     void itShouldRegisterNewCustomer() {
         // Create customer registration request
-        Faker faker = new Faker();
-
-        String firstName = faker.name().firstName();
-        String lastName = faker.name().lastName();
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
-        String password = "password";
-        int age = faker.number().numberBetween(18, 80);
-        Gender gender = Gender.MALE;
-
-        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                firstName, lastName, email, password, age, gender
-        );
+        CustomerRegistrationRequest customerRegistrationRequest = buildCustomerRegistrationRequest(true);
 
         // Send a POST request to register customer and retrieve the JWT
-        String jwtToken = Objects.requireNonNull(webTestClient.post()
-                .uri(CUSTOMER_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(customerRegistrationRequest), CustomerRegistrationRequest.class)
-                .exchange()
-                .expectStatus().isOk()
-                .returnResult(Void.class)
-                .getResponseHeaders()
-                .get(AUTHORIZATION)).get(0);
+        String jwtToken = findToken(customerRegistrationRequest);
 
         // Send a GET request to retrieve last five customers
-        List<CustomerDTO> responseBody = webTestClient.get()
-                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
-                .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(new ParameterizedTypeReference<CustomerDTO>() {
-                })
-                .returnResult()
-                .getResponseBody();
+        List<CustomerDTO> responseBody = findPageOfCustomers(jwtToken);
 
         // Assert Customer was inserted into DB
-        Long customerId = Objects.requireNonNull(responseBody).stream()
-                .filter(customer -> customer.email().equals(email))
-                .map(CustomerDTO::id)
-                .findFirst()
-                .orElseThrow();
+        Long customerId = findCustomerId(customerRegistrationRequest, responseBody);
 
-        CustomerDTO expectedCustomer = new CustomerDTO(
-                customerId, firstName, lastName, email, age, gender,
-                null, List.of("ROLE_USER"), email
-        );
+        CustomerDTO expectedCustomer = buildCustomerDTO(customerId, customerRegistrationRequest, customerRegistrationRequest.age());
 
         assertThat(responseBody).contains(expectedCustomer);
 
@@ -257,19 +158,7 @@ class CustomerIT {
     @Test
     @Transactional
     void itShouldNotRegisterCustomerWhenInvalidEmailSent() {
-        // Create customer registration request
-        Faker faker = new Faker();
-
-        String firstName = faker.name().firstName();
-        String lastName = faker.name().lastName();
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@usa_gov.com";
-        String password = "password";
-        int age = faker.number().numberBetween(18, 80);
-        Gender gender = Gender.MALE;
-
-        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                firstName, lastName, email, password, age, gender
-        );
+        CustomerRegistrationRequest customerRegistrationRequest = buildCustomerRegistrationRequest(false);
 
         // Send a POST request to register customer
         webTestClient.post()
@@ -284,53 +173,19 @@ class CustomerIT {
     @Test
     @Transactional
     void itShouldUpdateCustomer() {
-        // Create customer registration request
-        Faker faker = new Faker();
-
-        String firstName = faker.name().firstName();
-        String lastName = faker.name().lastName();
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
-        String password = "password";
-        int age = faker.number().numberBetween(18, 80);
-        Gender gender = Gender.MALE;
-
-        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                firstName, lastName, email, password, age, gender
-        );
+        CustomerRegistrationRequest customerRegistrationRequest = buildCustomerRegistrationRequest(true);
 
         // Send a POST request to register customer and retrieve the JWT
-        String jwtToken = Objects.requireNonNull(webTestClient.post()
-                .uri(CUSTOMER_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(customerRegistrationRequest), CustomerRegistrationRequest.class)
-                .exchange()
-                .expectStatus().isOk()
-                .returnResult(Void.class)
-                .getResponseHeaders()
-                .get(AUTHORIZATION)).get(0);
+        String jwtToken = findToken(customerRegistrationRequest);
 
         // Send a GET request to retrieve last five customers
-        List<CustomerDTO> responseBody = webTestClient.get()
-                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
-                .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(new ParameterizedTypeReference<CustomerDTO>() {
-                })
-                .returnResult()
-                .getResponseBody();
+        List<CustomerDTO> responseBody = findPageOfCustomers(jwtToken);
 
         // Assert Customer was inserted into DB
-        Long customerId = Objects.requireNonNull(responseBody).stream()
-                .filter(customer -> customer.email().equals(email))
-                .map(CustomerDTO::id)
-                .findFirst()
-                .orElseThrow();
+        Long customerId = findCustomerId(customerRegistrationRequest, responseBody);
 
         // Create customer update request to update only the age field
-        int updatedAge = faker.number().numberBetween(18, 80);
+        int updatedAge = new Faker().number().numberBetween(18, 80);
 
         CustomerUpdateRequest customerUpdateRequest = new CustomerUpdateRequest(
                 null, null, null, updatedAge, null
@@ -347,10 +202,7 @@ class CustomerIT {
                 .expectStatus().isOk();
 
         // Send GET request to verify customer was updated
-        CustomerDTO expectedUpdatedCustomer = new CustomerDTO(
-                customerId, firstName, lastName, email, updatedAge, gender,
-                null, List.of("ROLE_USER"), email
-        );
+        CustomerDTO expectedUpdatedCustomer = buildCustomerDTO(customerId, customerRegistrationRequest, updatedAge);
 
         CustomerDTO actual = webTestClient.get()
                 .uri(CUSTOMER_PATH + "/{customerId}", customerId)
@@ -369,65 +221,19 @@ class CustomerIT {
     @Test
     @Transactional
     void itShouldDeleteCustomer() {
-        // Create customer registration request
-        Faker faker = new Faker();
-
-        String firstName = faker.name().firstName();
-        String lastName = faker.name().lastName();
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
-        String password = "password";
-        int age = faker.number().numberBetween(18, 80);
-        Gender gender = Gender.MALE;
-
-        CustomerRegistrationRequest customerRegistrationRequestOne = new CustomerRegistrationRequest(
-                firstName, lastName, email, password, age, gender
-        );
-
-        CustomerRegistrationRequest customerRegistrationRequestTwo = new CustomerRegistrationRequest(
-                firstName, lastName, email + "s", password, age, gender
-        );
+        CustomerRegistrationRequest customerRegistrationRequestOne = buildCustomerRegistrationRequest(true);
+        CustomerRegistrationRequest customerRegistrationRequestTwo = buildCustomerRegistrationRequest(true);
 
         // Send a POST request to register customer to be deleted later
-        Objects.requireNonNull(webTestClient.post()
-                .uri(CUSTOMER_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(customerRegistrationRequestOne), CustomerRegistrationRequest.class)
-                .exchange()
-                .expectStatus().isOk()
-                .returnResult(Void.class)
-                .getResponseHeaders()
-                .get(AUTHORIZATION)).get(0);
+        findToken(customerRegistrationRequestOne);
 
         // Send a POST request to register customer and retrieve the JWT
-        String jwtToken = Objects.requireNonNull(webTestClient.post()
-                .uri(CUSTOMER_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(customerRegistrationRequestTwo), CustomerRegistrationRequest.class)
-                .exchange()
-                .expectStatus().isOk()
-                .returnResult(Void.class)
-                .getResponseHeaders()
-                .get(AUTHORIZATION)).get(0);
+        String jwtToken = findToken(customerRegistrationRequestTwo);
 
         // Send a GET request to retrieve last five customers
-        List<CustomerDTO> responseBody = webTestClient.get()
-                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
-                .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(new ParameterizedTypeReference<CustomerDTO>() {
-                })
-                .returnResult()
-                .getResponseBody();
+        List<CustomerDTO> responseBody = findPageOfCustomers(jwtToken);
 
-        Long customerId = Objects.requireNonNull(responseBody).stream()
-                .filter(customer -> customer.email().equals(email))
-                .map(CustomerDTO::id)
-                .findFirst()
-                .orElseThrow();
+        Long customerId = findCustomerId(customerRegistrationRequestOne, responseBody);
 
         // Send DELETE request to verify customer registered above was deleted
         webTestClient.delete()
@@ -450,53 +256,21 @@ class CustomerIT {
     @Transactional
     void itShouldUploadAndDownloadCustomerProfileImageUsingS3() throws IOException {
         // Create customer registration request
-        Faker faker = new Faker();
-
-        String firstName = faker.name().firstName();
-        String lastName = faker.name().lastName();
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
-        String password = "password";
-        int age = faker.number().numberBetween(18, 80);
-        Gender gender = Gender.MALE;
-
-        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                firstName, lastName, email, password, age, gender
-        );
+        CustomerRegistrationRequest customerRegistrationRequest = buildCustomerRegistrationRequest(true);
 
         // Send a POST request to register customer and retrieve the JWT
-        String jwtToken = Objects.requireNonNull(webTestClient.post()
-                .uri(CUSTOMER_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(customerRegistrationRequest), CustomerRegistrationRequest.class)
-                .exchange()
-                .expectStatus().isOk()
-                .returnResult(Void.class)
-                .getResponseHeaders()
-                .get(AUTHORIZATION)).get(0);
+        String jwtToken = findToken(customerRegistrationRequest);
 
         // Send a GET request to retrieve last five customers
-        List<CustomerDTO> responseBody = webTestClient.get()
-                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
-                .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(new ParameterizedTypeReference<CustomerDTO>() {
-                })
-                .returnResult()
-                .getResponseBody();
+        List<CustomerDTO> responseBody = findPageOfCustomers(jwtToken);
 
         // Assert Customer profile image is blank
-        CustomerDTO customerDTO = Objects.requireNonNull(responseBody).stream()
-                .filter(customer -> customer.email().equals(email))
-                .findFirst()
-                .orElseThrow();
+        CustomerDTO customerDTO = findCustomerDTOByEmail(customerRegistrationRequest, responseBody);
 
         assertThat(customerDTO.profileImage()).isNullOrEmpty();
 
         // Load the profile image from test resources directory
-        Resource image = new ClassPathResource("%s.jpg".formatted(gender.name().toLowerCase()));
+        Resource image = new ClassPathResource("%s.jpg".formatted(customerRegistrationRequest.gender().name().toLowerCase()));
 
         MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
         multipartBodyBuilder.part("file", image);
@@ -543,55 +317,23 @@ class CustomerIT {
 
     @Test
     @Transactional
-    void itShouldUploadAndDownloadCustomerProfileImageUsingCloudinary() throws IOException {
+    void itShouldUploadAndDownloadCustomerProfileImageUsingCloudinary() {
         // Create customer registration request
-        Faker faker = new Faker();
-
-        String firstName = faker.name().firstName();
-        String lastName = faker.name().lastName();
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
-        String password = "password";
-        int age = faker.number().numberBetween(18, 80);
-        Gender gender = Gender.FEMALE;
-
-        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                firstName, lastName, email, password, age, gender
-        );
+        CustomerRegistrationRequest customerRegistrationRequest = buildCustomerRegistrationRequest(true);
 
         // Send a POST request to register customer and retrieve the JWT
-        String jwtToken = Objects.requireNonNull(webTestClient.post()
-                .uri(CUSTOMER_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(customerRegistrationRequest), CustomerRegistrationRequest.class)
-                .exchange()
-                .expectStatus().isOk()
-                .returnResult(Void.class)
-                .getResponseHeaders()
-                .get(AUTHORIZATION)).get(0);
+        String jwtToken = findToken(customerRegistrationRequest);
 
         // Send a GET request to retrieve last five customers
-        List<CustomerDTO> responseBody = webTestClient.get()
-                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
-                .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(new ParameterizedTypeReference<CustomerDTO>() {
-                })
-                .returnResult()
-                .getResponseBody();
+        List<CustomerDTO> responseBody = findPageOfCustomers(jwtToken);
 
         // Assert Customer profile image is blank
-        CustomerDTO customerDTO = Objects.requireNonNull(responseBody).stream()
-                .filter(customer -> customer.email().equals(email))
-                .findFirst()
-                .orElseThrow();
+        CustomerDTO customerDTO = findCustomerDTOByEmail(customerRegistrationRequest, responseBody);
 
         assertThat(customerDTO.profileImage()).isNullOrEmpty();
 
         // Load the profile image from test resources directory
-        Resource image = new ClassPathResource("%s.jpg".formatted(gender.name().toLowerCase()));
+        Resource image = new ClassPathResource("%s.jpg".formatted(customerRegistrationRequest.gender().name().toLowerCase()));
 
         MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
         multipartBodyBuilder.part("file", image);
@@ -626,34 +368,14 @@ class CustomerIT {
     @Transactional
     void itShouldNotResetCustomerPasswordWhenNewPasswordUsedPreviously() {
         // Create customer registration request
-        Faker faker = new Faker();
-
-        String firstName = faker.name().firstName();
-        String lastName = faker.name().lastName();
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
-        String password = "password";
-        int age = faker.number().numberBetween(18, 80);
-        Gender gender = Gender.MALE;
-
-        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                firstName, lastName, email, password, age, gender
-        );
+        CustomerRegistrationRequest customerRegistrationRequest = buildCustomerRegistrationRequest(true);
 
         // Send a POST request to register customer and retrieve the JWT
-        String jwtToken = Objects.requireNonNull(webTestClient.post()
-                .uri(CUSTOMER_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(customerRegistrationRequest), CustomerRegistrationRequest.class)
-                .exchange()
-                .expectStatus().isOk()
-                .returnResult(Void.class)
-                .getResponseHeaders()
-                .get(AUTHORIZATION)).get(0);
+        String jwtToken = findToken(customerRegistrationRequest);
 
         // Send a GET request to retrieve the registered customer
         CustomerDTO responseBody = webTestClient.get()
-                .uri(CUSTOMER_PATH + "/email/{customerEmail}", email)
+                .uri(CUSTOMER_PATH + "/email/{customerEmail}", customerRegistrationRequest.email())
                 .accept(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .exchange()
@@ -687,34 +409,14 @@ class CustomerIT {
     @Transactional
     void itShouldNotResetCustomerPasswordWhenCustomerResetPasswordRequestIsInvalid() {
         // Create customer registration request
-        Faker faker = new Faker();
-
-        String firstName = faker.name().firstName();
-        String lastName = faker.name().lastName();
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
-        String password = "password";
-        int age = faker.number().numberBetween(18, 80);
-        Gender gender = Gender.MALE;
-
-        CustomerRegistrationRequest customerRegistrationRequest = new CustomerRegistrationRequest(
-                firstName, lastName, email, password, age, gender
-        );
+        CustomerRegistrationRequest customerRegistrationRequest = buildCustomerRegistrationRequest(true);
 
         // Send a POST request to register customer and retrieve the JWT
-        String jwtToken = Objects.requireNonNull(webTestClient.post()
-                .uri(CUSTOMER_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(customerRegistrationRequest), CustomerRegistrationRequest.class)
-                .exchange()
-                .expectStatus().isOk()
-                .returnResult(Void.class)
-                .getResponseHeaders()
-                .get(AUTHORIZATION)).get(0);
+        String jwtToken = getJwtToken(customerRegistrationRequest);
 
         // Send a GET request to retrieve the registered customer
         CustomerDTO responseBody = webTestClient.get()
-                .uri(CUSTOMER_PATH + "/email/{customerEmail}", email)
+                .uri(CUSTOMER_PATH + "/email/{customerEmail}", customerRegistrationRequest.email())
                 .accept(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .exchange()
@@ -742,5 +444,81 @@ class CustomerIT {
                 .body(Mono.just(customerResetPasswordRequest), CustomerResetPasswordRequest.class)
                 .exchange()
                 .expectStatus().isBadRequest();
+    }
+
+    private String findToken(CustomerRegistrationRequest customerRegistrationRequest) {
+        return Objects.requireNonNull(webTestClient.post()
+                .uri(CUSTOMER_PATH)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(customerRegistrationRequest), CustomerRegistrationRequest.class)
+                .exchange()
+                .expectStatus().isOk()
+                .returnResult(Void.class)
+                .getResponseHeaders()
+                .get(AUTHORIZATION)).get(0);
+    }
+
+    private static Long findCustomerId(CustomerRegistrationRequest customerRegistrationRequest, List<CustomerDTO> responseBody) {
+        return Objects.requireNonNull(responseBody).stream()
+                .filter(customer -> customer.email().equals(customerRegistrationRequest.email()))
+                .map(CustomerDTO::id)
+                .findFirst()
+                .orElseThrow();
+    }
+
+    private static CustomerDTO findCustomerDTOByEmail(CustomerRegistrationRequest customerRegistrationRequest, List<CustomerDTO> responseBody) {
+        return Objects.requireNonNull(responseBody).stream()
+                .filter(customer -> customer.email().equals(customerRegistrationRequest.email()))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    private String getJwtToken(CustomerRegistrationRequest customerRegistrationRequest) {
+        return findToken(customerRegistrationRequest);
+    }
+
+    private CustomerRegistrationRequest buildCustomerRegistrationRequest(boolean valid) {
+        Faker faker = new Faker();
+
+        String firstName = faker.name().firstName();
+        String lastName = faker.name().lastName();
+        String email = valid ? firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com" :
+                firstName.toLowerCase() + "." + lastName.toLowerCase() + "@usa_gov.com";
+        String password = "password";
+        int age = faker.number().numberBetween(18, 80);
+        Gender gender = Gender.MALE;
+
+        return new CustomerRegistrationRequest(
+                firstName, lastName, email, password, age, gender
+        );
+    }
+
+    private CustomerDTO buildCustomerDTO(Long customerId, CustomerRegistrationRequest customerRegistrationRequest,
+                                         Integer customerRegistrationAge) {
+        return new CustomerDTO(
+                customerId,
+                customerRegistrationRequest.firstName(),
+                customerRegistrationRequest.lastName(),
+                customerRegistrationRequest.email(),
+                customerRegistrationAge,
+                customerRegistrationRequest.gender(),
+                null,
+                List.of("ROLE_USER"),
+                customerRegistrationRequest.email()
+        );
+    }
+
+    private List<CustomerDTO> findPageOfCustomers(String jwtToken) {
+        return webTestClient.get()
+                .uri(uriBuilder -> uriBuilder.path(CUSTOMER_PATH).queryParam("size", 5).build())
+                .accept(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(new ParameterizedTypeReference<CustomerDTO>() {
+                })
+                .returnResult()
+                .getResponseBody();
     }
 }
