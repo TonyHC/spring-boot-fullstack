@@ -3,13 +3,16 @@ package com.tonyhc.springbootdemo.customer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 class CustomerJPADataAccessServiceTest {
     private AutoCloseable autoCloseable;
 
@@ -115,9 +118,7 @@ class CustomerJPADataAccessServiceTest {
     @Test
     void itShouldRegisterCustomer() {
         // Given
-        Customer customer = new Customer(
-                "Test", "Users", "testusers@mail.com", "password", 41, Gender.MALE
-        );
+        Customer customer = buildCustomer();
 
         // When
         underTest.registerCustomer(customer);
@@ -129,9 +130,7 @@ class CustomerJPADataAccessServiceTest {
     @Test
     void itShouldUpdateCustomerById() {
         // Given
-        Customer customer = new Customer(
-                "Test", "Users", "testusers@mail.com", "password", 41, Gender.MALE
-        );
+        Customer customer = buildCustomer();
 
         // When
         underTest.updateCustomer(customer);
@@ -176,5 +175,11 @@ class CustomerJPADataAccessServiceTest {
 
         // Then
         verify(customerRepository).resetCustomerPassword(updatedPassword, customerId);
+    }
+
+    private Customer buildCustomer() {
+        return new Customer(
+                "Test", "Users", "testusers@mail.com", "password", 41, Gender.MALE
+        );
     }
 }

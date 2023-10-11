@@ -65,11 +65,7 @@ class S3ServiceTest {
         String key = "key";
         byte[] file = "test".getBytes();
 
-        GetObjectRequest objectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .build();
-
+        GetObjectRequest objectRequest = buildGetObjectRequest(bucketName, key);
         ResponseInputStream<GetObjectResponse> response = mock(ResponseInputStream.class);
 
         when(response.readAllBytes()).thenReturn(file);
@@ -88,11 +84,7 @@ class S3ServiceTest {
         String bucketName = "bucketName";
         String key = "key";
 
-        GetObjectRequest objectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .build();
-
+        GetObjectRequest objectRequest = buildGetObjectRequest(bucketName, key);
         ResponseInputStream<GetObjectResponse> response = mock(ResponseInputStream.class);
 
         when(response.readAllBytes()).thenThrow(new IOException("Cannot read bytes"));
@@ -104,5 +96,12 @@ class S3ServiceTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Cannot read bytes")
                 .hasRootCauseInstanceOf(IOException.class);
+    }
+
+    private GetObjectRequest buildGetObjectRequest(String bucketName, String key) {
+        return GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
     }
 }
